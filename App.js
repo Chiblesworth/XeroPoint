@@ -2,6 +2,7 @@
 import { React } from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import LoginScreen from './components/LoginScreen';
+import MainScreen from './components/MainScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -15,6 +16,12 @@ const AppNavigator = createStackNavigator({
 			header: null,
 		}
 	},
+	Main: {
+		screen: MainScreen,
+		navigationOptions: {
+			header: null,
+		}
+	}
 });
 
 export default createAppContainer(AppNavigator);
