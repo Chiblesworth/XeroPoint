@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { View, Text, Button, StyleSheet } from "react-native";
 
-export default class MainScreen extends React.Component {
+export default class MainScreen extends Component {
     static navigationOptions = {
 	};
 

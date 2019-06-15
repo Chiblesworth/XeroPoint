@@ -1,9 +1,22 @@
-import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { Component } from 'react';
+import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import SwitchComponent from './SwitchComponent';
 
-export default class LoginScreen extends React.Component {
+export default class LoginScreen extends Component {
+	constructor(props){
+		super(props);
+
+		this.state = {
+			switchValue: false
+		};
+	}
+
 	static navigationOptions = {
 	};
+
+	toggleSwitch = (value) => {
+		this.setState({switchValue: value});
+	}
 
 	render() {
 		const {navigate} = this.props.navigation;
@@ -12,6 +25,25 @@ export default class LoginScreen extends React.Component {
 			<View style={styles.container}>
 				<View style={styles.loginTextSection}>
 					<Text>On LoginScreen</Text>
+				</View>
+				<View style={styles.loginFormSection}>
+					<TextInput 
+						style={styles.textField}
+						placeholder="Username"
+						underlineColorAndroid="transparent"
+					/>
+					<TextInput 
+						style={styles.textField}
+						placeholder="Password"
+						underlineColorAndroid="transparent"
+					/>
+				</View>
+				<View style={styles.rememberMeSection}>
+					<Text>Hello</Text>
+					<SwitchComponent
+						toggleSwitch={this.toggleSwitch}
+						switchValue={this.state.switchValue}
+					/>
 				</View>
 				<View>
 					<Button 
@@ -33,5 +65,19 @@ const styles = StyleSheet.create({
 	},
 	loginTextSection: {
 		marginBottom: 25,
+	},
+	loginFormSection: {
+		width: '80%',
+		marginBottom: 15
+	},
+	rememberMeSection: {
+		flexDirection: 'row'
+	},
+	textField: {
+		height: 45,
+		borderColor: 'gray',
+		borderWidth: 2,
+		borderRadius: 10,
+		marginBottom: 10
 	}
 });
