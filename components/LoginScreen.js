@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, Linking, StyleSheet } from "react-native";
 import SwitchComponent from './SwitchComponent';
 
 export default class LoginScreen extends Component {
@@ -38,11 +38,32 @@ export default class LoginScreen extends Component {
 						underlineColorAndroid="transparent"
 					/>
 				</View>
+				<View style={styles.policyTextSection}>
+					<Text style={styles.policyText}>
+						By signing up you accept the Terms of {" "}
+						<Text 
+							style={styles.policyLinks}
+							onPress={() => Linking.openURL('https://google.com')}
+						>
+							Terms of Serive {" "}
+						</Text>
+						and our {" "} 
+						<Text style={styles.policyLinks}>
+							Privacy Policy
+						</Text>
+					</Text>
+				</View>
 				<View style={styles.rememberMeSection}>
-					<Text>Hello</Text>
+					<Text style={styles.rememberMeText}>Keep Me Signed In</Text>
 					<SwitchComponent
+						style={styles.rememberMeSwitch}
 						toggleSwitch={this.toggleSwitch}
 						switchValue={this.state.switchValue}
+					/>
+				</View>
+				<View style={styles.signInButton}>
+					<Button
+						title="Sign In"
 					/>
 				</View>
 				<View>
@@ -67,17 +88,45 @@ const styles = StyleSheet.create({
 		marginBottom: 25,
 	},
 	loginFormSection: {
-		width: '80%',
-		marginBottom: 15
+		width: '80%'
+	},
+	policyTextSection: {
+		marginLeft: 45,
+		marginBottom: 25
+	},
+	policyText: {
+		color: 'black',
+		fontSize: 15
+	},
+	policyLinks: {
+		color: 'blue',
+		fontSize: 15
 	},
 	rememberMeSection: {
-		flexDirection: 'row'
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginLeft: 50,
+		marginRight: 50,
+		marginBottom: 20
+	},
+	rememberMeText: {
+		flex: 1,
+		fontSize: 20,
+		color: 'black'
+	},
+	rememberMeSwitch: {
+		flex: 1,
 	},
 	textField: {
-		height: 45,
+		height: 60,
 		borderColor: 'gray',
 		borderWidth: 2,
 		borderRadius: 10,
-		marginBottom: 10
+		marginBottom: 10,
+		fontSize: 18
+	},
+	signInButton: {
+		width: '80%',
+		height: 60
 	}
 });
