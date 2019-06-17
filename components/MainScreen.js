@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Button, StyleSheet } from "react-native";
+import NumberPad from './NumberPad';
 
 export default class MainScreen extends Component {
     static navigationOptions = {
@@ -14,10 +15,7 @@ export default class MainScreen extends Component {
                     <Text>On MainScreen</Text>
                 </View>
                 <View>
-                    <Button
-                        title="Back to Login"
-						onPress={() => navigate('Login')}
-                    />
+                    <NumberPad />
                 </View>
             </View>
         );
