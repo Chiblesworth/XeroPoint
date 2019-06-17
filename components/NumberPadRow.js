@@ -7,6 +7,7 @@ export default class NumberPadRow extends Component {
     }
 
     render() {
+        //Array that holds the each button represented as a column
         const columns = [];
 
         for(const [index, value] of this.props.rowNumbers.entries()){

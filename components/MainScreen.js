@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, Button, StyleSheet } from "react-native";
 import NumberPad from './NumberPad';
 
+//Am going to need to find a way have number pad communicate with the main text on screen
 export default class MainScreen extends Component {
     static navigationOptions = {
 	};
