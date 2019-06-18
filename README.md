@@ -4,7 +4,7 @@ needed from Processing Solutions.
 
 It is built with React-Native. React Native was chosen because of my previous experience with React for web applications. Also, I was more interested in making a true Native application rather than a website with a native wrapper.
 
-#Some Libraries Used and Link to Docs
+# Some Libraries Used and Link to Docs
 (Version number taken straight from the package.json file)
 --React: https://reactjs.org/docs/getting-started.html
 Version: 16.8.3
