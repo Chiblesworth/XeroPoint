@@ -15,6 +15,8 @@ export default class NumberPadRow extends Component {
         const refundIcon = <RefundIcon style={styles.icon} name="plus-minus" size={55} />
 
         for(const [index, value] of this.props.rowNumbers.entries()){
+            //Doesn't look perfect, but basically checks if the value
+            //Is the either of the two icon buttons and then renders accordinally
             if((value === "refund") || (value === "delete")){
                 if(value === "refund"){
                     columns.push(
@@ -59,10 +61,10 @@ const styles = StyleSheet.create({
     padButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: 100,
-        height: 100,
-        borderWidth: 1,
-        borderColor: 'black'
+        width: 115,
+        height: 110,
+        // borderWidth: 1,
+        // borderColor: 'black'
     },
     buttonText: {
         fontSize: 50
