@@ -13,9 +13,10 @@ export default class NumberPad extends Component {
   	render() {
 		return (
     		<View>
-        		<NumberPadRow rowNumbers={["1","2","3"]}/>
-				<NumberPadRow rowNumbers={["4","5","6"]}/>
-				<NumberPadRow rowNumbers={["7","8","9"]}/>
+        		<NumberPadRow handlePress={this.props.handlePress} rowNumbers={["1","2","3"]}/>
+				<NumberPadRow handlePress={this.props.handlePress} rowNumbers={["4","5","6"]}/>
+				<NumberPadRow handlePress={this.props.handlePress} rowNumbers={["7","8","9"]}/>
+				<NumberPadRow handlePress={this.props.handlePress} rowNumbers={["refund","0","delete"]}/>
       		</View>
 		);
 	}
