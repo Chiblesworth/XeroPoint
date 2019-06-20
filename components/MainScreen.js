@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import NumberPad from './NumberPad';
 import accounting from 'accounting';
-import { Header, Icon } from 'react-native-elements';
+import { Header } from 'react-native-elements';
+import HeaderIcon from './HeaderIcon';
 
 export default class MainScreen extends Component {
     constructor(props){
@@ -12,16 +13,17 @@ export default class MainScreen extends Component {
             buttonPressed: false,
             numbersPressed: "",
             amount: "0.00",
-            amountFontColor: "gray", //Color depends if refund is selected.
+            amountFontColor: "white", //Color depends if refund is selected.
             refundSelected: false
         }
 
-        this.handleButtonPress = this.handleButtonPress.bind(this);
+        this.handleNumberPadPress = this.handleNumberPadPress.bind(this);
         this.formatNumbersPressed = this.formatNumbersPressed.bind(this);
         this.handleRefundChange = this.handleRefundChange.bind(this);
+        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
     }
 
-    handleButtonPress(valueGotBack){
+    handleNumberPadPress(valueGotBack){
         let newNumbersPressed = "";
 
         if(Number(valueGotBack) >= 0){
@@ -52,29 +54,37 @@ export default class MainScreen extends Component {
 
     handleRefundChange(){
         if(this.state.refundSelected){
-            this.setState({refundSelected: false, amountFontColor: "gray"});
+            this.setState({refundSelected: false, amountFontColor: "white"});
         }
         else{
             this.setState({refundSelected: true, amountFontColor: "red"});
         }
     }
 
+    handleHeaderIconPress(iconPushed){
+        console.log("Pressed " + iconPushed);
+    }
+
     render() {
         const {navigate} = this.props.navigation;
         
         return (
-            <View>
+            <View style={styles.mainContainer}>
                 <View style={styles.header}>
-                    <Header 
-                        // leftComponent={
-                        //     {icon: 'menu',
-                        //      size: 70,
-                        //      paddingBottom: 40
-                        //     }
-                            
-                        // }
-                        leftComponent={MenuIcon}
-                    />
+                    <Header backgroundColor="#808080">
+                        <HeaderIcon 
+                            name="menu"
+                            type="entypo"
+                            handlePress={this.handleHeaderIconPress} 
+                        />
+                        {/*Text tag is here because header needs a center component*/}
+                        <Text></Text>
+                        <HeaderIcon 
+                            name="dollar"
+                            type="font-awesome"
+                            handlePress={this.handleHeaderIconPress}
+                        />
+                    </Header>
                 </View>
                 <View style={styles.container}>
                     <View style={styles.mainScreenTextSection}>
@@ -87,7 +97,7 @@ export default class MainScreen extends Component {
                         </Text>
                     </View>
                     <View style={styles.numberPad}>
-                        <NumberPad handlePress={this.handleButtonPress}/>
+                        <NumberPad handlePress={this.handleNumberPadPress}/>
                     </View>
                 </View>
             </View>
@@ -97,12 +107,19 @@ export default class MainScreen extends Component {
 
 //Styles
 const styles = StyleSheet.create({
+    mainContainer: {
+        height: '100%',
+        backgroundColor: '#808080'
+    },
     container: {
 		justifyContent: 'center',
-		alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#808080'
     },
     header: {
-        width: '100%'
+        width: '100%',
+        height: 70,
+        backgroundColor: '#808080'
     },
     mainScreenTextSection: {
         marginBottom: 15
@@ -112,15 +129,9 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     icon: {
-        paddingBottom: 400
+        color: 'white'
+    },
+    numberPad: {
+        color: 'white'
     },
 });
-
-const MenuIcon = <Icon
-                    name="menu"
-                    type="entypo"
-                    size={70}
-                    style={styles.icon}
-                    iconStyle={{paddingBottom: 40}}
-                    onPress={() => console.log("Pressed the icon")}
-                 />

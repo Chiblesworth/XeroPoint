@@ -11,8 +11,8 @@ export default class NumberPadRow extends Component {
     render() {
         //Array that holds the each button represented as a column
         const columns = [];
-        const deleteIcon = <DeleteIcon style={styles.icon} name="arrowleft" size={50} />
-        const refundIcon = <RefundIcon style={styles.icon} name="plus-minus" size={55} />
+        const deleteIcon = <DeleteIcon style={styles.icon} color="white" name="arrowleft" size={50} />
+        const refundIcon = <RefundIcon style={styles.icon} color="white" name="plus-minus" size={55} />
 
         for(const [index, value] of this.props.rowNumbers.entries()){
             //Doesn't look perfect, but basically checks if the value
@@ -63,10 +63,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: 115,
         height: 110,
-        // borderWidth: 1,
-        // borderColor: 'black'
+        color: 'white'
     },
     buttonText: {
+        color: 'white',
         fontSize: 50
     }
 });
