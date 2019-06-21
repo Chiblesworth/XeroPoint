@@ -65,7 +65,7 @@ export default class MainScreen extends Component {
 
     handleHeaderIconPress(iconPushed) {
         if(iconPushed === "dollar"){
-            if(Number(this.state.amount) === 0){
+            if(Number(this.state.amount) === 0 || this.state.amount === "$0.00"){
                 this.showAlert();
             }
             else{
@@ -137,8 +137,7 @@ const styles = StyleSheet.create({
     },
     header: {
         width: '100%',
-        height: 70,
-        //backgroundColor: '#808080'
+        height: 70
     },
     mainScreenTextSection: {
         marginBottom: 15
@@ -152,8 +151,5 @@ const styles = StyleSheet.create({
     },
     numberPad: {
         color: 'white'
-    },
-    alertBox: {
-        backgroundColor: 'white'
-    },
+    }
 });
