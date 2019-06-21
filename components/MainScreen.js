@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Alert, StyleSheet } from "react-native";
 import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default class MainScreen extends Component {
     constructor(props){
@@ -21,6 +22,7 @@ export default class MainScreen extends Component {
         this.formatNumbersPressed = this.formatNumbersPressed.bind(this);
         this.handleRefundChange = this.handleRefundChange.bind(this);
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
+        this.showAlert = this.showAlert.bind(this);
     }
 
     handleNumberPadPress(valueGotBack){
@@ -61,8 +63,25 @@ export default class MainScreen extends Component {
         }
     }
 
-    handleHeaderIconPress(iconPushed){
-        console.log("Pressed " + iconPushed);
+    handleHeaderIconPress(iconPushed) {
+        if(iconPushed === "dollar"){
+            if(Number(this.state.amount) === 0){
+                this.showAlert();
+            }
+            else{
+                this.props.navigation.navigate(
+                    "Payment",
+                    {amountCharged: this.state.amount}
+                );
+            }
+        }
+    }
+
+    showAlert() {
+        Alert.alert(
+            "Warning",
+            "Please enter an amount before proceeding."
+        );
     }
 
     render() {
@@ -119,7 +138,7 @@ const styles = StyleSheet.create({
     header: {
         width: '100%',
         height: 70,
-        backgroundColor: '#808080'
+        //backgroundColor: '#808080'
     },
     mainScreenTextSection: {
         marginBottom: 15
@@ -133,5 +152,8 @@ const styles = StyleSheet.create({
     },
     numberPad: {
         color: 'white'
+    },
+    alertBox: {
+        backgroundColor: 'white'
     },
 });
