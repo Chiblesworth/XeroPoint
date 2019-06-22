@@ -94,6 +94,7 @@ export default class MainScreen extends Component {
                         <HeaderIcon 
                             name="menu"
                             type="entypo"
+                            size={70}
                             handlePress={this.handleHeaderIconPress} 
                         />
                         {/*Text tag is here because header needs a center component*/}
@@ -101,6 +102,7 @@ export default class MainScreen extends Component {
                         <HeaderIcon 
                             name="dollar"
                             type="font-awesome"
+                            size={70}
                             handlePress={this.handleHeaderIconPress}
                         />
                     </Header>

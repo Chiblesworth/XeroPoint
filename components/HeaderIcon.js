@@ -6,7 +6,7 @@ import { Icon } from 'react-native-elements';
         <Icon
             name={props.name}
             type={props.type}
-            size={60}
+            size={props.size}
             color="white"
             iconStyle={{paddingBottom: 40}}
             underlayColor={'#808080'}

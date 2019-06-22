@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Header } from 'react-native-elements';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Header, Input } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 
 export default class PaymentScreen extends Component {
@@ -27,6 +27,7 @@ export default class PaymentScreen extends Component {
                             <HeaderIcon 
                                 name="chevron-left"
                                 type="entypo"
+                                size={70}
                                 handlePress={this.handleHeaderIconPress}
                             /> 
                         }
@@ -42,6 +43,16 @@ export default class PaymentScreen extends Component {
                         </Text>
                     </View>
                 </View>
+                <ScrollView contentContainerStyle={styles.scrollView}>
+                    <Input 
+                        placeholder="1234 5678 9012 3..."
+                        placeholderTextColor="gray"
+                        leftIcon={{type: 'entypo', name: 'credit-card', size: 25, color: 'gray'}}
+                        inputContainerStyle={styles.inputContainer}
+                        inputStyle={styles.input}
+                        keyboardType="numeric"
+                    />
+                </ScrollView>
             </View>
         );
     }
@@ -65,7 +76,6 @@ const styles = StyleSheet.create({
     mainScreenTextSection: {
         marginBottom: 15,
         alignItems: 'center',
-        color: 'white'
     },
     simpleText: {
         fontSize: 30,
@@ -74,13 +84,20 @@ const styles = StyleSheet.create({
     amountText: {
         fontSize: 70,
         color: 'white'
-    }
+    },
+    scrollView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 25,
+        marginRight: 25,
+    },
+    inputContainer: {
+      borderStyle: 'solid',
+      borderColor: 'black',
+      borderRadius: 25,
+      backgroundColor: 'white'  
+    },
+    input: {
+        paddingLeft: 20
+    },
 });
-
-
-{/* <HeaderIcon 
-                            name="chevron-left"
-                            type="entypo"
-                            handlePress={this.handleHeaderIconPress}
-                        />
-                    </Header> */}
