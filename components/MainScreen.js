@@ -4,7 +4,6 @@ import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
-import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default class MainScreen extends Component {
     constructor(props){
@@ -74,6 +73,9 @@ export default class MainScreen extends Component {
                     {amountCharged: this.state.amount}
                 );
             }
+        }
+        else{
+            this.props.navigation.toggleDrawer()
         }
     }
 

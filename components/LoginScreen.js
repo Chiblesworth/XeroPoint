@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Button, TextInput, Linking, StyleSheet } from "react-native";
-import SwitchComponent from './SwitchComponent';
+import SwitchToggle from 'react-native-switch-toggle';
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -9,13 +9,12 @@ export default class LoginScreen extends Component {
 		this.state = {
 			switchValue: false
 		};
+
+		this.toggleSwitch = this.toggleSwitch.bind(this);
 	}
 
-	static navigationOptions = {
-	};
-
-	toggleSwitch = (value) => {
-		this.setState({switchValue: value});
+	toggleSwitch(){
+		this.setState({switchValue: !this.state.switchValue});
 	}
 
 	render() {
@@ -55,10 +54,12 @@ export default class LoginScreen extends Component {
 				</View>
 				<View style={styles.rememberMeSection}>
 					<Text style={styles.rememberMeText}>Keep Me Signed In</Text>
-					<SwitchComponent
-						style={styles.rememberMeSwitch}
-						toggleSwitch={this.toggleSwitch}
-						switchValue={this.state.switchValue}
+					<SwitchToggle
+						switchOn={this.state.switchValue}
+						onPress={this.toggleSwitch}
+						circleColorOff="white"
+						circleColorOn="white"
+						backgroundColorOn="blue"
 					/>
 				</View>
 				<View style={styles.signInButton}>
@@ -113,9 +114,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		fontSize: 20,
 		color: 'black'
-	},
-	rememberMeSwitch: {
-		flex: 1,
 	},
 	textField: {
 		height: 60,
