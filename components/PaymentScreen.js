@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Header, Input } from 'react-native-elements';
+import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 
 export default class PaymentScreen extends Component {
@@ -52,6 +52,19 @@ export default class PaymentScreen extends Component {
                         inputStyle={styles.input}
                         keyboardType="numeric"
                     />
+                    <Button 
+                        type="solid"
+                        title="Charge"
+                        containerStyle={styles.buttonContainer}
+                        titleStyle={styles.buttonTitle}
+                    />
+                    <Button 
+                        type="solid"
+                        title="Connect Card Reader"
+                        containerStyle={styles.buttonContainer}
+                        buttonStyle={styles.button}
+                        titleStyle={styles.buttonTitle}
+                    />
                 </ScrollView>
             </View>
         );
@@ -89,15 +102,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 25,
-        marginRight: 25,
+        marginRight: 25
     },
     inputContainer: {
-      borderStyle: 'solid',
-      borderColor: 'black',
-      borderRadius: 25,
-      backgroundColor: 'white'  
+        marginBottom: 20,
+        borderStyle: 'solid',
+        borderColor: 'black',
+        borderRadius: 25,
+        backgroundColor: 'white'  
     },
     input: {
         paddingLeft: 20
+    },
+    buttonContainer: {
+        width: '92%',
+        height: 40,
+        marginBottom: 20,
+        backgroundColor: '#D3D3D3'
+    },
+    button: {
+        backgroundColor: '#D3D3D3'
+    },
+    buttonTitle: {
+        fontSize: 25
     },
 });
