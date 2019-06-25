@@ -5,6 +5,7 @@ import LoginScreen from './components/LoginScreen';
 import MainScreen from './components/MainScreen';
 import PaymentScreen from './components/PaymentScreen';
 import SettingScreen from './components/SettingScreen';
+import FeesScreen from './components/FeesScreen';
 import { Icon } from 'react-native-elements';
 
 /*
@@ -46,6 +47,13 @@ const AppNavigator = createDrawerNavigator(
 						size={25}
 					/>
 				)
+			}
+		},
+		Fees: {
+			screen: FeesScreen,
+			navigationOptions: {
+				header: null,
+				drawerLabel: () => null
 			}
 		}
 	},

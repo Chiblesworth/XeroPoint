@@ -4,6 +4,7 @@ import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class MainScreen extends Component {
     constructor(props){
@@ -22,9 +23,14 @@ export default class MainScreen extends Component {
         this.handleRefundChange = this.handleRefundChange.bind(this);
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.showAlert = this.showAlert.bind(this);
+        this.checkDefaults = this.checkDefaults.bind(this);
     }
 
-    handleNumberPadPress(valueGotBack){
+    componentDidMount() {
+        this.checkDefaults();
+    }
+
+    handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
 
         if(Number(valueGotBack) >= 0){
@@ -45,7 +51,7 @@ export default class MainScreen extends Component {
         }
     }
 
-    formatNumbersPressed(){
+    formatNumbersPressed() {
         let numsPressed = Number(this.state.numbersPressed);
 
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
@@ -53,7 +59,7 @@ export default class MainScreen extends Component {
         this.setState({amount: numsPressed});
     }
 
-    handleRefundChange(){
+    handleRefundChange() {
         if(this.state.refundSelected){
             this.setState({refundSelected: false, amountFontColor: "white"});
         }
@@ -84,6 +90,26 @@ export default class MainScreen extends Component {
             "Warning",
             "Please enter an amount before proceeding."
         );
+    }
+
+    checkDefaults() {
+        AsyncStorage.getItem("serviceFee").then((value) => {
+            if(value === null){
+                AsyncStorage.setItem("serviceFee", "4");
+            }
+            else{
+                console.log("value is " + value)
+            }
+        });
+        AsyncStorage.getItem("taxFee").then((value) => {
+            if(value === null){
+                console.log("No tax fee detected");
+                AsyncStorage.setItem("taxFee", "10");
+            }
+            else{
+                console.log("value for tax is " + value)
+            }
+        })
     }
 
     render() {

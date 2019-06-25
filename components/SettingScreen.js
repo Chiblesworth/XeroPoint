@@ -11,14 +11,21 @@ export default class SettingScreen extends Component {
         };
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
+        this.handleButtonPress = this.handleButtonPress.bind(this);
     }
 
-    handleHeaderIconPress(){
+    handleHeaderIconPress() {
         this.props.navigation.navigate("Main");
     }
 
+    handleButtonPress(setting) {
+        if(setting === "Additional Fees"){
+            this.props.navigation.navigate("Fees");
+        }
+    }
+
     render() {
-        const settingsArray = ["Location", "Signature", "Tips", "Printers", "Card Reader", "Advanced"];
+        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Printers", "Card Reader", "Advanced"];
         let settingsContent = []; //This holds the <Button> code
 
         for(const [index, setting] of settingsArray.entries()){
@@ -35,6 +42,7 @@ export default class SettingScreen extends Component {
                     }
                     iconRight
                     title={setting}
+                    onPress={() => this.handleButtonPress(setting)}
                     buttonStyle={styles.button}
                     titleStyle={styles.buttonTitle}
                 />

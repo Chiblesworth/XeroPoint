@@ -3,6 +3,7 @@ import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class PaymentScreen extends Component {
     constructor(props){
@@ -11,7 +12,9 @@ export default class PaymentScreen extends Component {
         this.state = {
             amountCharged: this.props.navigation.state.params.amountCharged,
             taxSwitchValue: false,
-            serviceFeeSwitchValue: false
+            serviceFeeSwitchValue: false,
+            serviceFee: "0",
+            tax: "0"
         }
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
@@ -32,46 +35,16 @@ export default class PaymentScreen extends Component {
     }
 
     render(){
-        let taxAmountField;
-        let serviceFee;
+        AsyncStorage.getItem("taxFee").then((value) => {
+            this.setState({tax: value});
+        });
+        AsyncStorage.getItem("serviceFee").then((fee) => {
+            this.setState({serviceFee: fee});
+        });
 
-        if(this.state.taxSwitchValue){
-            //becomes a disabled button if true
-            taxAmountField = <Button
-                                disabled={true}
-                                title="Tax Amount"
-                                titleStyle={styles.buttonTitle}
-                                containerStyle={styles.bottomButtonContainer}
-                             />
-        }
-        else{
-            //becomes input if false
-            taxAmountField = <Input
-                                placeholder="Tax Amount"
-                                placeholderTextColor="grey"
-                                inputContainerStyle={styles.bottomContainer}
-                                inputStyle={styles.input}   
-                              />
-        }
-        if(this.state.serviceFeeSwitchValue){
-            //becomes a disabled button if true
-            serviceFee = <Button
-                                disabled={true}
-                                title="Service Fee"
-                                titleStyle={styles.buttonTitle}
-                                containerStyle={styles.bottomButtonContainer}
-                             />
-        }
-        else{
-            //becomes input if false
-            serviceFee = <Input
-                                placeholder="Service Fee"
-                                placeholderTextColor="grey"
-                                inputContainerStyle={styles.bottomContainer}
-                                inputStyle={styles.input}   
-                              />
-        }
-
+        const serviceFee = <Text style={styles.feeText}>{this.state.serviceFee}</Text>;
+        const tax = <Text style={styles.feeText}>{this.state.tax}</Text>
+       
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
@@ -156,7 +129,10 @@ export default class PaymentScreen extends Component {
                             circleColorOn="white"
                             backgroundColorOn="blue"
 					    />
-                        {taxAmountField}
+                        <View style={styles.feeContainer}>
+                            {tax}
+                            <Text style={styles.feeText}>%</Text>
+                        </View>
                     </View>
                     <View style={styles.row}>
                         <Text style={{fontSize: 20, color: 'white', paddingRight: 10}}>
@@ -169,7 +145,10 @@ export default class PaymentScreen extends Component {
                             circleColorOn="white"
                             backgroundColorOn="blue"
 					    />
-                        {serviceFee}
+                        <View style={styles.feeContainer}>
+                            {serviceFee}
+                            <Text style={styles.feeText}>%</Text>
+                        </View>
                     </View>
                 </ScrollView>
             </View>
@@ -259,5 +238,13 @@ const styles = StyleSheet.create({
         width: '45%',
         height: 10,
         paddingLeft: 10
+    },
+    feeText: {
+        fontSize: 25, 
+        color: 'white',
+    },
+    feeContainer: {
+        flexDirection: 'row',
+        marginLeft: 50
     },
 });
