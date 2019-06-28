@@ -26,6 +26,9 @@ export default class MainScreen extends Component {
         this.checkDefaults = this.checkDefaults.bind(this);
     }
 
+    componentWillUnmount() {
+        console.log("exit screen")
+    }
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
 

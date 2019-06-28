@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { createDrawerNavigator, createAppContainer } from 'react-navigation';
+import { createDrawerNavigator, createStackNavigator, createAppContainer } from 'react-navigation';
 import LoginScreen from './components/LoginScreen';
 import MainScreen from './components/MainScreen';
 import PaymentScreen from './components/PaymentScreen';
@@ -13,27 +13,34 @@ import { Icon } from 'react-native-elements';
 	https://facebook.github.io/react-native/docs/navigation
 	https://reactnavigation.org/docs/en/hello-react-navigation.html
 */
-const AppNavigator = createDrawerNavigator(
+
+const StackNavigator = createStackNavigator(
 	{
 		Login: {
 			screen: LoginScreen,
 			navigationOptions: {
-				header: null,
-				drawerLabel: () => null,
+				header: null
 			}
 		},
 		Main: {
 			screen: MainScreen,
 			navigationOptions: {
-				header: null,
+				header: null
 			}
 		},
 		Payment: {
 			screen: PaymentScreen,
 			navigationOptions: {
-				header: null,
-				drawerLabel: () => null
+				header: null
 			}
+		}
+	}
+);
+
+const DrawerNavigation = createDrawerNavigator(
+	{
+		Main: {
+			screen: StackNavigator
 		},
 		Settings: {
 			screen: SettingScreen,
@@ -64,8 +71,8 @@ const AppNavigator = createDrawerNavigator(
 				fontSize: 25,
 				color: 'white'
 			}
-		}		 
+		}	
 	}
 );
 
-export default createAppContainer(AppNavigator);
+export default createAppContainer(DrawerNavigation);
