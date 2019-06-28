@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, InteractionManager, StyleSheet } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
+import { existsTypeAnnotation } from '@babel/types';
 
 export default class PaymentScreen extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            amountCharged: this.props.navigation.state.params.amountCharged,
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
             serviceFee: "0",
@@ -27,24 +27,41 @@ export default class PaymentScreen extends Component {
     }
 
     toggleTaxSwitch(){
+
         this.setState({taxSwitchValue: !this.state.taxSwitchValue});
+        AsyncStorage.getItem("taxFee").then((value) => {
+            this.setState({tax: value});
+        });
     }
 
     toggleServiceSwitch(){
         this.setState({serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue});
-    }
-
-    render(){
-        AsyncStorage.getItem("taxFee").then((value) => {
-            this.setState({tax: value});
-        });
         AsyncStorage.getItem("serviceFee").then((fee) => {
             this.setState({serviceFee: fee});
         });
+    }
 
-        const serviceFee = <Text style={styles.feeText}>{this.state.serviceFee}</Text>;
-        const tax = <Text style={styles.feeText}>{this.state.tax}</Text>
-       
+    render(){
+        let serviceFee; 
+        let tax;
+        /*
+            This is the only way I've been able to get AsyncStorage to work
+            without causing an infinite loop. Can't get component to remount
+            when new pages are added to stack. This is a quick solution for that.
+        */
+        if(this.state.taxSwitchValue){
+            tax = <Text style={styles.feeText}>{this.state.tax}</Text>;
+        }
+        else{
+            tax = <Text style={styles.feeText}>0</Text>;
+        }
+
+        if(this.state.serviceFeeSwitchValue){
+            serviceFee = <Text style={styles.feeText}>{this.state.serviceFee}</Text>;
+        }
+        else{
+            serviceFee = <Text style={styles.feeText}>0</Text>;
+        }
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
@@ -65,7 +82,7 @@ export default class PaymentScreen extends Component {
                     <View style={styles.mainScreenTextSection}>
                         <Text style={styles.simpleText}>CHARGE AMOUNT</Text>
                         <Text style={styles.amountText}>
-                            {this.state.amountCharged}
+                            {this.props.navigation.state.params.amountCharged}
                         </Text>
                     </View>
                 </View>

@@ -20,6 +20,7 @@ export default class SettingScreen extends Component {
 
     handleButtonPress(setting) {
         if(setting === "Additional Fees"){
+            console.log("Pressed fees button");
             this.props.navigation.navigate("Fees");
         }
     }

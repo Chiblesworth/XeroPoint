@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Alert, StyleSheet } from "react-native";
+import { View, Text, Alert, InteractionManager, StyleSheet } from "react-native";
 import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
@@ -24,10 +24,6 @@ export default class MainScreen extends Component {
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.showAlert = this.showAlert.bind(this);
         this.checkDefaults = this.checkDefaults.bind(this);
-    }
-
-    componentDidMount() {
-        this.checkDefaults();
     }
 
     handleNumberPadPress(valueGotBack) {
@@ -74,6 +70,7 @@ export default class MainScreen extends Component {
                 this.showAlert();
             }
             else{
+                this.checkDefaults();
                 this.props.navigation.navigate(
                     "Payment",
                     {amountCharged: this.state.amount}

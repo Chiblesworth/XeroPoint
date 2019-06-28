@@ -5,7 +5,7 @@ import HeaderIcon from './HeaderIcon';
 import FeeDisplay from './FeeDisplay';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export default class SettingScreen extends Component {
+export default class FeeScreen extends Component {
     constructor(props) {
         super(props);
     
