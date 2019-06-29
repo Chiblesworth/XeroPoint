@@ -26,3 +26,11 @@ Version: ^3.11.0
 --Accounting: https://www.npmjs.com/package/accounting
 Version ^0.4.1
 
+--React Native Community/AsyncStorage: https://www.npmjs.com/package/@react-native-community/async-storage, Native Page: https://facebook.github.io/react-native/docs/asyncstorage
+Version ^1.5.0
+
+--React Native Switch Toggle: https://www.npmjs.com/package/react-native-switch-toggle
+Version ^1.1.0
+
+# Stylesheets
+React Native uses there own Prop StyleSheet to create styles for components similar to CSS. Each stylesheet is located at the bottom of each component.
