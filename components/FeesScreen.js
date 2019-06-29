@@ -64,6 +64,7 @@ export default class FeeScreen extends Component {
                         containerStyle={{ borderBottomWidth: 0 }}
                     />
                 </View>
+                {/* Wrapped this a ScrollView so the keyboard doesn't cover input areas. */}
                 <ScrollView>
                     <View>
                         <FeeDisplay
@@ -72,13 +73,14 @@ export default class FeeScreen extends Component {
                             handleFeeChange={this.handleServiceFeeChange}
                         />
                     </View>
-                    <View style={styles.divider}>
-                        <FeeDisplay
-                            mainTitle="Tax" 
-                            feeAmount={this.state.tax}
-                            handleFeeChange={this.handleTaxFeeChange}
-                        />
-                    </View>
+                    <View style={styles.divider}/>
+                        <View style={styles.extraPadding}>
+                            <FeeDisplay
+                                mainTitle="Tax" 
+                                feeAmount={this.state.tax}
+                                handleFeeChange={this.handleTaxFeeChange}
+                            />
+                        </View>
                 </ScrollView>
             </View>
         );
@@ -101,6 +103,11 @@ const styles = StyleSheet.create({
         paddingBottom: 20
     },
     divider: {
-        marginTop: 45
+        marginTop: 20,
+        borderBottomColor: 'white',
+        borderBottomWidth: 8
+    },
+    extraPadding: {
+        marginTop: 20
     }
 });

@@ -5,9 +5,6 @@ import NumberPadRow from './NumberPadRow';
 export default class NumberPad extends Component {
 	constructor(props) {
     	super(props);
-		
-		this.state = {
-    	};
 	}
 
   	render() {

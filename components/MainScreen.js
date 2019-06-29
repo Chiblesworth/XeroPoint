@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Alert, InteractionManager, StyleSheet } from "react-native";
+import { View, Text, Alert, StyleSheet } from "react-native";
 import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
@@ -12,10 +12,10 @@ export default class MainScreen extends Component {
 
         this.state = {
             buttonPressed: false,
-            numbersPressed: "",
+            numbersPressed: "", //Holds string of numbers pressed for manipulation in formatNumbersPressed()
             amount: "0.00",
             amountFontColor: "white", //Color depends if refund is selected.
-            refundSelected: false
+            refundSelected: false //Will need to pass this as prop to the payment screen if checked as true
         }
 
         this.handleNumberPadPress = this.handleNumberPadPress.bind(this);
@@ -26,9 +26,6 @@ export default class MainScreen extends Component {
         this.checkDefaults = this.checkDefaults.bind(this);
     }
 
-    componentWillUnmount() {
-        console.log("exit screen")
-    }
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
 
@@ -93,6 +90,11 @@ export default class MainScreen extends Component {
     }
 
     checkDefaults() {
+        /*
+            This is used to set default values for a service fee and tax fee
+            more info about how AsyncStorage works here:
+            https://facebook.github.io/react-native/docs/asyncstorage
+        */
         AsyncStorage.getItem("serviceFee").then((value) => {
             if(value === null){
                 AsyncStorage.setItem("serviceFee", "4");
@@ -113,27 +115,28 @@ export default class MainScreen extends Component {
     }
 
     render() {
-        const {navigate} = this.props.navigation;
-        
         return (
             <View style={styles.mainContainer}>
                 <View style={styles.header}>
-                    <Header backgroundColor="#808080">
-                        <HeaderIcon 
-                            name="menu"
-                            type="entypo"
-                            size={70}
-                            handlePress={this.handleHeaderIconPress} 
-                        />
-                        {/*Text tag is here because header needs a center component*/}
-                        <Text></Text>
-                        <HeaderIcon 
-                            name="dollar"
-                            type="font-awesome"
-                            size={70}
-                            handlePress={this.handleHeaderIconPress}
-                        />
-                    </Header>
+                    <Header 
+                        backgroundColor="#808080"
+                        leftComponent={
+                            <HeaderIcon 
+                                name="menu"
+                                type="entypo"
+                                size={70}
+                                handlePress={this.handleHeaderIconPress} 
+                            />
+                        }
+                        rightComponent={
+                            <HeaderIcon 
+                                name="dollar"
+                                type="font-awesome"
+                                size={65}
+                                handlePress={this.handleHeaderIconPress}
+                            />
+                        }
+                    />
                 </View>
                 <View style={styles.container}>
                     <View style={styles.mainScreenTextSection}>

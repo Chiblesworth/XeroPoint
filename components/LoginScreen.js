@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, Button, TextInput, Linking, StyleSheet } from "react-native";
+import { View, Text, TextInput, Linking, StyleSheet } from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
+import { Input, Button } from 'react-native-elements';
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -26,15 +27,18 @@ export default class LoginScreen extends Component {
 					<Text>On LoginScreen</Text>
 				</View>
 				<View style={styles.loginFormSection}>
-					<TextInput 
-						style={styles.textField}
+					<Input 
 						placeholder="Username"
-						underlineColorAndroid="transparent"
+						placeholderTextColor="grey"
+						inputContainerStyle={styles.inputContainer}
+						inputStyle={styles.input}
 					/>
-					<TextInput 
-						style={styles.textField}
+					<Input 
 						placeholder="Password"
-						underlineColorAndroid="transparent"
+						placeholderTextColor="grey"
+						secureTextEntry={true}
+						inputContainerStyle={styles.inputContainer}
+						inputStyle={styles.input}
 					/>
 				</View>
 				<View style={styles.policyTextSection}>
@@ -64,7 +68,10 @@ export default class LoginScreen extends Component {
 				</View>
 				<View style={styles.signInButton}>
 					<Button
+						type="solid"
 						title="Sign In"
+						containerStyle={styles.buttonContainer}
+						titleStyle={styles.buttonTitle}
 					/>
 				</View>
 				<View>
@@ -83,25 +90,26 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
+		backgroundColor: '#808080'
 	},
 	loginTextSection: {
 		marginBottom: 25,
 	},
 	loginFormSection: {
-		width: '80%'
+		width: '90%'
 	},
 	policyTextSection: {
-		marginLeft: 45,
+		marginLeft: 38,
 		marginBottom: 25
 	},
 	policyText: {
-		color: 'black',
-		fontSize: 15
+		color: 'white',
+		fontSize: 17
 	},
 	policyLinks: {
 		color: 'blue',
-		fontSize: 15
+		fontSize: 17
 	},
 	rememberMeSection: {
 		flexDirection: 'row',
@@ -113,18 +121,29 @@ const styles = StyleSheet.create({
 	rememberMeText: {
 		flex: 1,
 		fontSize: 20,
-		color: 'black'
+		color: 'white'
 	},
-	textField: {
+	inputContainer: {
 		height: 60,
-		borderColor: 'gray',
+		width: '100%',
+		borderColor: '#403D3D',
 		borderWidth: 2,
 		borderRadius: 10,
 		marginBottom: 10,
-		fontSize: 18
+		backgroundColor: '#403D3D'
+	},
+	input: {
+		color: 'white'
 	},
 	signInButton: {
 		width: '80%',
 		height: 60
+	},
+	buttonContainer: {
+		width: '100%',
+		height: 60
+	},
+	buttonTitle: {
+		fontSize: 20
 	}
 });

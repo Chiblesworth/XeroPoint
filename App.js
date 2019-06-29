@@ -1,5 +1,5 @@
 
-import React, { Component } from 'react';
+import React from 'react';
 import { createDrawerNavigator, createStackNavigator, createAppContainer } from 'react-navigation';
 import LoginScreen from './components/LoginScreen';
 import MainScreen from './components/MainScreen';
@@ -12,6 +12,8 @@ import { Icon } from 'react-native-elements';
 	Helpful links how I set up navigation
 	https://facebook.github.io/react-native/docs/navigation
 	https://reactnavigation.org/docs/en/hello-react-navigation.html
+	Implements both stack and drawer navigation.
+	Stack for main screens, drawer for settings etc.
 */
 
 const StackNavigator = createStackNavigator(

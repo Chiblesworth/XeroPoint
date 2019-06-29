@@ -4,7 +4,17 @@ import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
-import { existsTypeAnnotation } from '@babel/types';
+import { StackActions, NavigationActions } from 'react-navigation';
+
+/*
+    This resets the component of the main screen 
+    Making the amount charged not carry over from screen to screen.
+    Also resets any text inputs that were keyed in.
+*/
+const resetAction = StackActions.reset({
+    index: 0,
+    actions: [NavigationActions.navigate({ routeName: 'Main' })],
+  });
 
 export default class PaymentScreen extends Component {
     constructor(props){
@@ -23,7 +33,7 @@ export default class PaymentScreen extends Component {
     }
 
     handleHeaderIconPress() {
-        this.props.navigation.navigate("Main");
+        this.props.navigation.dispatch(resetAction);
     }
 
     toggleTaxSwitch(){

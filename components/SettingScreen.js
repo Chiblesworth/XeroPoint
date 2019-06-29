@@ -49,6 +49,7 @@ export default class SettingScreen extends Component {
                 />
             )
         }
+        
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
