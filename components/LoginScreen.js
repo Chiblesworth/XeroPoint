@@ -1,21 +1,68 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, Linking, StyleSheet } from "react-native";
+import { View, Text, Linking, StyleSheet } from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
+import base64 from 'react-native-base64';
+import utf8 from 'utf8';
+import axios from 'axios';
 
 export default class LoginScreen extends Component {
 	constructor(props){
 		super(props);
 
 		this.state = {
-			switchValue: false
+			switchValue: false,
+			encodedUsername: "",
+			encodedPassword: ""
 		};
 
 		this.toggleSwitch = this.toggleSwitch.bind(this);
+		this.encodeString = this.encodeString.bind(this);
+		this.signIn = this.signIn.bind(this);
 	}
 
-	toggleSwitch(){
+	toggleSwitch() {
 		this.setState({switchValue: !this.state.switchValue});
+	}
+
+	encodeString(text, inputField) {
+		let bytes = utf8.encode(text);
+		let encodedText = base64.encode(bytes);
+
+		if(inputField === "Username"){
+			this.setState({encodedUsername: encodedText});
+		}
+		else{
+			this.setState({encodedPassword: encodedText});
+		}
+	}
+
+	signIn() {
+		let decodedUsername = base64.decode(this.state.encodedUsername);
+		let decodedPassword = base64.decode(this.state.encodedPassword);
+		let encodedString = decodedUsername + ":" + decodedPassword;
+
+		console.log(encodedString)
+
+		encodedString = base64.encode(encodedString);
+		
+		console.log(decodedUsername)
+		console.log(decodedPassword)
+		console.log(encodedString)
+		
+		const headers = {
+			'Authorization': 'Basic ' + encodedString,
+			'Content-Type': 'application/json; charset=utf-8'
+		};
+		
+		axios.post('https://api.mxmerchant.com/checkout/v3/payment?echo=true HTTP/1.1', null, {headers})
+			.then((response) => {
+				console.log(response);
+			})
+			.catch((error) => {
+				console.log(error.message);
+				throw error;
+			})
 	}
 
 	render() {
@@ -32,6 +79,7 @@ export default class LoginScreen extends Component {
 						placeholderTextColor="grey"
 						inputContainerStyle={styles.inputContainer}
 						inputStyle={styles.input}
+						onChangeText={(text) => this.encodeString(text, "Username")}
 					/>
 					<Input 
 						placeholder="Password"
@@ -39,6 +87,7 @@ export default class LoginScreen extends Component {
 						secureTextEntry={true}
 						inputContainerStyle={styles.inputContainer}
 						inputStyle={styles.input}
+						onChangeText={(text) => this.encodeString(text, "Password")}
 					/>
 				</View>
 				<View style={styles.policyTextSection}>
@@ -70,6 +119,7 @@ export default class LoginScreen extends Component {
 					<Button
 						type="solid"
 						title="Sign In"
+						onPress={this.signIn}
 						containerStyle={styles.buttonContainer}
 						titleStyle={styles.buttonTitle}
 					/>
@@ -101,6 +151,7 @@ const styles = StyleSheet.create({
 	},
 	policyTextSection: {
 		marginLeft: 38,
+		marginRight: 15,
 		marginBottom: 25
 	},
 	policyText: {
