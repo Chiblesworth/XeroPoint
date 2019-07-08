@@ -3,8 +3,8 @@ import { View, Text, Linking, StyleSheet } from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
 import base64 from 'react-native-base64';
-import utf8 from 'utf8';
-import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
+import { NavigationActions } from 'react-navigation';
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -19,6 +19,17 @@ export default class LoginScreen extends Component {
 		this.toggleSwitch = this.toggleSwitch.bind(this);
 		this.encodeString = this.encodeString.bind(this);
 		this.signIn = this.signIn.bind(this);
+	}
+
+	componentDidMount() {
+		setTimeout(() => {
+			if(AsyncStorage.getItem("loggedIn")){
+				{NavigationActions.navigate({routeName: 'Main'})}
+			}
+			else{
+				console.log("logged in does not exist")
+			}
+		}, 500)
 	}
 
 	toggleSwitch() {
@@ -38,27 +49,32 @@ export default class LoginScreen extends Component {
 	}
 
 	signIn() {
-		console.log(this.state.username);
-		console.log(this.state.password);
-		
-		axios.post('https://api.mxmerchant.com/checkout/v3/payment?echo=true', {}, {
-			auth: {
-				username: this.state.username,
-				password: this.state.password
+		let headers = {
+			'Authorization' : 'Basic ' + base64.encode((this.state.username + ":" + this.state.password)),
+			'Content-Type' : 'application/json; charset=utf-8'
+		}
+
+		fetch("https://api.mxmerchant.com/checkout/v3/payment?echo=true", {
+			headers: headers
+		})
+		.then((response) => {
+			console.log(response);
+			if(response.status === 200){
+				console.log("Login Endpoint hit")
+				fetch("https://api.mxmerchant.com/checkout/v3/merchant", {
+					method: 'get',
+					headers: headers
+				})
+				.then((response) => {
+					console.log(response);
+					console.log(response.json())
+				})
 			}
 		})
-			.then((response) => {
-				console.log(response);
-				
-			})
-			.catch((error) => {
-				console.log(error.response.data);
-      			console.log(error.response.status);
-     			console.log(error.response.headers);
-				console.log(error.request);
-			})
+		.catch((error) => {
+			console.log(error)
+		})
 	}
-
 	render() {
 		const {navigate} = this.props.navigation;
 
