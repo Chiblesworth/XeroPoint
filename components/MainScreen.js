@@ -161,7 +161,7 @@ export default class MainScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: 'blue'
+        backgroundColor: '#808080'
     },
     container: {
 		justifyContent: 'center',

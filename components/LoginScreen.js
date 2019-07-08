@@ -4,7 +4,6 @@ import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
 import base64 from 'react-native-base64';
 import AsyncStorage from '@react-native-community/async-storage';
-import { NavigationActions } from 'react-navigation';
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -22,14 +21,12 @@ export default class LoginScreen extends Component {
 	}
 
 	componentDidMount() {
-		setTimeout(() => {
-			if(AsyncStorage.getItem("loggedIn")){
-				{NavigationActions.navigate({routeName: 'Main'})}
+		console.log("here befroe async called")
+		AsyncStorage.getItem("stayLoggedIn").then((isLoggedIn) => {
+			if(isLoggedIn === "True"){
+				this.props.navigation.navigate("Main")
 			}
-			else{
-				console.log("logged in does not exist")
-			}
-		}, 500)
+		})
 	}
 
 	toggleSwitch() {
@@ -37,9 +34,6 @@ export default class LoginScreen extends Component {
 	}
 
 	encodeString(text, inputField) {
-		//let bytes = utf8.encode(text);
-		//let encodedText = base64.encode(bytes);
-
 		if(inputField === "Username"){
 			this.setState({username: text})
 		}
@@ -60,15 +54,10 @@ export default class LoginScreen extends Component {
 		.then((response) => {
 			console.log(response);
 			if(response.status === 200){
-				console.log("Login Endpoint hit")
-				fetch("https://api.mxmerchant.com/checkout/v3/merchant", {
-					method: 'get',
-					headers: headers
-				})
-				.then((response) => {
-					console.log(response);
-					console.log(response.json())
-				})
+				if(this.state.switchValue){
+					AsyncStorage.setItem("stayLoggedIn", "True");
+				}
+				this.props.navigation.navigate("Main");
 			}
 		})
 		.catch((error) => {
