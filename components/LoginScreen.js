@@ -38,8 +38,9 @@ export default class LoginScreen extends Component {
 	}
 
 	signIn() {
-		console.log(this.state.username)
-		console.log(this.state.password)
+		console.log(this.state.username);
+		console.log(this.state.password);
+		
 		axios.post('https://api.mxmerchant.com/checkout/v3/payment?echo=true', {}, {
 			auth: {
 				username: this.state.username,
@@ -51,8 +52,10 @@ export default class LoginScreen extends Component {
 				
 			})
 			.catch((error) => {
-				console.log(error.response);
-				console.log(error.request)
+				console.log(error.response.data);
+      			console.log(error.response.status);
+     			console.log(error.response.headers);
+				console.log(error.request);
 			})
 	}
 
