@@ -26,6 +26,12 @@ export default class MainScreen extends Component {
         this.checkDefaults = this.checkDefaults.bind(this);
     }
 
+    componentDidMount(){
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            console.log("in main " + encoded);
+        })
+    }
+
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
 

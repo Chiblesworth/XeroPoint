@@ -59,13 +59,13 @@ export default class LoginScreen extends Component {
 		})
 		.then((response) => {
 			console.log(response);
-			console.log(encodedString);
+			console.log("in login " + encodedString);
 			if(response.status === 200){
 				if(this.state.switchValue){
 					AsyncStorage.setItem("stayLoggedIn", "True");
 				}
 
-				AsyncStorage.setItem("encodedUser", encodedString)
+				AsyncStorage.setItem("encodedUser", encodedString);
 				this.props.navigation.navigate("Main");
 			}
 			else{
