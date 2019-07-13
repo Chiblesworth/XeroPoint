@@ -21,7 +21,6 @@ export default class LoginScreen extends Component {
 	}
 
 	componentDidMount() {
-		console.log("here befroe async called")
 		AsyncStorage.getItem("stayLoggedIn").then((isLoggedIn) => {
 			if(isLoggedIn === "True"){
 				this.props.navigation.navigate("Main")
@@ -58,8 +57,6 @@ export default class LoginScreen extends Component {
 			headers: headers
 		})
 		.then((response) => {
-			console.log(response);
-			console.log("in login " + encodedString);
 			if(response.status === 200){
 				if(this.state.switchValue){
 					AsyncStorage.setItem("stayLoggedIn", "True");
