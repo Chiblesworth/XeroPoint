@@ -24,6 +24,11 @@ export default class MainScreen extends Component {
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.showAlert = this.showAlert.bind(this);
         this.checkDefaults = this.checkDefaults.bind(this);
+        this.getMerchantId = this.getMerchantId.bind(this);
+    }
+
+    componentDidMount(){
+        this.getMerchantId();
     }
 
     handleNumberPadPress(valueGotBack) {
@@ -112,6 +117,26 @@ export default class MainScreen extends Component {
                 console.log("value for tax is " + value)
             }
         })
+    }
+
+    getMerchantId() {        
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
+
+            fetch("https://api.mxmerchant.com/checkout/v3/merchant", {
+                method: 'get',
+                headers: headers
+            }).then((response) => {
+                return response.json(); //Get response into JSON format
+            }).then((Json) => {
+                let merchantId = Json.records[0].id.toString();
+
+                AsyncStorage.setItem("merchantId", merchantId);
+            });
+        });
     }
 
     render() {

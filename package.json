@@ -11,6 +11,7 @@
     "accounting": "^0.4.1",
     "add": "^2.0.6",
     "axios": "^0.19.0",
+    "lodash": "4.17.13",
     "react": "16.8.3",
     "react-native": "^0.59.9",
     "react-native-awesome-alerts": "^1.2.0",

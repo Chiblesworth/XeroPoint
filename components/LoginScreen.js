@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Linking, StyleSheet } from "react-native";
+import { View, Text, Linking, StyleSheet, Alert} from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
 import base64 from 'react-native-base64';
@@ -11,8 +11,8 @@ export default class LoginScreen extends Component {
 
 		this.state = {
 			switchValue: false,
-			username: "",
-			password: ""
+			encodedUsername: "",
+			encodedPassword: ""
 		};
 
 		this.toggleSwitch = this.toggleSwitch.bind(this);
@@ -33,17 +33,23 @@ export default class LoginScreen extends Component {
 	}
 
 	encodeString(text, inputField) {
+		let encodedText = base64.encode(text);
+
 		if(inputField === "Username"){
-			this.setState({username: text})
+			this.setState({encodedUsername: encodedText})
 		}
 		else{
-			this.setState({password: text})
+			this.setState({encodedPassword: encodedText})
 		}
 	}
 
 	signIn() {
+		let decodedUsername = base64.decode(this.state.encodedUsername);
+		let decodedPassword = base64.decode(this.state.encodedPassword);
+		let encodedString = base64.encode(decodedUsername + ":" + decodedPassword);
+
 		let headers = {
-			'Authorization' : 'Basic ' + base64.encode((this.state.username + ":" + this.state.password)),
+			'Authorization' : 'Basic ' + encodedString,
 			'Content-Type' : 'application/json; charset=utf-8'
 		}
 
@@ -55,13 +61,19 @@ export default class LoginScreen extends Component {
 				if(this.state.switchValue){
 					AsyncStorage.setItem("stayLoggedIn", "True");
 				}
+
+				AsyncStorage.setItem("encodedUser", encodedString);
 				this.props.navigation.navigate("Main");
 			}
-		})
-		.catch((error) => {
-			console.log(error)
-		})
+			else{
+				Alert.alert(
+					"Validation Error",
+					"There was an error in your request. Please try again."
+				)
+			}
+		});
 	}
+
 	render() {
 		const {navigate} = this.props.navigation;
 
