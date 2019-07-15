@@ -126,7 +126,7 @@ export default class MainScreen extends Component {
                 'Content-Type' : 'application/json; charset=utf-8'
             }
 
-            fetch("https://api.mxmerchant.com/checkout/v3/merchant", {
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/merchant", {
                 method: 'get',
                 headers: headers
             }).then((response) => {

@@ -53,7 +53,9 @@ export default class LoginScreen extends Component {
 			'Content-Type' : 'application/json; charset=utf-8'
 		}
 
-		fetch("https://api.mxmerchant.com/checkout/v3/payment?echo=true", {
+		//Production https://api.mxmerchant.com/checkout/v3/payment?echo=true
+		//Sandbox https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true
+		fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
 			headers: headers
 		})
 		.then((response) => {

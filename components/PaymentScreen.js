@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, ScrollView, InteractionManager, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
+import KeyedPaymentForm from './KeyedPaymentForm';
 
 /*
     This resets the component of the main screen 
@@ -22,9 +23,7 @@ export default class PaymentScreen extends Component {
 
         this.state = {
             taxSwitchValue: false,
-            serviceFeeSwitchValue: false,
-            serviceFee: "0",
-            tax: "0"
+            serviceFeeSwitchValue: false
         }
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
@@ -97,6 +96,7 @@ export default class PaymentScreen extends Component {
                     </View>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
+                    <KeyedPaymentForm />
                     <Input 
                         placeholder="1234 5678 9012 3..."
                         placeholderTextColor="grey"
