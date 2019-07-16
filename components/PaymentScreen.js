@@ -89,7 +89,7 @@ export default class PaymentScreen extends Component {
                 </View>
                 <View style={styles.container}>
                     <View style={styles.mainScreenTextSection}>
-                        <Text style={styles.simpleText}>CHARGE AMOUNT</Text>
+                        <Text style={styles.simpleText}>CHARGED AMOUNT</Text>
                         <Text style={styles.amountText}>
                             {this.props.navigation.state.params.amountCharged}
                         </Text>
@@ -97,14 +97,6 @@ export default class PaymentScreen extends Component {
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
                     <KeyedPaymentForm />
-                    <Input 
-                        placeholder="1234 5678 9012 3..."
-                        placeholderTextColor="grey"
-                        leftIcon={{type: 'entypo', name: 'credit-card', size: 25, color: 'gray'}}
-                        inputContainerStyle={styles.inputContainer}
-                        inputStyle={styles.input}
-                        keyboardType="numeric"
-                    />
                     <Button 
                         type="solid"
                         title="Charge"
