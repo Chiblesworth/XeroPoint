@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -24,15 +24,13 @@ export default class KeyedPaymentForm extends Component {
 
         this.getMerchantSettings = this.getMerchantSettings.bind(this);
         this.checkStreetAndZipValue = this.checkStreetAndZipValue.bind(this);
+        this.handleCardInputChange = this.handleCardInputChange.bind(this);
+        this.printCardAccount = this.printCardAccount.bind(this);
     }
 
     componentDidMount() {
         this.getMerchantSettings();
-        console.log(this.state.cardAccount);
-        console.log("In com did mount")
-        console.log(this.state.streetOn);
-        console.log(this.state.zipOn);
-        console.log(this.state.cvvOn);
+        console.log(this.state);
     }
 
     getMerchantSettings() {
@@ -127,6 +125,31 @@ export default class KeyedPaymentForm extends Component {
         }
     }
 
+    handleCardInputChange(number) {
+        //https://stackoverflow.com/questions/40237150/react-native-how-to-format-payment-in-mm-yy-and-spaced-16-digit-card-number-in
+        //Adds a space after every four numbers. Displays better for the user.
+        this.setState(prevState => ({
+            cardAccount: {
+                ...prevState.cardAccount,
+                number: number.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim()
+            }
+        }));
+    }
+
+    printCardAccount(number) {
+        //Remove spaces from card number
+        number = number.replace(/ /g, "");
+        
+        this.setState(prevState => ({
+            cardAccount: {
+                ...prevState,
+                number: number
+            }
+        }), () => {
+            this.props.charge(this.state.cardAccount);
+        })
+    }
+
     render() {
         return (
             <View stlye={styles.form}>
@@ -137,13 +160,9 @@ export default class KeyedPaymentForm extends Component {
                     inputContainerStyle={styles.inputContainer}
                     inputStyle={styles.input}
                     keyboardType="numeric"
-                    maxLength={16}
-                    onChangeText={(text) => this.setState(prevState => ({
-                        cardAccount: {
-                            ...prevState.cardAccount,
-                            number: text
-                        }
-                    }))}
+                    maxLength={20}
+                    onChangeText={(text) => this.handleCardInputChange(text)}
+                    value={this.state.cardAccount.number}
                     
                 />
                 <View style={styles.doubleFields}>
@@ -199,10 +218,12 @@ export default class KeyedPaymentForm extends Component {
                         />
                     ) : (null)
                 }
-                <Button
+                <Button 
                     type="solid"
-                    title="Connect Card Reader"
-                    onPress={() => console.log(this.state.cardAccount)}
+                    title="Charge"
+                    containerStyle={styles.buttonContainer}
+                    titleStyle={styles.buttonTitle}
+                    onPress={() => this.printCardAccount(this.state.cardAccount.number)}
                 />
             </View>
         );
@@ -246,5 +267,14 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         backgroundColor: 'white',
         width: '25%'
+    },
+    buttonContainer: {
+        width: 332,
+        height: 40,
+        marginBottom: 20,
+        marginLeft: 16
+    },
+    buttonTitle: {
+        fontSize: 25
     }
 });

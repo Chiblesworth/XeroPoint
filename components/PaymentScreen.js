@@ -29,13 +29,14 @@ export default class PaymentScreen extends Component {
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
         this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
+        this.submitPayment = this.submitPayment.bind(this);
     }
 
     handleHeaderIconPress() {
         this.props.navigation.dispatch(resetAction);
     }
 
-    toggleTaxSwitch(){
+    toggleTaxSwitch() {
 
         this.setState({taxSwitchValue: !this.state.taxSwitchValue});
         AsyncStorage.getItem("taxFee").then((value) => {
@@ -43,11 +44,48 @@ export default class PaymentScreen extends Component {
         });
     }
 
-    toggleServiceSwitch(){
+    toggleServiceSwitch() {
         this.setState({serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue});
         AsyncStorage.getItem("serviceFee").then((fee) => {
             this.setState({serviceFee: fee});
         });
+    }
+
+    submitPayment(stateOfForm) {
+        //Use number becasue cardAccount.number has spaces in it.
+        //Don't know if MX Merchant has something on their backend to take care of that.
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
+
+            let amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
+
+            let data = {
+                merchantId: stateOfForm.merchantId,
+                tenderType: "Card",
+                amount: amount,
+                cardAccount: {
+                    number: stateOfForm.number,
+                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
+                    expiryYear: stateOfForm.cardAccount.expiryYear,
+                    cvv: stateOfForm.cardAccount.cvv,
+                    avsZip: stateOfForm.cardAccount.avsZip,
+                    avsStreet: stateOfForm.cardAccount.avsStreet,
+                }
+            }
+
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                method: "POST",
+                header: headers,
+                body: JSON.stringify(data)
+            }).then((response) => {
+                console.log(JSON.stringify(data))
+                console.log(response);
+                console.log(response.json())
+            })
+        })
     }
 
     render(){
@@ -96,13 +134,7 @@ export default class PaymentScreen extends Component {
                     </View>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
-                    <KeyedPaymentForm />
-                    <Button 
-                        type="solid"
-                        title="Charge"
-                        containerStyle={styles.buttonContainer}
-                        titleStyle={styles.buttonTitle}
-                    />
+                    <KeyedPaymentForm charge={this.submitPayment}/>
                     <Button 
                         type="solid"
                         title="Connect Card Reader"

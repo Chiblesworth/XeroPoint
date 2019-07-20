@@ -104,17 +104,10 @@ export default class MainScreen extends Component {
             if(value === null){
                 AsyncStorage.setItem("serviceFee", "4");
             }
-            else{
-                console.log("value is " + value)
-            }
         });
         AsyncStorage.getItem("taxFee").then((value) => {
             if(value === null){
-                console.log("No tax fee detected");
                 AsyncStorage.setItem("taxFee", "10");
-            }
-            else{
-                console.log("value for tax is " + value)
             }
         })
     }
