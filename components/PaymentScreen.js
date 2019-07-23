@@ -76,14 +76,21 @@ export default class PaymentScreen extends Component {
                 }
             }
 
+            console.log(headers)
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
                 method: "POST",
-                header: headers,
+                headers: headers,
                 body: JSON.stringify(data)
             }).then((response) => {
-                console.log(JSON.stringify(data))
                 console.log(response);
-                console.log(response.json())
+            }).then(() => {
+                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                    method: "GET",
+                    headers: headers
+                }).then((response) => {
+                    console.log(response)
+                    console.log(response.json())
+                })
             })
         })
     }

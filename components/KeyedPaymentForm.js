@@ -30,7 +30,6 @@ export default class KeyedPaymentForm extends Component {
 
     componentDidMount() {
         this.getMerchantSettings();
-        console.log(this.state);
     }
 
     getMerchantSettings() {
