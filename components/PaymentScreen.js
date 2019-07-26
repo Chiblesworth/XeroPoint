@@ -6,6 +6,7 @@ import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
+import CustomerDropDown from './CustomerDropDown';
 
 /*
     This resets the component of the main screen 
@@ -164,6 +165,7 @@ export default class PaymentScreen extends Component {
                         inputContainerStyle={styles.inputContainer}
                         inputStyle={styles.input}
                     />
+                    <CustomerDropDown />
                     <Input
                         placeholder="Customer Number"
                         placeholderTextColor="grey"
