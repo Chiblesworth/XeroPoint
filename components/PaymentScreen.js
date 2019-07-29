@@ -25,7 +25,11 @@ export default class PaymentScreen extends Component {
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
             customers: [
-            ]
+            ],
+            customerId: null,
+            customerNumber: "",
+            memo: "",
+            invoice: ""
         }
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
@@ -34,6 +38,8 @@ export default class PaymentScreen extends Component {
         this.submitPayment = this.submitPayment.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
         this.getCustomers = this.getCustomers.bind(this);
+        this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
+        this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
     }
 
     componentDidMount() {
@@ -67,6 +73,11 @@ export default class PaymentScreen extends Component {
     }
 
     submitPayment(stateOfForm) {
+        AsyncStorage.getItem("selectedCustomerId").then((customerId) => {
+            this.setState({customerId: customerId});
+        });
+
+        //console.log(this.state); //3930129
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
         AsyncStorage.getItem("encodedUser").then((encoded) => {
@@ -76,7 +87,7 @@ export default class PaymentScreen extends Component {
             }
 
             let amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
-
+            console.log(this.state)
             let data = {
                 merchantId: stateOfForm.merchantId,
                 tenderType: "Card",
@@ -88,7 +99,14 @@ export default class PaymentScreen extends Component {
                     cvv: stateOfForm.cardAccount.cvv,
                     avsZip: stateOfForm.cardAccount.avsZip,
                     avsStreet: stateOfForm.cardAccount.avsStreet,
-                }
+                },
+                customer: {
+                    id: this.state.customerId
+                },
+                customerCode: this.state.customerNumber,
+                meta: this.state.memo,
+                invoice: this.state.invoice
+
             }
 
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
@@ -138,6 +156,21 @@ export default class PaymentScreen extends Component {
        })
     }
 
+    handleSelectedCustomer() {
+        AsyncStorage.getItem("selectedCustomerId").then((customerId) => {
+            console.log(customerId)
+        })
+    }
+
+    handleSearchCustomerButton() {
+        this.getCustomers();
+        //Makes duplicate list
+        console.log("here")
+        this.props.navigation.navigate("SearchCustomer", {
+            customers: this.state.customers
+        })
+    }
+
     render(){
         const {navigate} = this.props.navigation;
 
@@ -183,7 +216,6 @@ export default class PaymentScreen extends Component {
                         <Text style={styles.amountText}>
                             {this.props.navigation.state.params.amountCharged}
                         </Text>
-                        {this.state.customers.map((item, index) => <Text key={index}>{item.name}</Text>)}
                     </View>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
@@ -203,6 +235,7 @@ export default class PaymentScreen extends Component {
                         numberOfLines={4}
                         placeholder="Memo/Note"
                         placeholderTextColor="grey"
+                        onChangeText={(text) => this.setState({memo: text})}
                     />
                     <Button 
                         type="solid"
@@ -210,21 +243,21 @@ export default class PaymentScreen extends Component {
                         containerStyle={styles.buttonContainer}
                         buttonStyle={styles.button}
                         titleStyle={styles.customerTitle}
-                        onPress={() => navigate("SearchCustomer", {
-                            customers: this.state.customers     
-                        })}
+                        onPress={() => this.handleSearchCustomerButton()}
                     />
                     <Input
                         placeholder="Customer Number"
                         placeholderTextColor="grey"
                         inputContainerStyle={styles.inputContainer}
                         inputStyle={styles.input}
+                        onChangeText={(text) => this.setState({customerNumber: text})}
                     />
                     <Input
                         placeholder="Invoice"
                         placeholderTextColor="grey"
                         inputContainerStyle={styles.inputContainer}
                         inputStyle={styles.input}
+                        onChangeText={(text) => this.setState({invoice: text})}
                     />
                     <View style={styles.row}>
                         <Text style={{fontSize: 20, color: 'white', paddingRight: 10}}>
