@@ -9,48 +9,59 @@ export default class SearchCustomerScreen extends Component {
 
         this.state = {
             customers: this.props.navigation.state.params.customers,
+            filteredCustomers: [],
             search: "",
             renderList: false
         }
 
         this.updateSearch = this.updateSearch.bind(this);
-        this.createFlatList = this.createFlatList.bind(this);
-        this.renderFlatList = this.renderFlatList.bind(this);
+        // this.createFlatList = this.createFlatList.bind(this);
+        // this.renderFlatList = this.renderFlatList.bind(this);
     }
 
     componentDidMount() {
     }
 
     updateSearch = search => {
-        this.setState({search}, () => {
-            this.renderFlatList();
+        // this.setState({search}, () => {
+        //     this.renderFlatList();
+        // });
+        this.setState({search: search});
+
+        let filteredCustomers = this.state.customers.filter((item) => {
+            return item.name.includes(search);
         });
+
+        this.setState({filteredCustomers: filteredCustomers}, () => {
+            console.log(this.state.filteredCustomers)
+        });
+
     }
 
-    createFlatList() {
-        console.log("Here in create list")
-        console.log(this.state.renderList)
-        //https://stackoverflow.com/questions/45666762/search-filter-with-react-native-on-flatlist
-        //llook later
-        return (
-            <View style={styles.listContainer}>
-                 <FlatList
-                    data={this.state.customers}
-                    keyExtractor={item => item.id.toString()}
-                    renderItem={({item}) => {
-                        <ListItem
-                            title={item.name}
-                            titleStyle={styles.listItemTitle}
-                        />
-                    }}
-                />
-            </View>
-        );
-    }
+    // createFlatList() {
+    //     console.log("Here in create list")
+    //     console.log(this.state.renderList)
+    //     //https://stackoverflow.com/questions/45666762/search-filter-with-react-native-on-flatlist
+    //     //llook later
+    //     return (
+    //         <View style={styles.listContainer}>
+    //              <FlatList
+    //                 data={this.state.customers}
+    //                 keyExtractor={(item) => `${item.id}`}
+    //                 renderItem={({item}) => {
+    //                     <ListItem
+    //                         title={item.name}
+    //                         titleStyle={styles.listItemTitle}
+    //                     />
+    //                 }}
+    //             />
+    //         </View>
+    //     );
+    // }
 
-    renderFlatList() {
-        this.setState({renderList: true})
-    }
+    // renderFlatList() {
+    //     this.setState({renderList: true})
+    // }
 
     render() {
         const {navigate} = this.props.navigation;
@@ -82,10 +93,6 @@ export default class SearchCustomerScreen extends Component {
                         onChangeText={this.updateSearch}
                         value={this.state.search}
                     />
-                    {this.state.renderList
-                     ? this.createFlatList()
-                     : null
-                    }
                 </View>
             </View>
         )
