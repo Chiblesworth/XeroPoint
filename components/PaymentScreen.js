@@ -6,7 +6,6 @@ import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
-import CustomerDropDown from './CustomerDropDown';
 
 /*
     This resets the component of the main screen 
@@ -24,13 +23,28 @@ export default class PaymentScreen extends Component {
 
         this.state = {
             taxSwitchValue: false,
-            serviceFeeSwitchValue: false
+            serviceFeeSwitchValue: false,
+            customers: [
+            ]
         }
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
         this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
         this.submitPayment = this.submitPayment.bind(this);
+        this.getMerchantId = this.getMerchantId.bind(this);
+        this.getCustomers = this.getCustomers.bind(this);
+    }
+
+    componentDidMount() {
+        this.getMerchantId();
+        this.getCustomers();
+    }
+    
+    getMerchantId() {
+        AsyncStorage.getItem("merchantId").then((id) => {
+            this.setState({merchantId: id});
+        })
     }
 
     handleHeaderIconPress() {
@@ -77,7 +91,6 @@ export default class PaymentScreen extends Component {
                 }
             }
 
-            console.log(headers)
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
                 method: "POST",
                 headers: headers,
@@ -90,13 +103,44 @@ export default class PaymentScreen extends Component {
                     headers: headers
                 }).then((response) => {
                     console.log(response)
-                    console.log(response.json())
+                    console.log(response.json());
                 })
             })
         })
     }
 
+    getCustomers() {
+        /*
+            Gets users current customers they have linked to account.
+            Used for the searcha and add customer feature
+        */
+       AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
+
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+                method: "GET",
+                headers: headers,
+                qs: {merchantId: this.state.merchantId}
+            }).then((response) => {
+                return response.json();
+            }).then((Json) => {
+                let records = Json.records;
+
+                for(let i = 0; i < records.length; i++){
+                    let record = {'id': records[i].id, 'name': records[i].name};
+
+                    this.setState({customers: [...this.state.customers, record]})
+                }
+            })
+       })
+    }
+
     render(){
+        const {navigate} = this.props.navigation;
+
         let serviceFee; 
         let tax;
         /*
@@ -139,6 +183,7 @@ export default class PaymentScreen extends Component {
                         <Text style={styles.amountText}>
                             {this.props.navigation.state.params.amountCharged}
                         </Text>
+                        {this.state.customers.map((item, index) => <Text key={index}>{item.name}</Text>)}
                     </View>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
@@ -159,13 +204,16 @@ export default class PaymentScreen extends Component {
                         placeholder="Memo/Note"
                         placeholderTextColor="grey"
                     />
-                    <Input
-                        placeholder="Search or Add New Customer"
-                        placeholderTextColor="grey"
-                        inputContainerStyle={styles.inputContainer}
-                        inputStyle={styles.input}
+                    <Button 
+                        type="solid"
+                        title="Search or Add New Customer"
+                        containerStyle={styles.buttonContainer}
+                        buttonStyle={styles.button}
+                        titleStyle={styles.customerTitle}
+                        onPress={() => navigate("SearchCustomer", {
+                            customers: this.state.customers     
+                        })}
                     />
-                    <CustomerDropDown />
                     <Input
                         placeholder="Customer Number"
                         placeholderTextColor="grey"
@@ -263,13 +311,16 @@ const styles = StyleSheet.create({
     buttonContainer: {
         width: '92%',
         height: 40,
-        marginBottom: 20
+        marginBottom: 25
     },
     button: {
         backgroundColor: '#C8C8C8'
     },
     buttonTitle: {
         fontSize: 25
+    },
+    customerTitle: {
+        fontSize: 20
     },
     textarea: {
         width: '93%',

@@ -13,6 +13,7 @@ import MainScreen from './components/MainScreen';
 import PaymentScreen from './components/PaymentScreen';
 import SettingScreen from './components/SettingScreen';
 import FeesScreen from './components/FeesScreen';
+import SearchCustomerScreen from './components/SearchCustomerScreen';
 import { Button, Icon } from 'react-native-elements';
 import { View, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -45,7 +46,14 @@ const StackNavigator = createStackNavigator(
 			navigationOptions: {
 				header: null
 			}
+		},
+		SearchCustomer: {
+			screen: SearchCustomerScreen,
+			navigationOptions: {
+				header: null
+			}
 		}
+
 	}
 );
 
