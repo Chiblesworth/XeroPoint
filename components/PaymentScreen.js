@@ -22,6 +22,7 @@ export default class PaymentScreen extends Component {
         super(props);
 
         this.state = {
+            amount: this.props.navigation.state.params.amountCharged,
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
             customers: [
@@ -29,8 +30,15 @@ export default class PaymentScreen extends Component {
             customerId: null,
             customerNumber: "",
             memo: "",
-            invoice: ""
+            invoice: "",
+            tax: 0,
+            serviceFee: 0,
         }
+
+        //These will be used as form logging how much taxes and fees the user
+        //collected in the day if we go that route. Waiting on Mr. Hess
+        this.taxAmount = 0;
+        this.serviceFeeAmount = 0;
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
@@ -38,13 +46,12 @@ export default class PaymentScreen extends Component {
         this.submitPayment = this.submitPayment.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
         this.getCustomers = this.getCustomers.bind(this);
-        this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
+        this.checkAdditionalFees = this.checkAdditionalFees.bind(this);
     }
 
     componentDidMount() {
         this.getMerchantId();
-        this.getCustomers();
     }
     
     getMerchantId() {
@@ -58,11 +65,14 @@ export default class PaymentScreen extends Component {
     }
 
     toggleTaxSwitch() {
-
         this.setState({taxSwitchValue: !this.state.taxSwitchValue});
         AsyncStorage.getItem("taxFee").then((value) => {
             this.setState({tax: value});
         });
+
+        let newAmount = this.checkAdditionalFees(this.state.amount);
+
+        this.setState({amount: ("$" + parseFloat(Math.round(newAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
     }
 
     toggleServiceSwitch() {
@@ -70,6 +80,10 @@ export default class PaymentScreen extends Component {
         AsyncStorage.getItem("serviceFee").then((fee) => {
             this.setState({serviceFee: fee});
         });
+
+        let newAmount = this.checkAdditionalFees(this.state.amount);
+
+        this.setState({amount: ("$" + parseFloat(Math.round(newAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
     }
 
     submitPayment(stateOfForm) {
@@ -77,7 +91,6 @@ export default class PaymentScreen extends Component {
             this.setState({customerId: customerId});
         });
 
-        //console.log(this.state); //3930129
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
         AsyncStorage.getItem("encodedUser").then((encoded) => {
@@ -86,48 +99,56 @@ export default class PaymentScreen extends Component {
                 'Content-Type' : 'application/json; charset=utf-8'
             }
 
-            let amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
+            let amount = this.state.amount.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
             console.log(this.state)
-            let data = {
-                merchantId: stateOfForm.merchantId,
-                tenderType: "Card",
-                amount: amount,
-                cardAccount: {
-                    number: stateOfForm.number,
-                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
-                    expiryYear: stateOfForm.cardAccount.expiryYear,
-                    cvv: stateOfForm.cardAccount.cvv,
-                    avsZip: stateOfForm.cardAccount.avsZip,
-                    avsStreet: stateOfForm.cardAccount.avsStreet,
-                },
-                customer: {
-                    id: this.state.customerId
-                },
-                customerCode: this.state.customerNumber,
-                meta: this.state.memo,
-                invoice: this.state.invoice
+            let totalAmount = this.checkAdditionalFees(amount);
 
-            }
+            this.setState({amount: ("$" + parseFloat(Math.round(totalAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
+            
+            // let data = {
+            //     merchantId: stateOfForm.merchantId,
+            //     tenderType: "Card",
+            //     amount: amount,
+            //     cardAccount: {
+            //         number: stateOfForm.number,
+            //         expiryMonth: stateOfForm.cardAccount.expiryMonth,
+            //         expiryYear: stateOfForm.cardAccount.expiryYear,
+            //         cvv: stateOfForm.cardAccount.cvv,
+            //         avsZip: stateOfForm.cardAccount.avsZip,
+            //         avsStreet: stateOfForm.cardAccount.avsStreet,
+            //     },
+            //     customer: {
+            //         id: this.state.customerId
+            //     },
+            //     customerCode: this.state.customerNumber,
+            //     meta: this.state.memo,
+            //     invoice: this.state.invoice
 
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(data)
-            }).then((response) => {
-                console.log(response);
-            }).then(() => {
-                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                    method: "GET",
-                    headers: headers
-                }).then((response) => {
-                    console.log(response)
-                    console.log(response.json());
-                })
-            })
+            // }
+
+            // fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+            //     method: "POST",
+            //     headers: headers,
+            //     body: JSON.stringify(data)
+            // }).then((response) => {
+            //     console.log(response);
+            // }).then(() => {
+            //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+            //         method: "GET",
+            //         headers: headers
+            //     }).then((response) => {
+            //         console.log(response)
+            //         console.log(response.json());
+            //     })
+            // })
         })
     }
 
     getCustomers() {
+        console.log("service fee switch" + this.state.serviceFeeSwitchValue)
+        console.log(this.state.serviceFee)
+        console.log("tax fee switch value " + this.state.taxSwitchValue)
+        console.log(this.state.tax)
         /*
             Gets users current customers they have linked to account.
             Used for the searcha and add customer feature
@@ -149,31 +170,55 @@ export default class PaymentScreen extends Component {
 
                 for(let i = 0; i < records.length; i++){
                     let record = {'id': records[i].id, 'name': records[i].name};
-
-                    this.setState({customers: [...this.state.customers, record]})
+                    
+                    this.setState(prevState => ({
+                        customers: [...prevState.customers, record]
+                    }));
                 }
+
+                this.props.navigation.navigate("SearchCustomer", {
+                    customers: this.state.customers
+                });
+
+                //Used to get rid of duplicate lists of customers being made when 
+                //search for customer button clicked multiple times in one session
+                this.setState({customers: []}); 
             })
        })
     }
 
-    handleSelectedCustomer() {
-        AsyncStorage.getItem("selectedCustomerId").then((customerId) => {
-            console.log(customerId)
-        })
-    }
-
     handleSearchCustomerButton() {
         this.getCustomers();
-        //Makes duplicate list
-        console.log("here")
-        this.props.navigation.navigate("SearchCustomer", {
-            customers: this.state.customers
-        })
+    }
+
+    checkAdditionalFees(amountCharged) {
+        let feeDecimalAmount = 0;
+        let feeDollarAmount = 0;
+        
+        amountCharged = Number(amountCharged.replace(/[^0-9]/, ""));
+        //Apply tax fees first
+        if(this.state.taxSwitchValue){
+            feeDecimalAmount = this.state.tax / 100;
+
+            feeDollarAmount = amountCharged * feeDecimalAmount;
+
+            amountCharged = Number(amountCharged) + feeDollarAmount;
+        }
+        else if(this.state.serviceFeeSwitchValue){
+            feeDecimalAmount = this.state.serviceFee / 100;
+
+            feeDollarAmount = amountCharged * feeDecimalAmount;
+
+            amountCharged = Number(amountCharged) + feeDollarAmount;
+        }
+        else if(!this.state.taxSwitchValue || !this.state.serviceFeeSwitchValue){
+            amountCharged = this.props.navigation.state.params.amountCharged;
+        }
+
+        return amountCharged;
     }
 
     render(){
-        const {navigate} = this.props.navigation;
-
         let serviceFee; 
         let tax;
         /*
@@ -194,6 +239,7 @@ export default class PaymentScreen extends Component {
         else{
             serviceFee = <Text style={styles.feeText}>0</Text>;
         }
+
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
@@ -214,7 +260,7 @@ export default class PaymentScreen extends Component {
                     <View style={styles.mainScreenTextSection}>
                         <Text style={styles.simpleText}>CHARGED AMOUNT</Text>
                         <Text style={styles.amountText}>
-                            {this.props.navigation.state.params.amountCharged}
+                            {this.state.amount}
                         </Text>
                     </View>
                 </View>

@@ -19,6 +19,7 @@ export default class SearchCustomerScreen extends Component {
         this.updateSearch = this.updateSearch.bind(this);
         this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
         this.createNewCustomer = this.createNewCustomer.bind(this);
+        this.navigateToPayment = this.navigateToPayment.bind(this);
     }
 
     componentDidMount() {
@@ -48,38 +49,15 @@ export default class SearchCustomerScreen extends Component {
             `${customerName} added to payment.`
         )
 
-        this.props.navigation.navigate("Payment");
+        this.navigateToPayment();
     }
 
-    renderHeader = () => {
-        const {navigate} = this.props.navigation;
+    navigateToPayment() {
+        //Empty list before going back that way no duplicates are made
+        this.setState({customers: null});
+        this.filteredCustomers = null;
 
-        return (
-            <View>
-                <Header 
-                    leftComponent={
-                        <HeaderIcon 
-                            name="chevron-left"
-                            type="entypo"
-                            size={70}
-                            handlePress={() => navigate("Payment")}
-                        /> 
-                    }
-                    backgroundColor='#808080'
-                    containerStyle={{ borderBottomWidth: 0 }}
-                    centerComponent={
-                        <SearchBar
-                            placeholder="Search"
-                            containerStyle={styles.searchContainer}
-                            inputContainerStyle={styles.inputContainer}
-                            onChangeText={(text) => this.updateSearch(text)}
-                            value={this.state.search}
-                        />
-                    }
-                    centerContainerStyle={styles.centerComponent}
-                />
-            </View>
-        )
+        this.props.navigation.navigate("Payment");
     }
 
     createNewCustomer() {
@@ -110,13 +88,49 @@ export default class SearchCustomerScreen extends Component {
             }).then((response) => {
                 console.log(response.json())
             })
+
+            Alert.alert(
+                "Customer Added to Payment",
+                `${this.state.search} added to payment.`
+            )
+
+            this.navigateToPayment();
         });
+    }
+
+    renderHeader = () => {
+        return (
+            <View>
+                <Header 
+                    leftComponent={
+                        <HeaderIcon 
+                            name="chevron-left"
+                            type="entypo"
+                            size={70}
+                            handlePress={() => this.navigateToPayment()}
+                        /> 
+                    }
+                    backgroundColor='#808080'
+                    containerStyle={{ borderBottomWidth: 0 }}
+                    centerComponent={
+                        <SearchBar
+                            placeholder="Search"
+                            containerStyle={styles.searchContainer}
+                            inputContainerStyle={styles.inputContainer}
+                            onChangeText={(text) => this.updateSearch(text)}
+                            value={this.state.search}
+                        />
+                    }
+                    centerContainerStyle={styles.centerComponent}
+                />
+            </View>
+        )
     }
 
     renderEmpty = () => {
         return (
             <View>
-                <TouchableOpacity onPress={() => this.createNewCustomer}>
+                <TouchableOpacity onPress={() => this.createNewCustomer()}>
                     <Text style={styles.newCustomerText}>"{this.state.search}"</Text>
                 </TouchableOpacity>
             </View>
@@ -124,8 +138,6 @@ export default class SearchCustomerScreen extends Component {
     }
 
     render() {
-        const {navigate} = this.props.navigation;
-
         return (
             <View style={styles.mainContainer}>
                 <FlatList
