@@ -53,7 +53,6 @@ const StackNavigator = createStackNavigator(
 				header: null
 			}
 		}
-
 	}
 );
 
