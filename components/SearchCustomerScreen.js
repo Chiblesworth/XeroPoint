@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, FlatList, StyleSheet } from 'react-native';
-import { Header, Button, SearchBar, ListItem} from 'react-native-elements';
+import { View, Text, FlatList, Alert, StyleSheet, TouchableOpacity} from 'react-native';
+import { Header, SearchBar, ListItem} from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class SearchCustomerScreen extends Component {
     constructor(props) {
@@ -10,83 +11,150 @@ export default class SearchCustomerScreen extends Component {
         this.state = {
             customers: this.props.navigation.state.params.customers,
             search: "",
-            renderList: false
+            merchantId: null
         }
 
+        this.filteredCustomers = this.state.customers;
+
         this.updateSearch = this.updateSearch.bind(this);
-        this.createFlatList = this.createFlatList.bind(this);
-        this.renderFlatList = this.renderFlatList.bind(this);
+        this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
+        this.createNewCustomer = this.createNewCustomer.bind(this);
+        this.navigateToPayment = this.navigateToPayment.bind(this);
     }
 
     componentDidMount() {
-    }
-
-    updateSearch = search => {
-        this.setState({search}, () => {
-            this.renderFlatList();
+        AsyncStorage.getItem("merchantId").then((id) => {
+            this.setState({merchantId: id});
         });
     }
 
-    createFlatList() {
-        console.log("Here in create list")
-        console.log(this.state.renderList)
-        //https://stackoverflow.com/questions/45666762/search-filter-with-react-native-on-flatlist
-        //llook later
+    updateSearch = search => {
+        this.setState({search: search});
+
+        const newData = this.filteredCustomers.filter(item => {
+            const itemData = `${item.name.toUpperCase()}`
+            const textData = search.toUpperCase();
+
+            return itemData.indexOf(textData) > -1;
+        });
+
+        this.setState({customers: newData});
+    }
+
+    handleSelectedCustomer(customerId, customerName) {
+        AsyncStorage.setItem("selectedCustomerId", customerId.toString());
+
+        Alert.alert(
+            "Customer Added to Payment",
+            `${customerName} added to payment.`
+        )
+
+        this.navigateToPayment();
+    }
+
+    navigateToPayment() {
+        //Empty list before going back that way no duplicates are made
+        this.setState({customers: null});
+        this.filteredCustomers = null;
+
+        this.props.navigation.navigate("Payment");
+    }
+
+    createNewCustomer() {
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
+
+            let data = {
+                merchantId: this.state.merchantId,
+                name: this.state.search,
+                firstName: this.state.search
+            }
+
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            }).then((response) => {
+                console.log(response)
+            });
+
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+                method: "GET",
+                headers: headers,
+                qs: this.state.merchantId
+            }).then((response) => {
+                console.log(response.json())
+            })
+
+            Alert.alert(
+                "Customer Added to Payment",
+                `${this.state.search} added to payment.`
+            )
+
+            this.navigateToPayment();
+        });
+    }
+
+    renderHeader = () => {
         return (
-            <View style={styles.listContainer}>
-                 <FlatList
-                    data={this.state.customers}
-                    keyExtractor={item => item.id.toString()}
-                    renderItem={({item}) => {
-                        <ListItem
-                            title={item.name}
-                            titleStyle={styles.listItemTitle}
+            <View>
+                <Header 
+                    leftComponent={
+                        <HeaderIcon 
+                            name="chevron-left"
+                            type="entypo"
+                            size={70}
+                            handlePress={() => this.navigateToPayment()}
+                        /> 
+                    }
+                    backgroundColor='#808080'
+                    containerStyle={{ borderBottomWidth: 0 }}
+                    centerComponent={
+                        <SearchBar
+                            placeholder="Search"
+                            containerStyle={styles.searchContainer}
+                            inputContainerStyle={styles.inputContainer}
+                            onChangeText={(text) => this.updateSearch(text)}
+                            value={this.state.search}
                         />
-                    }}
+                    }
+                    centerContainerStyle={styles.centerComponent}
                 />
+            </View>
+        )
+    }
+
+    renderEmpty = () => {
+        return (
+            <View>
+                <TouchableOpacity onPress={() => this.createNewCustomer()}>
+                    <Text style={styles.newCustomerText}>"{this.state.search}"</Text>
+                </TouchableOpacity>
             </View>
         );
     }
 
-    renderFlatList() {
-        this.setState({renderList: true})
-    }
-
     render() {
-        const {navigate} = this.props.navigation;
-
         return (
             <View style={styles.mainContainer}>
-                <View stlye={styles.header}>
-                    <Header 
-                        leftComponent={
-                            <HeaderIcon 
-                                name="chevron-left"
-                                type="entypo"
-                                size={70}
-                                handlePress={() => navigate("Payment")}
-                            /> 
-                        }
-                        backgroundColor='#808080'
-                        containerStyle={{ borderBottomWidth: 0 }}
-                        centerComponent={
-                            <Text style={styles.headerTitle}>Search for Customer</Text>
-                        }
-                    />
-                </View>
-                <View>
-                    <SearchBar
-                        placeholder="Search"
-                        containerStyle={styles.searchContainer}
-                        inputContainerStyle={styles.inputContainer}
-                        onChangeText={this.updateSearch}
-                        value={this.state.search}
-                    />
-                    {this.state.renderList
-                     ? this.createFlatList()
-                     : null
-                    }
-                </View>
+                <FlatList
+                    data={this.state.customers}
+                    renderItem={({item}) => (
+                        <ListItem
+                            containerStyle={styles.listContainer}
+                            title={`${item.name}`}
+                            titleStyle={styles.listItemTitle}
+                            onPress={() => this.handleSelectedCustomer(item.id, item.name)}
+                        />
+                    )}
+                    keyExtractor={item => item.id.toString()}
+                    ListHeaderComponent={this.renderHeader}
+                    ListHeaderComponentStyle={styles.header}
+                    ListEmptyComponent={this.renderEmpty}
+                />
             </View>
         )
     }
@@ -100,16 +168,12 @@ const styles = StyleSheet.create({
     },
     header: {
         width: '100%',
-        height: 70
-    },
-    headerTitle: {
-        fontSize: 25,
-        color: 'white',
-        paddingBottom: 30
+        height: 70,
+        marginBottom: 25
     },
     searchContainer: {
         backgroundColor: 'white',
-        width: '90%',
+        width: '100%',
         marginLeft: 20,
         borderStyle: 'solid',
         borderColor: 'white',
@@ -123,10 +187,19 @@ const styles = StyleSheet.create({
     },
     listItemTitle: {
         color: 'white',
-        fontSize: 30
+        fontSize: 20,
+        marginLeft: 25
     },
     listContainer: {
-        backgroundColor: 'white',
+        backgroundColor: '#808080',
         width: '100%'
     },
+    centerComponent: {
+        paddingBottom: 20
+    },
+    newCustomerText: {
+        color: 'white',
+        fontSize: 20,
+        marginLeft: 50
+    }
 })
