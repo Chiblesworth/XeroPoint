@@ -6,6 +6,8 @@ import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
+import { feeCalculations } from './feeCalculations';
+
 
 /*
     This resets the component of the main screen 
@@ -22,7 +24,7 @@ export default class PaymentScreen extends Component {
         super(props);
 
         this.state = {
-            amount: this.props.navigation.state.params.amountCharged,
+            amountCharged: this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""),
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
             customers: [
@@ -32,26 +34,52 @@ export default class PaymentScreen extends Component {
             memo: "",
             invoice: "",
             tax: 0,
-            serviceFee: 0,
+            serviceFee: 0
         }
 
-        //These will be used as form logging how much taxes and fees the user
-        //collected in the day if we go that route. Waiting on Mr. Hess
-        this.taxAmount = 0;
-        this.serviceFeeAmount = 0;
+        //These values will be set when the component mounts and will render based on switches
+        this.amountWithTax = 0;
+        this.amountWithService = 0;
+        this.amountWithBoth = 0;
+        
+        /*
+            These will be used as form logging how much taxes and fees the user
+            collected in the day if we go that route. Waiting on Mr. Hess
+            This will also be used for a combined total if both switches are true
+        */
+        this.taxDollarAmount = 0;
+        this.serviceDollarAmount = 0;
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
+        this.handleSwitchPress = this.handleSwitchPress.bind(this);
         this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
         this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
         this.submitPayment = this.submitPayment.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
         this.getCustomers = this.getCustomers.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
-        this.checkAdditionalFees = this.checkAdditionalFees.bind(this);
     }
 
     componentDidMount() {
         this.getMerchantId();
+
+        let amountCharged = this.state.amountCharged; //Removes dollar sign
+        amountCharged = Number(amountCharged); //Makes sure it is a number being sent
+        
+        AsyncStorage.getItem("taxFee").then((value) => {
+            this.setState({tax: value}, () => {
+                this.amountWithTax = feeCalculations(amountCharged, value);
+                console.log(this.amountWithTax);
+            });
+        });
+        AsyncStorage.getItem("serviceFee").then((fee) => {
+            this.setState({serviceFee: fee}, () => {
+                this.amountWithService = feeCalculations(amountCharged, fee);
+                this.amountWithBoth = feeCalculations(this.amountWithTax, fee);
+                console.log(this.amountWithService);
+                console.log(this.amountWithBoth);
+            });
+        });
     }
     
     getMerchantId() {
@@ -64,26 +92,21 @@ export default class PaymentScreen extends Component {
         this.props.navigation.dispatch(resetAction);
     }
 
+    async handleSwitchPress(switchHit) { //Using async here so values are being read as switched at the right times
+        if(switchHit === "tax"){
+            await this.toggleTaxSwitch();
+        }
+        else{
+            await this.toggleServiceSwitch();
+        }
+    }
+
     toggleTaxSwitch() {
         this.setState({taxSwitchValue: !this.state.taxSwitchValue});
-        AsyncStorage.getItem("taxFee").then((value) => {
-            this.setState({tax: value});
-        });
-
-        let newAmount = this.checkAdditionalFees(this.state.amount);
-
-        this.setState({amount: ("$" + parseFloat(Math.round(newAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
     }
 
     toggleServiceSwitch() {
         this.setState({serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue});
-        AsyncStorage.getItem("serviceFee").then((fee) => {
-            this.setState({serviceFee: fee});
-        });
-
-        let newAmount = this.checkAdditionalFees(this.state.amount);
-
-        this.setState({amount: ("$" + parseFloat(Math.round(newAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
     }
 
     submitPayment(stateOfForm) {
@@ -101,10 +124,7 @@ export default class PaymentScreen extends Component {
 
             let amount = this.state.amount.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
             console.log(this.state)
-            let totalAmount = this.checkAdditionalFees(amount);
 
-            this.setState({amount: ("$" + parseFloat(Math.round(totalAmount * 100) / 100).toFixed(2))}); //Formats it with 2 decimal places.
-            
             // let data = {
             //     merchantId: stateOfForm.merchantId,
             //     tenderType: "Card",
@@ -145,10 +165,6 @@ export default class PaymentScreen extends Component {
     }
 
     getCustomers() {
-        console.log("service fee switch" + this.state.serviceFeeSwitchValue)
-        console.log(this.state.serviceFee)
-        console.log("tax fee switch value " + this.state.taxSwitchValue)
-        console.log(this.state.tax)
         /*
             Gets users current customers they have linked to account.
             Used for the searcha and add customer feature
@@ -191,36 +207,10 @@ export default class PaymentScreen extends Component {
         this.getCustomers();
     }
 
-    checkAdditionalFees(amountCharged) {
-        let feeDecimalAmount = 0;
-        let feeDollarAmount = 0;
-        
-        amountCharged = Number(amountCharged.replace(/[^0-9]/, ""));
-        //Apply tax fees first
-        if(this.state.taxSwitchValue){
-            feeDecimalAmount = this.state.tax / 100;
-
-            feeDollarAmount = amountCharged * feeDecimalAmount;
-
-            amountCharged = Number(amountCharged) + feeDollarAmount;
-        }
-        else if(this.state.serviceFeeSwitchValue){
-            feeDecimalAmount = this.state.serviceFee / 100;
-
-            feeDollarAmount = amountCharged * feeDecimalAmount;
-
-            amountCharged = Number(amountCharged) + feeDollarAmount;
-        }
-        else if(!this.state.taxSwitchValue || !this.state.serviceFeeSwitchValue){
-            amountCharged = this.props.navigation.state.params.amountCharged;
-        }
-
-        return amountCharged;
-    }
-
     render(){
         let serviceFee; 
         let tax;
+        let amountCharged;
         /*
             This is the only way I've been able to get AsyncStorage to work
             without causing an infinite loop. Can't get component to remount
@@ -238,6 +228,20 @@ export default class PaymentScreen extends Component {
         }
         else{
             serviceFee = <Text style={styles.feeText}>0</Text>;
+        }
+
+        //Probably not the best way but deals with rendering the total amount on screen
+        if(this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
+            amountCharged = this.amountWithBoth;
+        }
+        else if(this.state.taxSwitchValue && !this.state.serviceFeeSwitchValue){
+            amountCharged = this.amountWithTax;
+        }
+        else if(!this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
+            amountCharged = this.amountWithService;
+        }
+        else{
+            amountCharged = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, "");
         }
 
         return (
@@ -260,7 +264,7 @@ export default class PaymentScreen extends Component {
                     <View style={styles.mainScreenTextSection}>
                         <Text style={styles.simpleText}>CHARGED AMOUNT</Text>
                         <Text style={styles.amountText}>
-                            {this.state.amount}
+                            ${parseFloat(Math.round(amountCharged * 100) / 100).toFixed(2)}
                         </Text>
                     </View>
                 </View>
@@ -311,7 +315,7 @@ export default class PaymentScreen extends Component {
                         </Text>
                         <SwitchToggle
                             switchOn={this.state.taxSwitchValue}
-                            onPress={this.toggleTaxSwitch}
+                            onPress={() => this.handleSwitchPress("tax")}
                             circleColorOff="white"
                             circleColorOn="white"
                             backgroundColorOn="blue"
@@ -327,7 +331,7 @@ export default class PaymentScreen extends Component {
                         </Text>
                         <SwitchToggle
                             switchOn={this.state.serviceFeeSwitchValue}
-                            onPress={this.toggleServiceSwitch}
+                            onPress={() => this.handleSwitchPress("service")}
                             circleColorOff="white"
                             circleColorOn="white"
                             backgroundColorOn="blue"
