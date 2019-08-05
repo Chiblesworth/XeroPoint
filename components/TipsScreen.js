@@ -33,6 +33,10 @@ export default class TipsScreen extends Component {
         this.setState({defaultTip: index}, () => {
             console.log("default tip index is " + this.state.defaultTip);
             console.log("Tip percent is " + this.defaultTips[index])
+
+            //What I need to is take out the % sign in the defaultTips
+            //Save in AsyncStorage as a string but only integer. Will help so I dont have to remove 
+            //% every time I call that variable. Should only be once but still.
         });
     }
 
