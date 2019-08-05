@@ -13,6 +13,7 @@ import MainScreen from './components/MainScreen';
 import PaymentScreen from './components/PaymentScreen';
 import SettingScreen from './components/SettingScreen';
 import FeesScreen from './components/FeesScreen';
+import TipsScreen from './components/TipsScreen';
 import SearchCustomerScreen from './components/SearchCustomerScreen';
 import { Button, Icon } from 'react-native-elements';
 import { View, StyleSheet } from 'react-native';
@@ -77,6 +78,13 @@ const DrawerNavigation = createDrawerNavigator(
 		},
 		Fees: {
 			screen: FeesScreen,
+			navigationOptions: {
+				header: null,
+				drawerLabel: () => null
+			}
+		},
+		Tips: {
+			screen: TipsScreen,
 			navigationOptions: {
 				header: null,
 				drawerLabel: () => null

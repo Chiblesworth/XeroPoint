@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
@@ -58,6 +58,7 @@ export default class PaymentScreen extends Component {
         this.getMerchantId = this.getMerchantId.bind(this);
         this.getCustomers = this.getCustomers.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
+        this.showAlert = this.showAlert.bind(this);
     }
 
     componentDidMount() {
@@ -114,54 +115,35 @@ export default class PaymentScreen extends Component {
             this.setState({customerId: customerId});
         });
 
+        console.log(stateOfForm);
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
-        AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
-            }
+        if(stateOfForm.number === "" && stateOfForm.cardAccount.expiryMonth === "" && stateOfForm.cardAccount.expiryYear === ""){
+            console.log("Number and month and year is blank");
+            this.showAlert();
+        }
+        else if(stateOfForm.streetOn === true && stateOfForm.cardAccount.avsStreet === ""){
+            console.log("Street is blank");
+            this.showAlert();
+        }
+        else if(stateOfForm.zipOn === true && stateOfForm.cardAccount.avsZip === ""){
+            console.log("Zip is blank");
+            this.showAlert();
+        }
+        else if(stateOfForm.cvvOn === true && stateOfForm.cardAccount.cvv === ""){
+            console.log("CVV is blank");
+            this.showAlert();
+        }
+        else{
+            console.log("All fields filled out")
+        }
+    }
 
-            let amount = this.state.amount.replace(/[^0-9]/, ""); //Get rid of dollar sign in amount
-            console.log(this.state)
-
-            // let data = {
-            //     merchantId: stateOfForm.merchantId,
-            //     tenderType: "Card",
-            //     amount: amount,
-            //     cardAccount: {
-            //         number: stateOfForm.number,
-            //         expiryMonth: stateOfForm.cardAccount.expiryMonth,
-            //         expiryYear: stateOfForm.cardAccount.expiryYear,
-            //         cvv: stateOfForm.cardAccount.cvv,
-            //         avsZip: stateOfForm.cardAccount.avsZip,
-            //         avsStreet: stateOfForm.cardAccount.avsStreet,
-            //     },
-            //     customer: {
-            //         id: this.state.customerId
-            //     },
-            //     customerCode: this.state.customerNumber,
-            //     meta: this.state.memo,
-            //     invoice: this.state.invoice
-
-            // }
-
-            // fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-            //     method: "POST",
-            //     headers: headers,
-            //     body: JSON.stringify(data)
-            // }).then((response) => {
-            //     console.log(response);
-            // }).then(() => {
-            //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-            //         method: "GET",
-            //         headers: headers
-            //     }).then((response) => {
-            //         console.log(response)
-            //         console.log(response.json());
-            //     })
-            // })
-        })
+    showAlert() {
+        Alert.alert(
+            "Incomplete Fields",
+            'Please fill out all fields above the "Charge" button to continue.'
+        );
     }
 
     getCustomers() {

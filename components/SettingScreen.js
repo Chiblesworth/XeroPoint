@@ -23,6 +23,9 @@ export default class SettingScreen extends Component {
             console.log("Pressed fees button");
             this.props.navigation.navigate("Fees");
         }
+        else if(setting === "Tips"){
+            this.props.navigation.navigate("Tips");
+        }
     }
 
     render() {
@@ -58,7 +61,7 @@ export default class SettingScreen extends Component {
                             <HeaderIcon 
                                 name="chevron-left"
                                 type="entypo"
-                                size={70}
+                                size={60}
                                 handlePress={this.handleHeaderIconPress}
                             /> 
                         }
