@@ -17,6 +17,7 @@ export default class TipOverlay extends Component {
     handleTipChange(tipAmount, index) {
         console.log("Tip amount " + tipAmount)
         console.log("index is " + index)
+        tipAmount += "%";
         this.newCustomTips[index] = tipAmount;
     }
 
@@ -51,38 +52,6 @@ export default class TipOverlay extends Component {
                 <View style={styles.container}>
                     <Text style={styles.title}>Adjust Tip Amounts</Text>
                     <Text style={styles.text}>Here you can set custom tip percentages</Text>
-                    {/* <View style={styles.row}>
-                        <View>
-                            <Text style={styles.tipHeader}>Custom Tip 1:</Text>
-                        </View>
-                        <View>
-                            <Input
-                                placeholder={this.props.customTips[0]}
-                                containerStyle={styles.inputContainer}
-                                inputContainerStyle={styles.inputContainerStyle}
-                                onChangeText={(text) => this.setState({newCustomTips: [...this.state.newCustomTips, text]})}
-                            />
-                        </View>
-                        <View>
-                            <Text style={styles.percentSign}>%</Text>
-                        </View>
-                    </View>
-                    <View style={styles.row}>
-                        <View>
-                            <Text style={styles.tipHeader}>Custom Tip 2:</Text>
-                        </View>
-                        <View>
-                            <Input
-                                placeholder={this.props.customTips[1]}
-                                containerStyle={styles.inputContainer}
-                                inputContainerStyle={styles.inputContainerStyle}
-                                onChangeText={(text) => this.setState({newCustomTips: [...this.state.newCustomTips, text]})}
-                            />
-                        </View>
-                        <View>
-                            <Text style={styles.percentSign}>%</Text>
-                        </View>
-                    </View> */}
                     {rows}
                     <Button 
                         onPress={() => console.log(this.newCustomTips)}
