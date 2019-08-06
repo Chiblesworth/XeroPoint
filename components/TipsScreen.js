@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Header } from 'react-native-elements';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { Header, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
+import AsyncStorage from '@react-native-community/async-storage';
+import TipOverlay from './TipOverlay';
 
 export default class TipsScreen extends Component {
     constructor(props) {
@@ -11,33 +13,103 @@ export default class TipsScreen extends Component {
     
         this.state = {
             collectTips: true,
-            defaultTip: 0
+            defaultTip: 0,
+            useCustomPercentages: false,
+            overlayVisible: false
         };
 
         this.defaultTips = ["No Tip", "15%", "20%", "25%"];
+        this.customTips = [];
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleSwitchPress = this.handleSwitchPress.bind(this);
         this.handleDefaultTipChange = this.handleDefaultTipChange.bind(this);
+        this.setCollectedTips = this.setCollectedTips.bind(this);
+        this.customTipsUsed = this.customTipsUsed.bind(this);
+        this.handleOverlay = this.handleOverlay.bind(this);
+    }
+
+    async componentDidMount() {
+        //Storing Arrays with Async https://stackoverflow.com/questions/38416821/how-do-you-save-an-array-in-async-storage-in-react-native
+        AsyncStorage.setItem("defaultTips", JSON.stringify(this.defaultTips));
+        
+        let boolValue; //Used because switches can only be bool values and Async only stores strings
+        AsyncStorage.getItem("collectTips").then((collect) => {
+            if(collect != null){
+                if(collect === "true"){
+                    boolValue = true;
+                }
+                else{
+                    boolValue = false;
+                }
+                this.setState({collectTips: boolValue});
+            }
+        })
+        AsyncStorage.getItem("useCustomTips").then((custom) => {
+            if(custom != null){
+                if(custom === "true"){
+                    boolValue = true;
+                }
+                else{
+                    boolValue = false;
+                }
+                this.setState({useCustomPercentages: boolValue});
+            }
+        });
+
+        //See if custom tips exist
+        const customTipArray = await AsyncStorage.getItem("customTips");
+
+        if(customTipArray === null){
+            this.customTips = ["15%", "20%", "25%"];
+        }
+        else{
+            this.customTips = customTipArray;
+        }
     }
 
     handleHeaderIconPress() {
         this.props.navigation.navigate("Settings");
     }
 
-    handleSwitchPress() {
-        this.setState({collectTips: !this.state.collectTips});
+    handleSwitchPress(switchHit) {
+        if(switchHit === "collectTips"){
+            this.setState({collectTips: !this.state.collectTips}, () => {
+                this.setCollectedTips();
+            });
+        }
+        else if(switchHit === "useCustomTips"){
+            this.setState({useCustomPercentages: !this.state.useCustomPercentages}, () => {
+                this.customTipsUsed();
+            });
+        }
     }
 
-    handleDefaultTipChange(index) {
+    setCollectedTips() {
+        AsyncStorage.setItem("collectTips", this.state.collectTips.toString());
+    }
+
+    customTipsUsed() {
+        AsyncStorage.setItem("useCustomTips", this.state.useCustomPercentages.toString());
+    }
+
+    async handleDefaultTipChange(index) {
         this.setState({defaultTip: index}, () => {
             console.log("default tip index is " + this.state.defaultTip);
-            console.log("Tip percent is " + this.defaultTips[index])
-
-            //What I need to is take out the % sign in the defaultTips
-            //Save in AsyncStorage as a string but only integer. Will help so I dont have to remove 
-            //% every time I call that variable. Should only be once but still.
+            console.log("Tip percent is " + this.defaultTips[index]);
+            AsyncStorage.setItem("selectedDefaultTip", this.defaultTips[index]);
         });
+
+        const collect  = await AsyncStorage.getItem("collectTips");
+        const myArray  = await AsyncStorage.getItem("defaultTips");
+        const selectedDefaultTip = await AsyncStorage.getItem("selectedDefaultTip");
+        console.log(JSON.parse(myArray));
+        console.log(selectedDefaultTip);
+        console.log("are we collecting tips " + collect)
+    }
+
+    handleOverlay() {
+        this.setState({overlayVisible: !this.state.overlayVisible});
     }
 
     render() {
@@ -68,7 +140,7 @@ export default class TipsScreen extends Component {
                         <View style={styles.switch}>
                                 <SwitchToggle
                                     switchOn={this.state.collectTips}
-                                    onPress={() => this.handleSwitchPress()}
+                                    onPress={() => this.handleSwitchPress("collectTips")}
                                     circleColorOff="white"
                                     circleColorOn="white"
                                     backgroundColorOn="blue"
@@ -94,7 +166,39 @@ export default class TipsScreen extends Component {
                         />
                     </View>
                 </View>
+                <View style={styles.container}>
+                    <View stlye={styles.row}>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.text}>Use Custom Tip Amounts</Text>
+                        </View>
+                        <View style={styles.switch}>
+                                <SwitchToggle
+                                    switchOn={this.state.useCustomPercentages}
+                                    onPress={() => this.handleSwitchPress("useCustomTips")}
+                                    circleColorOff="white"
+                                    circleColorOn="white"
+                                    backgroundColorOn="blue"
+                                />
+                        </View>
+                    </View>
+                </View>
+                <View style={styles.container}>
+                    <Button
+                        type="solid"
+                        title="Adjust Custom Amounts"
+                        containerStyle={styles.buttonContainer}
+                        buttonStyle={styles.button}
+                        titleStyle={styles.buttonTitle}
+                        onPress={() => this.handleOverlay()}
+                    />
+                </View>
+                <TipOverlay 
+                    visible={this.state.overlayVisible} 
+                    handleClose={this.handleOverlay} 
+                    customTips={this.customTips} 
+                />
             </View>
+            
         );
     }
 }
@@ -118,7 +222,8 @@ const styles = StyleSheet.create({
     container: {
         borderBottomColor: 'white',
         borderBottomWidth: 2,
-        marginBottom: 20
+        marginBottom: 20,
+        width: '100%'
     },
     row: {
         flex: 1,
@@ -161,5 +266,17 @@ const styles = StyleSheet.create({
     },
     activeTabTextStyle: {
         color: 'black'
-    }
+    },
+    buttonContainer: {
+        width: '92%',
+        height: 40,
+        marginBottom: 25,
+        marginLeft: 15
+    },
+    button: {
+        backgroundColor: '#C8C8C8'
+    },
+    buttonTitle: {
+        fontSize: 25
+    },
 });
