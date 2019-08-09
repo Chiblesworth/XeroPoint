@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
-import { Header, Overlay, Button, Input } from 'react-native-elements';
+import { Overlay, Button, Input } from 'react-native-elements';
 
 export default class TipOverlay extends Component {
     constructor(props) {
@@ -9,16 +9,28 @@ export default class TipOverlay extends Component {
         this.state = {
         }
 
-        this.newCustomTips = [];
+        this.newCustomTips = [...this.props.customTips];
 
         this.handleTipChange = this.handleTipChange.bind(this);
+        this.printArray = this.printArray.bind(this);
+        this.checkBeforeChange = this.checkBeforeChange.bind(this);
     }
 
     handleTipChange(tipAmount, index) {
-        console.log("Tip amount " + tipAmount)
-        console.log("index is " + index)
-        tipAmount += "%";
-        this.newCustomTips[index] = tipAmount;
+        tipAmount += "%";   
+        
+        this.props.customTips[index] = tipAmount; 
+    }
+
+    printArray() {
+        for(let i = 0; i < this.props.customTips.length; i++){
+            console.log(this.props.customTips[i])
+        }
+    }
+    
+    checkBeforeChange() {         
+        this.props.applyChanges(this.props.customTips);
+        this.props.handleClose();
     }
 
     render() {
@@ -32,7 +44,7 @@ export default class TipOverlay extends Component {
                             </View>
                             <View>
                                 <Input
-                                    placeholder={this.props.customTips[i]}
+                                    placeholder={this.props.customTips[i].replace(/[^0-9]/, "")}
                                     containerStyle={styles.inputContainer}
                                     inputContainerStyle={styles.inputContainerStyle}
                                     onChangeText={(text) => this.handleTipChange(text, i)}
@@ -53,9 +65,26 @@ export default class TipOverlay extends Component {
                     <Text style={styles.title}>Adjust Tip Amounts</Text>
                     <Text style={styles.text}>Here you can set custom tip percentages</Text>
                     {rows}
-                    <Button 
-                        onPress={() => console.log(this.newCustomTips)}
-                    />
+                    <View style={styles.row}>
+                        <View>
+                            <Button 
+                                title="Cancle"
+                                onPress={() => this.props.handleClose()}
+                                containerStyle={styles.buttonContainer}
+                                buttonStyle={styles.buttonStyle}
+                                titleStyle={{color: 'red', fontSize: 20}}
+                            />
+                        </View>
+                        <View>
+                            <Button 
+                                title="Apply Changes"
+                                onPress={() => this.checkBeforeChange()}
+                                containerStyle={styles.buttonContainer2}
+                                buttonStyle={styles.buttonStyle}
+                                titleStyle={{color: 'blue', fontSize: 20}}
+                            />
+                        </View>
+                    </View>
                 </View>
             </Overlay>
         );
@@ -80,13 +109,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     inputContainer: {
-        width: 60,
-        height: 50,
-        borderColor: 'black',
-        borderWidth: 4
+        width: 55,
+        height: 40,
     },
     inputContainerStyle: {
-        paddingTop: 7
+        paddingTop: 15
     },
     tipHeader: {
         marginRight: 30,
@@ -97,4 +124,23 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 27
     },
+    //Two button containers here because it was the only way I was able to add space between the two buttons.
+    //Could not get justifyContent: 'space-between' to work with the current set up.
+    buttonContainer: {
+        width: 100,
+        height: 50,
+        marginTop: 130,
+        marginRight: 40,
+    },
+    buttonContainer2: {
+        width: 100,
+        height: 50,
+        marginTop: 130,
+        marginLeft: 40,
+    },
+    buttonStyle: {
+        width: 100,
+        height: 50,
+        backgroundColor: 'white'
+    }
 });

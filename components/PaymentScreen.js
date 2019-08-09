@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
 import { feeCalculations } from './feeCalculations';
+import { userTips } from './usersTips';
+import { defaultTips } from './defaultTips';
 
 
 /*
@@ -62,6 +64,9 @@ export default class PaymentScreen extends Component {
     }
 
     componentDidMount() {
+        AsyncStorage.getItem("selectedDefaultTip").then((tip => {
+            console.log(tip)
+        }))
         this.getMerchantId();
 
         let amountCharged = this.state.amountCharged; //Removes dollar sign

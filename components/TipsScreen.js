@@ -6,6 +6,7 @@ import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import AsyncStorage from '@react-native-community/async-storage';
 import TipOverlay from './TipOverlay';
+import { defaultTips } from './defaultTips';
 
 export default class TipsScreen extends Component {
     constructor(props) {
@@ -18,7 +19,7 @@ export default class TipsScreen extends Component {
             overlayVisible: false
         };
 
-        this.defaultTips = ["No Tip", "15%", "20%", "25%"];
+        this.defaultTips = defaultTips;
         this.customTips = [];
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
@@ -27,12 +28,11 @@ export default class TipsScreen extends Component {
         this.setCollectedTips = this.setCollectedTips.bind(this);
         this.customTipsUsed = this.customTipsUsed.bind(this);
         this.handleOverlay = this.handleOverlay.bind(this);
+        this.applyCustomTipChanges = this.applyCustomTipChanges.bind(this);
     }
 
     async componentDidMount() {
-        //Storing Arrays with Async https://stackoverflow.com/questions/38416821/how-do-you-save-an-array-in-async-storage-in-react-native
-        AsyncStorage.setItem("defaultTips", JSON.stringify(this.defaultTips));
-        
+        AsyncStorage.removeItem("defaultTips");
         let boolValue; //Used because switches can only be bool values and Async only stores strings
         AsyncStorage.getItem("collectTips").then((collect) => {
             if(collect != null){
@@ -57,6 +57,9 @@ export default class TipsScreen extends Component {
             }
         });
 
+        const selected = await AsyncStorage.getItem("selectedDefaultTip");
+        this.setState({defaultTip: Number(selected)});
+
         //See if custom tips exist
         const customTipArray = await AsyncStorage.getItem("customTips");
 
@@ -64,7 +67,7 @@ export default class TipsScreen extends Component {
             this.customTips = ["15%", "20%", "25%"];
         }
         else{
-            this.customTips = customTipArray;
+            this.customTips = JSON.parse(customTipArray);
         }
     }
 
@@ -95,21 +98,30 @@ export default class TipsScreen extends Component {
 
     async handleDefaultTipChange(index) {
         this.setState({defaultTip: index}, () => {
-            console.log("default tip index is " + this.state.defaultTip);
-            console.log("Tip percent is " + this.defaultTips[index]);
-            AsyncStorage.setItem("selectedDefaultTip", this.defaultTips[index]);
+            AsyncStorage.setItem("selectedDefaultTip", index.toString());
         });
 
-        const collect  = await AsyncStorage.getItem("collectTips");
-        const myArray  = await AsyncStorage.getItem("defaultTips");
-        const selectedDefaultTip = await AsyncStorage.getItem("selectedDefaultTip");
-        console.log(JSON.parse(myArray));
-        console.log(selectedDefaultTip);
-        console.log("are we collecting tips " + collect)
+        // const collect  = await AsyncStorage.getItem("collectTips");
+        // const myArray  = await AsyncStorage.getItem("defaultTips");
+        // const selectedDefaultTip = await AsyncStorage.getItem("selectedDefaultTip");
+        // console.log(JSON.parse(myArray));
+        // console.log(selectedDefaultTip);
+        // console.log("are we collecting tips " + collect)
+
+        selectedDefaultTip = index;
+
+
     }
 
     handleOverlay() {
         this.setState({overlayVisible: !this.state.overlayVisible});
+    }
+
+    applyCustomTipChanges(newCustomTips) {
+        for(let i = 0; i < newCustomTips.length; i++){
+            console.log(newCustomTips[i])
+        }
+        AsyncStorage.setItem("customTips", JSON.stringify(newCustomTips));
     }
 
     render() {
@@ -196,6 +208,7 @@ export default class TipsScreen extends Component {
                     visible={this.state.overlayVisible} 
                     handleClose={this.handleOverlay} 
                     customTips={this.customTips} 
+                    applyChanges={this.applyCustomTipChanges}
                 />
             </View>
             
