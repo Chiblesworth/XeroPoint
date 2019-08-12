@@ -7,9 +7,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
 import { feeCalculations } from './feeCalculations';
-import { userTips } from './usersTips';
 import { defaultTips } from './defaultTips';
-
+import ApprovalOverlay from './ApprovalOverlay';
 
 /*
     This resets the component of the main screen 
@@ -36,7 +35,8 @@ export default class PaymentScreen extends Component {
             memo: "",
             invoice: "",
             tax: 0,
-            serviceFee: 0
+            serviceFee: 0,
+            approvalVisible: false
         }
 
         //These values will be set when the component mounts and will render based on switches
@@ -56,11 +56,14 @@ export default class PaymentScreen extends Component {
         this.handleSwitchPress = this.handleSwitchPress.bind(this);
         this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
         this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
-        this.submitPayment = this.submitPayment.bind(this);
+        this.validateForm = this.validateForm.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
         this.getCustomers = this.getCustomers.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
         this.showAlert = this.showAlert.bind(this);
+        this.authorizePayment = this.authorizePayment.bind(this);
+        this.determineAmount = this.determineAmount.bind(this);
+        // this.handleOverlay = this.handleOverlay.bind(this);
     }
 
     componentDidMount() {
@@ -75,15 +78,15 @@ export default class PaymentScreen extends Component {
         AsyncStorage.getItem("taxFee").then((value) => {
             this.setState({tax: value}, () => {
                 this.amountWithTax = feeCalculations(amountCharged, value);
-                console.log(this.amountWithTax);
+                //console.log(this.amountWithTax);
             });
         });
         AsyncStorage.getItem("serviceFee").then((fee) => {
             this.setState({serviceFee: fee}, () => {
                 this.amountWithService = feeCalculations(amountCharged, fee);
                 this.amountWithBoth = feeCalculations(this.amountWithTax, fee);
-                console.log(this.amountWithService);
-                console.log(this.amountWithBoth);
+                //console.log(this.amountWithService);
+                //console.log(this.amountWithBoth);
             });
         });
     }
@@ -115,40 +118,42 @@ export default class PaymentScreen extends Component {
         this.setState({serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue});
     }
 
-    submitPayment(stateOfForm) {
+    validateForm(stateOfForm) {
+        console.log(stateOfForm);
         AsyncStorage.getItem("selectedCustomerId").then((customerId) => {
             this.setState({customerId: customerId});
         });
 
-        console.log(stateOfForm);
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
-        if(stateOfForm.number === "" && stateOfForm.cardAccount.expiryMonth === "" && stateOfForm.cardAccount.expiryYear === ""){
-            console.log("Number and month and year is blank");
-            this.showAlert();
+        if(stateOfForm.numberWithoutSpaces === "" || stateOfForm.cardAccount.expiryMonth === "" || stateOfForm.cardAccount.expiryYear === ""){
+            this.showAlert("validation");
         }
         else if(stateOfForm.streetOn === true && stateOfForm.cardAccount.avsStreet === ""){
-            console.log("Street is blank");
-            this.showAlert();
+            this.showAlert("validation");
         }
         else if(stateOfForm.zipOn === true && stateOfForm.cardAccount.avsZip === ""){
-            console.log("Zip is blank");
-            this.showAlert();
+            this.showAlert("validation");
         }
         else if(stateOfForm.cvvOn === true && stateOfForm.cardAccount.cvv === ""){
-            console.log("CVV is blank");
-            this.showAlert();
+            this.showAlert("validation");
         }
         else{
             console.log("All fields filled out")
+            this.authorizePayment(stateOfForm);
         }
     }
 
-    showAlert() {
-        Alert.alert(
-            "Incomplete Fields",
-            'Please fill out all fields above the "Charge" button to continue.'
-        );
+    showAlert(typeOfAlert) {
+        if(typeOfAlert === "validation"){
+            Alert.alert(
+                "Incomplete Fields",
+                'Please fill out all fields above the "Charge" button to continue.'
+            );
+        }
+        else if(typeOfAlert === "approval"){
+            this.setState({approvalVisible: !this.state.approvalVisible});
+        }
     }
 
     getCustomers() {
@@ -194,10 +199,83 @@ export default class PaymentScreen extends Component {
         this.getCustomers();
     }
 
+    authorizePayment(stateOfForm) {
+        //console.log(stateOfForm);
+        let amount  = this.determineAmount();
+
+        this.showAlert("approval");
+
+        // console.log("amount in auth is " + amount);
+        // AsyncStorage.getItem("encodedUser").then((encoded) => {
+        //     let headers = {
+        //         'Authorization' : 'Basic ' + encoded,
+        //         'Content-Type' : 'application/json; charset=utf-8'
+        //     }
+
+        //     let data = {
+        //         merchantId: stateOfForm.merchantId,
+        //         tenderType: "Card",
+        //         amount: amount,
+        //         authOnly: true,
+        //         cardAccount: {
+        //             number: stateOfForm.number,
+        //             expiryMonth: stateOfForm.cardAccount.expiryMonth,
+        //             expiryYear: stateOfForm.cardAccount.expiryYear,
+        //             cvv: stateOfForm.cardAccount.cvv,
+        //             avsZip: stateOfForm.cardAccount.avsZip,
+        //             avsStreet: stateOfForm.cardAccount.avsStreet,
+        //         },
+        //         customer: {
+        //             id: this.state.customerId
+        //         },
+        //         customerCode: this.state.customerNumber,
+        //         meta: this.state.memo,
+        //         invoice: this.state.invoice
+        //     }
+            
+        //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+        //         method: "POST",
+        //         headers: headers,
+        //         body: JSON.stringify(data)
+        //     }).then((response) => {
+        //         console.log(response);
+        //         console.log(response.json())
+        //     }).then(() => {
+        //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+        //             method: "GET",
+        //             headers: headers
+        //         }).then((response) => {
+        //             console.log(response)
+        //             console.log(response.json());
+        //         })
+        //     })
+        // })
+    }
+
+    determineAmount() {
+        let amount = 0;
+
+        if(this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
+            amount = this.amountWithBoth;
+        }
+        else if(this.state.taxSwitchValue && !this.state.serviceFeeSwitchValue){
+            amount = this.amountWithTax;
+        }
+        else if(!this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
+            amount = this.amountWithService;
+        }
+        else{
+            amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, "");
+        }
+        
+        amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
+
+        return amount;
+    }
+
     render(){
         let serviceFee; 
         let tax;
-        let amountCharged;
         /*
             This is the only way I've been able to get AsyncStorage to work
             without causing an infinite loop. Can't get component to remount
@@ -215,20 +293,6 @@ export default class PaymentScreen extends Component {
         }
         else{
             serviceFee = <Text style={styles.feeText}>0</Text>;
-        }
-
-        //Probably not the best way but deals with rendering the total amount on screen
-        if(this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
-            amountCharged = this.amountWithBoth;
-        }
-        else if(this.state.taxSwitchValue && !this.state.serviceFeeSwitchValue){
-            amountCharged = this.amountWithTax;
-        }
-        else if(!this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
-            amountCharged = this.amountWithService;
-        }
-        else{
-            amountCharged = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, "");
         }
 
         return (
@@ -251,12 +315,12 @@ export default class PaymentScreen extends Component {
                     <View style={styles.mainScreenTextSection}>
                         <Text style={styles.simpleText}>CHARGED AMOUNT</Text>
                         <Text style={styles.amountText}>
-                            ${parseFloat(Math.round(amountCharged * 100) / 100).toFixed(2)}
+                            ${this.determineAmount()}
                         </Text>
                     </View>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
-                    <KeyedPaymentForm charge={this.submitPayment}/>
+                    <KeyedPaymentForm charge={this.validateForm}/>
                     <Button 
                         type="solid"
                         title="Connect Card Reader"
@@ -276,19 +340,19 @@ export default class PaymentScreen extends Component {
                     />
                     <Button 
                         type="solid"
-                        title="Search or Add New Customer"
+                        title="Search Customer"
                         containerStyle={styles.buttonContainer}
                         buttonStyle={styles.button}
                         titleStyle={styles.customerTitle}
                         onPress={() => this.handleSearchCustomerButton()}
                     />
-                    <Input
+                    {/* <Input
                         placeholder="Customer Number"
                         placeholderTextColor="grey"
                         inputContainerStyle={styles.inputContainer}
                         inputStyle={styles.input}
                         onChangeText={(text) => this.setState({customerNumber: text})}
-                    />
+                    /> */}
                     <Input
                         placeholder="Invoice"
                         placeholderTextColor="grey"
@@ -298,8 +362,10 @@ export default class PaymentScreen extends Component {
                     />
                     <View style={styles.row}>
                         <Text style={{fontSize: 20, color: 'white', paddingRight: 10}}>
-                            Tax Exempt
+                            Tax Fee
                         </Text>
+                        {/* This is to add space between tax text and switch because they were rendering too close together */}
+                        <View style={styles.buffer}></View>
                         <SwitchToggle
                             switchOn={this.state.taxSwitchValue}
                             onPress={() => this.handleSwitchPress("tax")}
@@ -329,6 +395,11 @@ export default class PaymentScreen extends Component {
                         </View>
                     </View>
                 </ScrollView>
+                <ApprovalOverlay 
+                    visible={this.state.approvalVisible}
+                    handleClose={this.showAlert}
+                    determineAmount={this.determineAmount}
+                />
             </View>
         );
     }
@@ -428,4 +499,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginLeft: 50
     },
+    buffer: {
+        marginLeft: 32
+    }
 });

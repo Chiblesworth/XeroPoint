@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, Alert, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
 import { Header, SearchBar, ListItem} from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -18,7 +18,6 @@ export default class SearchCustomerScreen extends Component {
 
         this.updateSearch = this.updateSearch.bind(this);
         this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
-        this.createNewCustomer = this.createNewCustomer.bind(this);
         this.navigateToPayment = this.navigateToPayment.bind(this);
     }
 
@@ -60,43 +59,43 @@ export default class SearchCustomerScreen extends Component {
         this.props.navigation.navigate("Payment");
     }
 
-    createNewCustomer() {
-        AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
-            }
+    // createNewCustomer() {
+    //     AsyncStorage.getItem("encodedUser").then((encoded) => {
+    //         let headers = {
+    //             'Authorization' : 'Basic ' + encoded,
+    //             'Content-Type' : 'application/json; charset=utf-8'
+    //         }
 
-            let data = {
-                merchantId: this.state.merchantId,
-                name: this.state.search,
-                firstName: this.state.search
-            }
+    //         let data = {
+    //             merchantId: this.state.merchantId,
+    //             name: this.state.search,
+    //             firstName: this.state.search
+    //         }
 
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(data)
-            }).then((response) => {
-                console.log(response)
-            });
+    //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+    //             method: "POST",
+    //             headers: headers,
+    //             body: JSON.stringify(data)
+    //         }).then((response) => {
+    //             console.log(response)
+    //         });
 
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-                method: "GET",
-                headers: headers,
-                qs: this.state.merchantId
-            }).then((response) => {
-                console.log(response.json())
-            })
+    //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+    //             method: "GET",
+    //             headers: headers,
+    //             qs: this.state.merchantId
+    //         }).then((response) => {
+    //             console.log(response.json())
+    //         })
 
-            Alert.alert(
-                "Customer Added to Payment",
-                `${this.state.search} added to payment.`
-            )
+    //         Alert.alert(
+    //             "Customer Added to Payment",
+    //             `${this.state.search} added to payment.`
+    //         )
 
-            this.navigateToPayment();
-        });
-    }
+    //         this.navigateToPayment();
+    //     });
+    // }
 
     renderHeader = () => {
         return (
@@ -130,9 +129,8 @@ export default class SearchCustomerScreen extends Component {
     renderEmpty = () => {
         return (
             <View>
-                <TouchableOpacity onPress={() => this.createNewCustomer()}>
-                    <Text style={styles.newCustomerText}>"{this.state.search}"</Text>
-                </TouchableOpacity>
+                <Text style={styles.newCustomerText}>"{this.state.search}"</Text>
+                <Text style={styles.newCustomerText}>Cannot find customer. Will need to create the customer before payment is submitted.</Text>
             </View>
         );
     }

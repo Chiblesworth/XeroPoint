@@ -17,6 +17,7 @@ export default class KeyedPaymentForm extends Component {
                 avsZip: "",
                 cvv: ""
             },
+            numberWithoutSpaces: "",
             streetOn: false,
             zipOn: false,
             cvvOn: false
@@ -138,14 +139,9 @@ export default class KeyedPaymentForm extends Component {
     printCardAccount(number) {
         //Remove spaces from card number
         number = number.replace(/ /g, "");
-        
-        this.setState(prevState => ({
-            cardAccount: {
-                ...prevState,
-                number: number
-            }
-        }), () => {
-            this.props.charge(this.state.cardAccount);
+
+        this.setState({numberWithoutSpaces: number}, () => {
+            this.props.charge(this.state);
         })
     }
 
@@ -207,7 +203,7 @@ export default class KeyedPaymentForm extends Component {
                             inputContainerStyle={styles.cvvContainer}
                             inputStyle={styles.input}
                             keyboardType="numeric"
-                            maxLength={3}
+                            maxLength={4}
                             onChangeText={(text) => this.setState(prevState => ({
                                 cardAccount: {
                                     ...prevState.cardAccount,

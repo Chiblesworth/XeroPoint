@@ -60,6 +60,7 @@ export default class TipOverlay extends Component {
             <Overlay
                 isVisible={this.props.visible}
                 onBackdropPress={() => this.props.handleClose()}
+                borderRadius={25}
             >
                 <View style={styles.container}>
                     <Text style={styles.title}>Adjust Tip Amounts</Text>
@@ -68,7 +69,7 @@ export default class TipOverlay extends Component {
                     <View style={styles.row}>
                         <View>
                             <Button 
-                                title="Cancle"
+                                title="Cancel"
                                 onPress={() => this.props.handleClose()}
                                 containerStyle={styles.buttonContainer}
                                 buttonStyle={styles.buttonStyle}
