@@ -35,6 +35,7 @@ export default class SignatureScreen extends Component {
     }
  
     _onSaveEvent(result) {
+        //
         //result.encoded - for the base64 encoded png
         //result.pathName - for the file path name
         console.log(result);
