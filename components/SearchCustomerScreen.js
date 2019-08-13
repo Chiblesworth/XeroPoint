@@ -41,22 +41,20 @@ export default class SearchCustomerScreen extends Component {
     }
 
     handleSelectedCustomer(customerId, customerName) {
-        AsyncStorage.setItem("selectedCustomerId", customerId.toString());
-
         Alert.alert(
             "Customer Added to Payment",
             `${customerName} added to payment.`
         )
 
-        this.navigateToPayment();
+        this.navigateToPayment(customerId);
     }
 
-    navigateToPayment() {
+    navigateToPayment(customerId) {
         //Empty list before going back that way no duplicates are made
         this.setState({customers: null});
         this.filteredCustomers = null;
 
-        this.props.navigation.navigate("Payment");
+        this.props.navigation.navigate("Payment", {customerId: customerId});
     }
 
     // createNewCustomer() {

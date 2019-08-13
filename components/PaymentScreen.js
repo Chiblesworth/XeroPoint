@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
 import { feeCalculations } from './feeCalculations';
-import { defaultTips } from './defaultTips';
 import ApprovalOverlay from './ApprovalOverlay';
 
 /*
@@ -63,13 +62,9 @@ export default class PaymentScreen extends Component {
         this.showAlert = this.showAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
-        // this.handleOverlay = this.handleOverlay.bind(this);
     }
 
     componentDidMount() {
-        AsyncStorage.getItem("selectedDefaultTip").then((tip => {
-            console.log(tip)
-        }))
         this.getMerchantId();
 
         let amountCharged = this.state.amountCharged; //Removes dollar sign
@@ -120,9 +115,6 @@ export default class PaymentScreen extends Component {
 
     validateForm(stateOfForm) {
         console.log(stateOfForm);
-        AsyncStorage.getItem("selectedCustomerId").then((customerId) => {
-            this.setState({customerId: customerId});
-        });
 
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
@@ -139,7 +131,6 @@ export default class PaymentScreen extends Component {
             this.showAlert("validation");
         }
         else{
-            console.log("All fields filled out")
             this.authorizePayment(stateOfForm);
         }
     }
@@ -152,7 +143,14 @@ export default class PaymentScreen extends Component {
             );
         }
         else if(typeOfAlert === "approval"){
-            this.setState({approvalVisible: !this.state.approvalVisible});
+            if(this.state.approvalVisible){
+                //Going from true to false, navigate to finalize payment.
+                this.setState({approvalVisible: !this.state.approvalVisible});
+               // this.props.navigation.navigate("Signature");
+            }
+            else{
+                this.setState({approvalVisible: !this.state.approvalVisible});
+            }
         }
     }
 
@@ -206,50 +204,49 @@ export default class PaymentScreen extends Component {
         this.showAlert("approval");
 
         // console.log("amount in auth is " + amount);
-        // AsyncStorage.getItem("encodedUser").then((encoded) => {
-        //     let headers = {
-        //         'Authorization' : 'Basic ' + encoded,
-        //         'Content-Type' : 'application/json; charset=utf-8'
-        //     }
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
 
-        //     let data = {
-        //         merchantId: stateOfForm.merchantId,
-        //         tenderType: "Card",
-        //         amount: amount,
-        //         authOnly: true,
-        //         cardAccount: {
-        //             number: stateOfForm.number,
-        //             expiryMonth: stateOfForm.cardAccount.expiryMonth,
-        //             expiryYear: stateOfForm.cardAccount.expiryYear,
-        //             cvv: stateOfForm.cardAccount.cvv,
-        //             avsZip: stateOfForm.cardAccount.avsZip,
-        //             avsStreet: stateOfForm.cardAccount.avsStreet,
-        //         },
-        //         customer: {
-        //             id: this.state.customerId
-        //         },
-        //         customerCode: this.state.customerNumber,
-        //         meta: this.state.memo,
-        //         invoice: this.state.invoice
-        //     }
+            let data = {
+                merchantId: stateOfForm.merchantId,
+                tenderType: "Card",
+                amount: amount,
+                authOnly: true,
+                cardAccount: {
+                    number: stateOfForm.cardAccount.number,
+                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
+                    expiryYear: stateOfForm.cardAccount.expiryYear,
+                    cvv: stateOfForm.cardAccount.cvv,
+                    avsZip: stateOfForm.cardAccount.avsZip,
+                    avsStreet: stateOfForm.cardAccount.avsStreet,
+                },
+                customer: {
+                    id: this.props.navigation.state.params.customerId
+                },
+                meta: this.state.memo,
+                invoice: this.state.invoice
+            }
             
-        //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-        //         method: "POST",
-        //         headers: headers,
-        //         body: JSON.stringify(data)
-        //     }).then((response) => {
-        //         console.log(response);
-        //         console.log(response.json())
-        //     }).then(() => {
-        //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-        //             method: "GET",
-        //             headers: headers
-        //         }).then((response) => {
-        //             console.log(response)
-        //             console.log(response.json());
-        //         })
-        //     })
-        // })
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            }).then((response) => {
+                console.log(response);
+                console.log(response.json())
+            }).then(() => {
+                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                    method: "GET",
+                    headers: headers
+                }).then((response) => {
+                    console.log(response)
+                    console.log(response.json());
+                })
+            })
+        })
     }
 
     determineAmount() {
@@ -346,13 +343,6 @@ export default class PaymentScreen extends Component {
                         titleStyle={styles.customerTitle}
                         onPress={() => this.handleSearchCustomerButton()}
                     />
-                    {/* <Input
-                        placeholder="Customer Number"
-                        placeholderTextColor="grey"
-                        inputContainerStyle={styles.inputContainer}
-                        inputStyle={styles.input}
-                        onChangeText={(text) => this.setState({customerNumber: text})}
-                    /> */}
                     <Input
                         placeholder="Invoice"
                         placeholderTextColor="grey"

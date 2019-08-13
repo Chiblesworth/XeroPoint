@@ -1,6 +1,8 @@
 package com.xeropoint;
 
 import com.facebook.react.ReactActivity;
+import com.rssignaturecapture.RSSignatureCapturePackage; // <-- add this import 
+
 
 public class MainActivity extends ReactActivity {
 
