@@ -27,16 +27,13 @@ export default class PaymentScreen extends Component {
             amountCharged: this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""),
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
-            customers: [
-            ],
-            customerId: null,
-            customerNumber: "",
-            memo: "",
             invoice: "",
             tax: 0,
             serviceFee: 0,
             approvalVisible: false
         }
+
+        this.customers = []; //Used to hold list of customers when moving to the search screen
 
         //These values will be set when the component mounts and will render based on switches
         this.amountWithTax = 0;
@@ -146,7 +143,7 @@ export default class PaymentScreen extends Component {
             if(this.state.approvalVisible){
                 //Going from true to false, navigate to finalize payment.
                 this.setState({approvalVisible: !this.state.approvalVisible});
-               // this.props.navigation.navigate("Signature");
+                this.props.navigation.navigate("Signature");
             }
             else{
                 this.setState({approvalVisible: !this.state.approvalVisible});
@@ -177,18 +174,19 @@ export default class PaymentScreen extends Component {
                 for(let i = 0; i < records.length; i++){
                     let record = {'id': records[i].id, 'name': records[i].name};
                     
-                    this.setState(prevState => ({
-                        customers: [...prevState.customers, record]
-                    }));
+                    //If users POST payments without creating a customer, MX Merchant will have a customers with names of "UNKNOWN"
+                    if(record.name !== "UNKNOWN"){ 
+                        this.customers = [...this.customers, record];
+                    }
                 }
 
                 this.props.navigation.navigate("SearchCustomer", {
-                    customers: this.state.customers
+                    customers: this.customers
                 });
 
                 //Used to get rid of duplicate lists of customers being made when 
                 //search for customer button clicked multiple times in one session
-                this.setState({customers: []}); 
+                this.customers = [];
             })
        })
     }
@@ -204,49 +202,49 @@ export default class PaymentScreen extends Component {
         this.showAlert("approval");
 
         // console.log("amount in auth is " + amount);
-        AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
-            }
+        // AsyncStorage.getItem("encodedUser").then((encoded) => {
+        //     let headers = {
+        //         'Authorization' : 'Basic ' + encoded,
+        //         'Content-Type' : 'application/json; charset=utf-8'
+        //     }
 
-            let data = {
-                merchantId: stateOfForm.merchantId,
-                tenderType: "Card",
-                amount: amount,
-                authOnly: true,
-                cardAccount: {
-                    number: stateOfForm.cardAccount.number,
-                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
-                    expiryYear: stateOfForm.cardAccount.expiryYear,
-                    cvv: stateOfForm.cardAccount.cvv,
-                    avsZip: stateOfForm.cardAccount.avsZip,
-                    avsStreet: stateOfForm.cardAccount.avsStreet,
-                },
-                customer: {
-                    id: this.props.navigation.state.params.customerId
-                },
-                meta: this.state.memo,
-                invoice: this.state.invoice
-            }
+        //     let data = {
+        //         merchantId: stateOfForm.merchantId,
+        //         tenderType: "Card",
+        //         amount: amount,
+        //         authOnly: true,
+        //         cardAccount: {
+        //             number: stateOfForm.cardAccount.number,
+        //             expiryMonth: stateOfForm.cardAccount.expiryMonth,
+        //             expiryYear: stateOfForm.cardAccount.expiryYear,
+        //             cvv: stateOfForm.cardAccount.cvv,
+        //             avsZip: stateOfForm.cardAccount.avsZip,
+        //             avsStreet: stateOfForm.cardAccount.avsStreet,
+        //         },
+        //         customer: {
+        //             id: this.props.navigation.state.params.customerId
+        //         },
+        //         meta: this.state.memo,
+        //         invoice: this.state.invoice
+        //     }
             
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(data)
-            }).then((response) => {
-                console.log(response);
-                console.log(response.json())
-            }).then(() => {
-                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                    method: "GET",
-                    headers: headers
-                }).then((response) => {
-                    console.log(response)
-                    console.log(response.json());
-                })
-            })
-        })
+        //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+        //         method: "POST",
+        //         headers: headers,
+        //         body: JSON.stringify(data)
+        //     }).then((response) => {
+        //         console.log(response);
+        //         console.log(response.json())
+        //     }).then(() => {
+        //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+        //             method: "GET",
+        //             headers: headers
+        //         }).then((response) => {
+        //             console.log(response)
+        //             console.log(response.json());
+        //         })
+        //     })
+        // })
     }
 
     determineAmount() {

@@ -27,11 +27,8 @@ export default class MainScreen extends Component {
         this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-    async componentDidMount(){
+    componentDidMount(){
         this.getMerchantId();
-        const collect = await AsyncStorage.getItem("customTips");
-
-        console.log("collecting tips " + JSON.parse(collect));
     }
 
     handleNumberPadPress(valueGotBack) {

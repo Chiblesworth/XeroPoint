@@ -3,27 +3,63 @@ import { View, Text, StyleSheet, TouchableHighlight} from 'react-native';
 import SignatureCapture from 'react-native-signature-capture';
 import CollectTip from './CollectTip';
 import AsyncStorage from '@react-native-community/async-storage';
+import { defaultTips } from './defaultTips';
+
+defaultTips.push("Other");
 
 export default class SignatureScreen extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            defaultTipIndex: 0
+            defaultTipIndex: 0,
+            useCustomTips: false,
+            arraySentToTabbedControl: defaultTips,
+            customTipArray: []
         };
 
+        this.customTips = []; //Used as the array from the string returned from AsyncStorage
+
         this.handleTipChange = this.handleTipChange.bind(this);
+        this.manageCustomTips = this.manageCustomTips.bind(this); //Used splitting string of custom tips into array.
     }
 
     async componentDidMount() {
         let defaultTipIndex = await AsyncStorage.getItem("selectedDefaultTip");
-        console.log(defaultTipIndex)
-        this.setState({defaultTipIndex: defaultTipIndex})
-        console.log("state " + this.state.defaultTipIndex)
+        console.log(defaultTipIndex);
+
+        let useCustomTips = await AsyncStorage.getItem("useCustomTips");
+        console.log("useCustomTip is " + useCustomTips);
+
+        if(useCustomTips === "true"){
+            this.setState({useCustomTips: true});
+            this.manageCustomTips();
+
+        }
+        else{
+            this.setState({defaultTipIndex: defaultTipIndex})
+        }
     }
 
     handleTipChange(index) {
         this.setState({defaultTipIndex: index});
+    }
+
+    async manageCustomTips() {
+        let customTips = await AsyncStorage.getItem("customTips");
+        let customTipArray = ["No Tip"];
+
+        customTips = customTips.replace(/(\[)|(\])|(\")+/g, "");
+        let tempArray = customTips.split(",");
+
+        this.customTips.push("No Tip");
+        for(let i = 0; i < tempArray.length; i++){
+            customTipArray.push(tempArray[i]);
+        }
+
+        customTipArray.push("Other");
+
+        this.setState({customTipArray: [...customTipArray]});
     }
 
     saveSign() {
@@ -46,9 +82,16 @@ export default class SignatureScreen extends Component {
     }
 
     render() {
+        let tipArray;
+        if(this.state.useCustomTips){
+            tipArray = this.state.customTipArray
+        }
+        else{
+            tipArray = defaultTips;
+        }
         return (
             <View style={styles.container}>
-                <CollectTip tipIndex={this.state.defaultTipIndex} handleChange={this.handleTipChange}/>
+                <CollectTip tipArray={tipArray} tipIndex={this.state.defaultTipIndex} handleChange={this.handleTipChange}/>
                 <View style={styles.signatureContainer}>
                     <SignatureCapture
                         style={styles.signature}
@@ -58,7 +101,7 @@ export default class SignatureScreen extends Component {
                         saveImageFileInExtStorage={false}
                         showNativeButtons={false}
                         showBorder={true}
-                        viewMode="landscape"
+                        viewMode="portrait"
                     />
                 </View>
  

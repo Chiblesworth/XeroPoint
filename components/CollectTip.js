@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
-import { defaultTips } from './defaultTips';
-
-defaultTips.push("Other");
 
 export default class CollectTip extends Component {
     constructor(props) {
@@ -25,7 +22,7 @@ export default class CollectTip extends Component {
                         <Text>Amount Here</Text>
                     </View>
                     <SegmentedControlTab
-                            values={defaultTips}
+                            values={this.props.tipArray}
                             selectedIndex={Number(this.props.tipIndex)}
                             onTabPress={(index) => this.props.handleChange(index)}
                             borderRadius={25}
