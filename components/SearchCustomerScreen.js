@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
 import { Header, SearchBar, ListItem} from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
-import AsyncStorage from '@react-native-community/async-storage';
+import { storageGet, storageSet } from './localStorage';
+
 
 export default class SearchCustomerScreen extends Component {
     constructor(props) {
@@ -21,10 +22,10 @@ export default class SearchCustomerScreen extends Component {
         this.navigateToPayment = this.navigateToPayment.bind(this);
     }
 
-    componentDidMount() {
-        AsyncStorage.getItem("merchantId").then((id) => {
-            this.setState({merchantId: id});
-        });
+    async componentDidMount() {
+        let merchantId = await storageGet("merchantId");
+        
+        this.setState({merchantId: merchantId});
     }
 
     updateSearch = search => {

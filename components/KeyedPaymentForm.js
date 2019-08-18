@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
+import { storageGet, storageSet } from './localStorage';
+import AsyncStorage from '@react-native-community/async-storage'; //Remove when fixed
+
+
 
 export default class KeyedPaymentForm extends Component {
     constructor(props) {
@@ -10,9 +13,9 @@ export default class KeyedPaymentForm extends Component {
         this.state = {
             merchantId: 0,
             cardAccount: {
-                number: "",
-                expiryMonth: "",
-                expiryYear: "",
+                number: "4242 4242 4242 4242",
+                expiryMonth: "12",
+                expiryYear: "21",
                 avsStreet: "",
                 avsZip: "",
                 cvv: ""
@@ -33,10 +36,10 @@ export default class KeyedPaymentForm extends Component {
         this.getMerchantSettings();
     }
 
-    getMerchantSettings() {
-        AsyncStorage.getItem("merchantId").then((merchantId) => {
-            this.setState({merchantId: merchantId});
-        });
+    async getMerchantSettings() { //FIX API CALL MADE WITH NEW HELPER METHODS
+        let merchantId = await storageGet("merchantId");
+        
+        this.setState({merchantId: merchantId});
 
         AsyncStorage.getItem("encodedUser").then((encoded) => {
             let headers = {

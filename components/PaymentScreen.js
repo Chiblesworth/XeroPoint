@@ -8,6 +8,8 @@ import { StackActions, NavigationActions } from 'react-navigation';
 import KeyedPaymentForm from './KeyedPaymentForm';
 import { feeCalculations } from './feeCalculations';
 import ApprovalOverlay from './ApprovalOverlay';
+import { months } from './monthsArray';
+import { storageGet, storageSet } from './localStorage';
 
 /*
     This resets the component of the main screen 
@@ -30,7 +32,11 @@ export default class PaymentScreen extends Component {
             invoice: "",
             tax: 0,
             serviceFee: 0,
-            approvalVisible: false
+            approvalVisible: false,
+            formatedDate: "",
+            formatedTime: "",
+            authCode: "",
+            tipAdjustmentData: null
         }
 
         this.customers = []; //Used to hold list of customers when moving to the search screen
@@ -59,34 +65,30 @@ export default class PaymentScreen extends Component {
         this.showAlert = this.showAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
+        this.formatDate = this.formatDate.bind(this);
+        this.formatTime = this.formatTime.bind(this);
     }
 
-    componentDidMount() {
-        this.getMerchantId();
-
-        let amountCharged = this.state.amountCharged; //Removes dollar sign
+    async componentDidMount() {
+        let taxFee = await storageGet("taxFee");
+        let serviceFee = await storageGet("serviceFee");
+        let amountCharged = this.state.amountCharged;
         amountCharged = Number(amountCharged); //Makes sure it is a number being sent
         
-        AsyncStorage.getItem("taxFee").then((value) => {
-            this.setState({tax: value}, () => {
-                this.amountWithTax = feeCalculations(amountCharged, value);
-                //console.log(this.amountWithTax);
-            });
-        });
-        AsyncStorage.getItem("serviceFee").then((fee) => {
-            this.setState({serviceFee: fee}, () => {
-                this.amountWithService = feeCalculations(amountCharged, fee);
-                this.amountWithBoth = feeCalculations(this.amountWithTax, fee);
-                //console.log(this.amountWithService);
-                //console.log(this.amountWithBoth);
-            });
-        });
+        this.getMerchantId();
+
+        this.setState({tax: taxFee, serviceFee: serviceFee}, () => {
+            this.amountWithTax = feeCalculations(amountCharged, taxFee);
+            this.amountWithService = feeCalculations(amountCharged, serviceFee);
+            this.amountWithBoth = feeCalculations(this.amountWithTax, serviceFee);
+        })
+
     }
     
-    getMerchantId() {
-        AsyncStorage.getItem("merchantId").then((id) => {
-            this.setState({merchantId: id});
-        })
+    async getMerchantId() {
+        let merchantId = await storageGet("merchantId");
+        
+        this.setState({merchantId: merchantId});
     }
 
     handleHeaderIconPress() {
@@ -111,7 +113,7 @@ export default class PaymentScreen extends Component {
     }
 
     validateForm(stateOfForm) {
-        console.log(stateOfForm);
+        //console.log(stateOfForm);
 
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
@@ -143,7 +145,10 @@ export default class PaymentScreen extends Component {
             if(this.state.approvalVisible){
                 //Going from true to false, navigate to finalize payment.
                 this.setState({approvalVisible: !this.state.approvalVisible});
-                this.props.navigation.navigate("Signature");
+                this.props.navigation.navigate(
+                    "Signature",
+                    {tipAdjustmentData: this.state.tipAdjustmentData}
+                );
             }
             else{
                 this.setState({approvalVisible: !this.state.approvalVisible});
@@ -151,7 +156,7 @@ export default class PaymentScreen extends Component {
         }
     }
 
-    getCustomers() {
+    getCustomers() { //FIX ASYNC API CALL MADE
         /*
             Gets users current customers they have linked to account.
             Used for the searcha and add customer feature
@@ -195,56 +200,72 @@ export default class PaymentScreen extends Component {
         this.getCustomers();
     }
 
-    authorizePayment(stateOfForm) {
+    async authorizePayment(stateOfForm) { //FIX ASYNC API CALL MADE
         //console.log(stateOfForm);
         let amount  = this.determineAmount();
 
         this.showAlert("approval");
 
         // console.log("amount in auth is " + amount);
-        // AsyncStorage.getItem("encodedUser").then((encoded) => {
-        //     let headers = {
-        //         'Authorization' : 'Basic ' + encoded,
-        //         'Content-Type' : 'application/json; charset=utf-8'
-        //     }
+        AsyncStorage.getItem("encodedUser").then((encoded) => {
+            let headers = {
+                'Authorization' : 'Basic ' + encoded,
+                'Content-Type' : 'application/json; charset=utf-8'
+            }
 
-        //     let data = {
-        //         merchantId: stateOfForm.merchantId,
-        //         tenderType: "Card",
-        //         amount: amount,
-        //         authOnly: true,
-        //         cardAccount: {
-        //             number: stateOfForm.cardAccount.number,
-        //             expiryMonth: stateOfForm.cardAccount.expiryMonth,
-        //             expiryYear: stateOfForm.cardAccount.expiryYear,
-        //             cvv: stateOfForm.cardAccount.cvv,
-        //             avsZip: stateOfForm.cardAccount.avsZip,
-        //             avsStreet: stateOfForm.cardAccount.avsStreet,
-        //         },
-        //         customer: {
-        //             id: this.props.navigation.state.params.customerId
-        //         },
-        //         meta: this.state.memo,
-        //         invoice: this.state.invoice
-        //     }
+            let data = {
+                merchantId: stateOfForm.merchantId,
+                tenderType: "Card",
+                amount: amount,
+                authOnly: true,
+                cardAccount: {
+                    number: stateOfForm.cardAccount.number,
+                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
+                    expiryYear: stateOfForm.cardAccount.expiryYear,
+                    cvv: stateOfForm.cardAccount.cvv,
+                    avsZip: stateOfForm.cardAccount.avsZip,
+                    avsStreet: stateOfForm.cardAccount.avsStreet,
+                },
+                customer: {
+                    id: this.props.navigation.state.params.customerId
+                },
+                meta: this.state.memo,
+                invoice: this.state.invoice
+            }
             
-        //     fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-        //         method: "POST",
-        //         headers: headers,
-        //         body: JSON.stringify(data)
-        //     }).then((response) => {
-        //         console.log(response);
-        //         console.log(response.json())
-        //     }).then(() => {
-        //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-        //             method: "GET",
-        //             headers: headers
-        //         }).then((response) => {
-        //             console.log(response)
-        //             console.log(response.json());
-        //         })
-        //     })
-        // })
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data),
+                dataType: "json"
+            }).then(() => {
+                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+                    method: "GET",
+                    headers: headers
+                }).then((response) => {
+                    return response.json();
+                }).then((responseJson) => {
+                    let authorizedPaymentMade = responseJson.records[0];
+        
+                    let formatedDate = this.formatDate();
+                    let formatedTime = this.formatTime();
+
+                    let tipAdjustmentData = {
+                        merchantId: authorizedPaymentMade.merchantId,
+                        amount: authorizedPaymentMade.amount,
+                        authCode: authorizedPaymentMade.authCode,
+                        paymentToken: authorizedPaymentMade.paymentToken
+                    }
+
+                    this.setState({
+                        formatedDate: formatedDate,
+                        formatedTime: formatedTime,
+                        authCode: authorizedPaymentMade.authCode,
+                        tipAdjustmentData: tipAdjustmentData
+                    });
+                });
+            });
+        });
     }
 
     determineAmount() {
@@ -263,9 +284,41 @@ export default class PaymentScreen extends Component {
             amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, "");
         }
         
-        amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
+       amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
 
         return amount;
+    }
+    //https://stackoverflow.com/questions/29206453/best-way-to-convert-military-time-to-standard-time-in-javascript
+    //For next two methods
+    //Maybe remove these two from class and use as helper methods instead? 
+    formatDate() {
+        let date = new Date();
+        let formatedDate = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
+
+        return formatedDate;
+    }
+
+    formatTime() {
+        let date = new Date();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let formatedTime;
+
+        if((hours > 0) && (hours <= 12)){
+            formatedTime= hours;
+        } 
+        else if(hours > 12){
+            formatedTime=   (hours - 12);
+        } 
+        else if(hours == 0){
+            formatedTime= "12";
+        }
+
+        formatedTime += (minutes < 10) ? ":0" : ":";
+        formatedTime += minutes; //Putting "+ minutes" on line above caused bug with numbers less than 10 "2:0" instead of "2:07"
+        formatedTime += (hours >= 12) ? " P.M." : " A.M.";
+
+        return formatedTime;
     }
 
     render(){
@@ -387,6 +440,9 @@ export default class PaymentScreen extends Component {
                     visible={this.state.approvalVisible}
                     handleClose={this.showAlert}
                     determineAmount={this.determineAmount}
+                    formatedDate={this.state.formatedDate}
+                    formatedTime={this.state.formatedTime}
+                    authCode={this.state.authCode}
                 />
             </View>
         );

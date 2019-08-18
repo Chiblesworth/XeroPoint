@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import FeeDisplay from './FeeDisplay';
-import AsyncStorage from '@react-native-community/async-storage';
+import { storageGet, storageSet } from './localStorage';
 
 export default class FeeScreen extends Component {
     constructor(props) {
@@ -19,13 +19,11 @@ export default class FeeScreen extends Component {
         this.handleTaxFeeChange = this.handleTaxFeeChange.bind(this);
     }
 
-    componentDidMount() {
-        AsyncStorage.getItem("serviceFee").then((fee) => {
-            this.setState({serviceFee: fee});
-        });
-        AsyncStorage.getItem("taxFee").then((fee) => {
-            this.setState({tax: fee});
-        });
+    async componentDidMount() {
+        let serviceFee = await storageGet("serviceFee");
+        let taxFee = await storageGet("taxFee");
+        
+        this.setState({ serviceFee: serviceFee, tax: taxFee});
     }
 
     handleHeaderIconPress() {
@@ -33,15 +31,17 @@ export default class FeeScreen extends Component {
     }
 
     handleServiceFeeChange(newFee) {
-        AsyncStorage.setItem("serviceFee", newFee).then(() => {
-            this.setState({serviceFee: newFee});
-        });
+        let key = "serviceFee";
+
+        storageSet(key, newFee);
+        this.setState({serviceFee: newFee});
     }
 
     handleTaxFeeChange(newFee) {
-        AsyncStorage.setItem("taxFee", newFee).then(() => {
-            this.setState({tax: newFee});
-        });
+        let key = "taxFee";
+        
+        storageSet(key, newFee);
+        this.setState({tax: newFee});
     }
 
     render() {

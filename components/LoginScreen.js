@@ -3,7 +3,8 @@ import { View, Text, Linking, StyleSheet, Alert} from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
 import base64 from 'react-native-base64';
-import AsyncStorage from '@react-native-community/async-storage';
+import { storageGet } from './localStorage';
+
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -20,12 +21,12 @@ export default class LoginScreen extends Component {
 		this.signIn = this.signIn.bind(this);
 	}
 
-	componentDidMount() {
-		AsyncStorage.getItem("stayLoggedIn").then((isLoggedIn) => {
-			if(isLoggedIn === "True"){
-				this.props.navigation.navigate("Main");
-			}
-		})
+	async componentDidMount() {
+		let stayLoggedIn = await storageGet("stayLoggedIn");
+		
+		if(stayLoggedIn === "True"){
+			this.props.navigation.navigate("Main");
+		}
 	}
 
 	toggleSwitch() {

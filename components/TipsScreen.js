@@ -4,9 +4,12 @@ import { Header, Button } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
-import AsyncStorage from '@react-native-community/async-storage';
 import TipOverlay from './TipOverlay';
 import { defaultTips } from './defaultTips';
+import { storageGet, storageSet } from './localStorage';
+import AsyncStorage from '@react-native-community/async-storage';
+import { stringToBoolean } from './stringToBoolean';
+
 
 export default class TipsScreen extends Component {
     constructor(props) {
@@ -22,6 +25,10 @@ export default class TipsScreen extends Component {
         this.defaultTips = defaultTips;
         this.customTips = [];
 
+        this.collectingTipsCheck = this.collectingTipsCheck.bind(this);
+        this.useCustomTipsCheck = this.useCustomTipsCheck.bind(this);
+        this.selectedDefaultTipCheck = this.selectedDefaultTipCheck.bind(this);
+        this.customTipArrayCheck = this.customTipArrayCheck.bind(this);
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleSwitchPress = this.handleSwitchPress.bind(this);
         this.handleDefaultTipChange = this.handleDefaultTipChange.bind(this);
@@ -32,36 +39,40 @@ export default class TipsScreen extends Component {
     }
 
     async componentDidMount() {
-        AsyncStorage.removeItem("defaultTips");
-        let boolValue; //Used because switches can only be bool values and Async only stores strings
-        AsyncStorage.getItem("collectTips").then((collect) => {
-            if(collect != null){
-                if(collect === "true"){
-                    boolValue = true;
-                }
-                else{
-                    boolValue = false;
-                }
-                this.setState({collectTips: boolValue});
-            }
-        })
-        AsyncStorage.getItem("useCustomTips").then((custom) => {
-            if(custom != null){
-                if(custom === "true"){
-                    boolValue = true;
-                }
-                else{
-                    boolValue = false;
-                }
-                this.setState({useCustomPercentages: boolValue});
-            }
-        });
+        this.collectingTipsCheck();
+        this.useCustomTipsCheck();
+        this.selectedDefaultTipCheck();
+        this.customTipArrayCheck();
+    }
 
-        const selected = await AsyncStorage.getItem("selectedDefaultTip");
-        this.setState({defaultTip: Number(selected)});
+    async collectingTipsCheck() {
+        let useCustomTips = await storageGet("useCustomTips"); //Is the user collecting tips after payments?
+        let boolean; //Used because switches can only be bool values and Async only stores strings
+        
+        if(!!useCustomTips){
+            boolean = stringToBoolean(useCustomTips);
+            this.setState({useCustomPercentages: boolean});
+        }
+    }
 
+    async useCustomTipsCheck() {
+        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments?
+        let boolean; //Used because switches can only be bool values and Async only stores strings
+        
+        if(!!collectTips){
+            boolean = stringToBoolean(collectTips);
+            this.setState({collectTips: boolean});
+        }
+    }
+
+    async selectedDefaultTipCheck() {
+        let selectedDefaultTip = await storageGet("selectedDefaultTip");
+        this.setState({defaultTip: Number(selectedDefaultTip)});
+    }
+
+    async customTipArrayCheck() {
         //See if custom tips exist
-        const customTipArray = await AsyncStorage.getItem("customTips");
+        let customTipArray = await storageGet("customTips");
 
         if(customTipArray === null){
             this.customTips = ["15%", "20%", "25%"];
@@ -89,28 +100,23 @@ export default class TipsScreen extends Component {
     }
 
     setCollectedTips() {
-        AsyncStorage.setItem("collectTips", this.state.collectTips.toString());
+        let key = "collectTips";
+        storageSet(key, this.state.collectTips.toString());
     }
 
     customTipsUsed() {
-        AsyncStorage.setItem("useCustomTips", this.state.useCustomPercentages.toString());
+        let key = "useCustomTips";
+        storageSet(key, this.state.useCustomPercentages.toString());
     }
 
-    async handleDefaultTipChange(index) {
+    handleDefaultTipChange(index) {
+        let key = "selectedDefaultTip";
+
         this.setState({defaultTip: index}, () => {
-            AsyncStorage.setItem("selectedDefaultTip", index.toString());
+            storageSet(key, index.toString());
         });
 
-        // const collect  = await AsyncStorage.getItem("collectTips");
-        // const myArray  = await AsyncStorage.getItem("defaultTips");
-        // const selectedDefaultTip = await AsyncStorage.getItem("selectedDefaultTip");
-        // console.log(JSON.parse(myArray));
-        // console.log(selectedDefaultTip);
-        // console.log("are we collecting tips " + collect)
-
         selectedDefaultTip = index;
-
-
     }
 
     handleOverlay() {
@@ -118,10 +124,8 @@ export default class TipsScreen extends Component {
     }
 
     applyCustomTipChanges(newCustomTips) {
-        for(let i = 0; i < newCustomTips.length; i++){
-            console.log(newCustomTips[i])
-        }
-        AsyncStorage.setItem("customTips", JSON.stringify(newCustomTips));
+        let key = "customTips";
+        storageSet(key, JSON.stringify(newCustomTips));
     }
 
     render() {

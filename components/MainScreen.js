@@ -4,7 +4,9 @@ import NumberPad from './NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
+import { storageGet, storageSet } from './localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
+
 
 export default class MainScreen extends Component {
     constructor(props){
@@ -94,25 +96,23 @@ export default class MainScreen extends Component {
         );
     }
 
-    checkDefaults() {
-        /*
-            This is used to set default values for a service fee and tax fee
-            more info about how AsyncStorage works here:
-            https://facebook.github.io/react-native/docs/asyncstorage
-        */
-        AsyncStorage.getItem("serviceFee").then((value) => {
-            if(value === null){
-                AsyncStorage.setItem("serviceFee", "4");
-            }
-        });
-        AsyncStorage.getItem("taxFee").then((value) => {
-            if(value === null){
-                AsyncStorage.setItem("taxFee", "10");
-            }
-        })
+    async checkDefaults() {
+        //This is used to check if default fee values exist, else it sets defaults.
+        let key;
+        let serviceFee = await storageGet("serviceFee");
+        let taxFee = await storageGet("taxFee");
+
+        if(serviceFee === null){
+            key = "serviceFee";
+            storageSet(key, 5);
+        }
+        if(taxFee === null){
+            key = "taxFee";
+            storageSet(key, 10);
+        }
     }
 
-    getMerchantId() {        
+    getMerchantId() {       //FIX API CALL ASYNC  
         AsyncStorage.getItem("encodedUser").then((encoded) => {
             let headers = {
                 'Authorization' : 'Basic ' + encoded,

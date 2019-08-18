@@ -4,6 +4,7 @@ import SignatureCapture from 'react-native-signature-capture';
 import CollectTip from './CollectTip';
 import AsyncStorage from '@react-native-community/async-storage';
 import { defaultTips } from './defaultTips';
+import { storageGet, storageSet } from './localStorage';
 
 defaultTips.push("Other");
 
@@ -20,24 +21,25 @@ export default class SignatureScreen extends Component {
 
         this.customTips = []; //Used as the array from the string returned from AsyncStorage
 
+        this.useCustomTipCheck = this.useCustomTipCheck.bind(this);
         this.handleTipChange = this.handleTipChange.bind(this);
         this.manageCustomTips = this.manageCustomTips.bind(this); //Used splitting string of custom tips into array.
     }
 
-    async componentDidMount() {
-        let defaultTipIndex = await AsyncStorage.getItem("selectedDefaultTip");
-        console.log(defaultTipIndex);
+    componentDidMount() {
+        this.useCustomTipCheck();
+    }
 
-        let useCustomTips = await AsyncStorage.getItem("useCustomTips");
-        console.log("useCustomTip is " + useCustomTips);
+    async useCustomTipCheck() {
+        let selectedDefaultTip = await storageGet("selectedDefaultTip");
+        let useCustomTips = await storageGet("useCustomTips");
 
         if(useCustomTips === "true"){
             this.setState({useCustomTips: true});
             this.manageCustomTips();
-
         }
         else{
-            this.setState({defaultTipIndex: defaultTipIndex})
+            this.setState({defaultTipIndex: selectedDefaultTip});
         }
     }
 
@@ -91,7 +93,12 @@ export default class SignatureScreen extends Component {
         }
         return (
             <View style={styles.container}>
-                <CollectTip tipArray={tipArray} tipIndex={this.state.defaultTipIndex} handleChange={this.handleTipChange}/>
+                <CollectTip 
+                    tipArray={tipArray} 
+                    tipIndex={this.state.defaultTipIndex} 
+                    handleChange={this.handleTipChange}
+                    amount={this.props.navigation.state.params.tipAdjustmentData.amount}
+                />
                 <View style={styles.signatureContainer}>
                     <SignatureCapture
                         style={styles.signature}

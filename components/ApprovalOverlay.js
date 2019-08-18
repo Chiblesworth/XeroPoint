@@ -5,8 +5,6 @@ import { Overlay, Button, Icon } from 'react-native-elements';
 export default class ApprovalOverlay extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-        };
     }
 
     render() {
@@ -15,6 +13,7 @@ export default class ApprovalOverlay extends Component {
                 isVisible={this.props.visible}
                 onBackdropPress={() => this.props.handleClose("approval")}
                 height={300}
+                width={350}
                 borderRadius={25}
             >
                 <View style={styles.container}>
@@ -29,17 +28,17 @@ export default class ApprovalOverlay extends Component {
                     </View>
                     <View style={styles.approvedData}>
                         <View style={styles.row}>
-                            <Text style={styles.text}>Date: </Text>
+                            <Text style={styles.text}>Date: {this.props.formatedDate}</Text>
                         </View>
                         <View style={styles.row}>
-                            <Text style={styles.text}>Time: </Text>
+                            <Text style={styles.text}>Time: {this.props.formatedTime}</Text>
                         </View>
                         <View style={styles.row}>
                             <Text style={styles.text}>Amount: </Text>
                             <Text style={styles.text}>${this.props.determineAmount()}</Text>
                         </View>
                         <View style={styles.row}>
-                            <Text style={styles.text}>AuthCode: </Text>
+                            <Text style={styles.text}>AuthCode: {this.props.authCode}</Text>
                         </View>
                     </View>
                     <Button 
