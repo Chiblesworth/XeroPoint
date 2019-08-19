@@ -6,6 +6,7 @@ import { Header } from 'react-native-elements';
 import HeaderIcon from './HeaderIcon';
 import { storageGet, storageSet } from './localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
+import Orientation from 'react-native-orientation';
 
 
 export default class MainScreen extends Component {
@@ -30,6 +31,7 @@ export default class MainScreen extends Component {
     }
 
     componentDidMount(){
+        Orientation.lockToPortrait();
         this.getMerchantId();
     }
 

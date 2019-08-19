@@ -5,6 +5,7 @@ import CollectTip from './CollectTip';
 import AsyncStorage from '@react-native-community/async-storage';
 import { defaultTips } from './defaultTips';
 import { storageGet, storageSet } from './localStorage';
+import Orientation from 'react-native-orientation';
 
 defaultTips.push("Other");
 
@@ -16,7 +17,8 @@ export default class SignatureScreen extends Component {
             defaultTipIndex: 0,
             useCustomTips: false,
             arraySentToTabbedControl: defaultTips,
-            customTipArray: []
+            customTipArray: [],
+            orientation: "landscape"
         };
 
         this.customTips = []; //Used as the array from the string returned from AsyncStorage
@@ -24,9 +26,11 @@ export default class SignatureScreen extends Component {
         this.useCustomTipCheck = this.useCustomTipCheck.bind(this);
         this.handleTipChange = this.handleTipChange.bind(this);
         this.manageCustomTips = this.manageCustomTips.bind(this); //Used splitting string of custom tips into array.
+        this.changeOrientation = this.changeOrientation.bind(this);
     }
 
     componentDidMount() {
+        //Orientation.lockToLandscape();
         this.useCustomTipCheck();
     }
 
@@ -64,6 +68,10 @@ export default class SignatureScreen extends Component {
         this.setState({customTipArray: [...customTipArray]});
     }
 
+    changeOrientation(orientation) {
+        this.setState({orientation: orientation});
+    }
+
     saveSign() {
         this.refs["sign"].saveImage();
     }
@@ -98,6 +106,7 @@ export default class SignatureScreen extends Component {
                     tipIndex={this.state.defaultTipIndex} 
                     handleChange={this.handleTipChange}
                     amount={this.props.navigation.state.params.tipAdjustmentData.amount}
+                    handleOrientationChange={this.changeOrientation}
                 />
                 <View style={styles.signatureContainer}>
                     <SignatureCapture
@@ -107,11 +116,14 @@ export default class SignatureScreen extends Component {
                         onDragEvent={this._onDragEvent}
                         saveImageFileInExtStorage={false}
                         showNativeButtons={false}
-                        showBorder={true}
-                        viewMode="portrait"
+                        //showBorder={true}
+                        showTitleLabel={true}
+                        viewMode={this.state.orientation}
                     />
                 </View>
- 
+                <View style={styles.textSection}>
+                    <Text style={styles.text}>Please sign your signature above.</Text>
+                </View> 
                 <View style={styles.row}>
                     <TouchableHighlight style={styles.buttonStyle}
                         onPress={() => { this.saveSign() } } >
@@ -124,7 +136,6 @@ export default class SignatureScreen extends Component {
                     </TouchableHighlight>
  
                 </View>
- 
             </View>
         );
     }
@@ -140,15 +151,15 @@ const styles = StyleSheet.create({
     row: {
         flex: 1,
         flexDirection: 'row',
-        marginBottom: 25
+        marginBottom: 40
     },
     totalContainer: {
         flexDirection: 'column'
     },
     signatureContainer: {
         flex: 1,
-        borderWidth: 5,
-        borderColor: 'black'
+        borderBottomWidth: 3,
+        borderBottomColor: 'black'
     },
     signature: {
         flex: 1
@@ -181,5 +192,11 @@ const styles = StyleSheet.create({
     },
     activeTabTextStyle: {
         color: 'purple'
+    },
+    textSection: {
+        alignItems: 'center'
+    },
+    text: {
+        fontSize: 25
     }
 });

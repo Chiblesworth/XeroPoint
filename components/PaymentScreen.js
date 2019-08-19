@@ -10,6 +10,7 @@ import { feeCalculations } from './feeCalculations';
 import ApprovalOverlay from './ApprovalOverlay';
 import { months } from './monthsArray';
 import { storageGet, storageSet } from './localStorage';
+import Orientation from 'react-native-orientation';
 
 /*
     This resets the component of the main screen 
@@ -70,6 +71,7 @@ export default class PaymentScreen extends Component {
     }
 
     async componentDidMount() {
+        Orientation.lockToPortrait();
         let taxFee = await storageGet("taxFee");
         let serviceFee = await storageGet("serviceFee");
         let amountCharged = this.state.amountCharged;
@@ -113,8 +115,6 @@ export default class PaymentScreen extends Component {
     }
 
     validateForm(stateOfForm) {
-        //console.log(stateOfForm);
-
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
         if(stateOfForm.numberWithoutSpaces === "" || stateOfForm.cardAccount.expiryMonth === "" || stateOfForm.cardAccount.expiryYear === ""){

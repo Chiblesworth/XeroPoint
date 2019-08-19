@@ -3,18 +3,22 @@ import { View, Text, StyleSheet } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import { storageGet, storageSet } from './localStorage';
 import { feeCalculations } from './feeCalculations';
+import CustomTipOverlay from './CustomTipOverlay';
 
 export default class CollectTip extends Component {
     constructor(props) {
         super(props);
         this.state = {
             subtotal: this.props.amount,
-            totalWithTip: this.props.amount
+            totalWithTip: this.props.amount,
+            overlayVisible: false
         };
 
         this.determineWithSelectedDefaultTip = this.determineWithSelectedDefaultTip.bind(this); //Used for determining total with users selected default tip when component mounts.
         this.handleSegmentedControlSwitch = this.handleSegmentedControlSwitch.bind(this);
         this.adjustTip = this.adjustTip.bind(this);
+        this.handleOverlayChange = this.handleOverlayChange.bind(this);
+        this.applyCustomTipChanges = this.applyCustomTipChanges.bind(this);
     }
 
     componentDidMount() {
@@ -44,8 +48,9 @@ export default class CollectTip extends Component {
             this.setState({totalWithTip: amount});
         }
         else if(index === 4){
-            //Other was selected make overlay.
-            //Set visible etc
+            
+            this.handleOverlayChange();
+            this.props.handleOrientationChange("portrait");
         }
         else{
             let tipAmount = this.props.tipArray[index].replace(/(%)+/g, "");
@@ -59,12 +64,24 @@ export default class CollectTip extends Component {
         }
     }
 
+    handleOverlayChange() {
+        this.props.handleOrientationChange("landscape");
+        this.setState({overlayVisible: !this.state.overlayVisible});
+    }
+
+    applyCustomTipChanges(customTipTotal) {
+        console.log(customTipTotal);
+        this.setState({totalWithTip: customTipTotal});
+        this.props.handleOrientationChange("landscape");
+        this.handleOverlayChange();
+    }
+
     render() {
         return (
             <View style={styles.row}>
                     <View style={styles.totalContainer}>
-                        <Text>Subtotal</Text>
-                        <Text>${parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2)}</Text>
+                        <Text style={styles.text}>Subtotal:</Text>
+                        <Text style={styles.text}>${parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2)}</Text>
                     </View>
                     <SegmentedControlTab
                             values={this.props.tipArray}
@@ -76,11 +93,19 @@ export default class CollectTip extends Component {
                             tabStyle={styles.tabStyle}
                             activeTabStyle={styles.activeTabStyle}
                             activeTabTextStyle={styles.activeTabTextStyle}
+                            width={100}
                     />
                     <View style={styles.totalContainer}>
-                        <Text>Total</Text>
-                        <Text>${this.state.totalWithTip}</Text>
+                        <Text style={styles.text}>Total:</Text>
+                        <Text style={styles.text}>${parseFloat(Math.round(this.state.totalWithTip * 100) / 100).toFixed(2)}</Text>
                     </View>
+                    <CustomTipOverlay 
+                        isVisible={this.state.overlayVisible}
+                        handleClose={this.handleOverlayChange}
+                        amount={this.props.amount}
+                        applyChange={this.applyCustomTipChanges}
+                        orientationChange={this.props.handleOrientationChange}
+                    />
             </View>
         );
     }
@@ -93,7 +118,12 @@ const styles = StyleSheet.create({
         marginBottom: 25,
     },
     totalContainer: {
-        flexDirection: 'column'
+        flexDirection: 'column',
+        marginLeft: 10,
+        marginRight: 10
+    },
+    text: {
+        fontSize: 25
     },
     tabsContainerStyle: {
         flex: 1,
