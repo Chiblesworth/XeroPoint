@@ -8,14 +8,14 @@ import { createDrawerNavigator,
 		 NavigationActions, 
 		 StackActions
 		} from 'react-navigation';
-import LoginScreen from './components/LoginScreen';
-import MainScreen from './components/MainScreen';
-import PaymentScreen from './components/PaymentScreen';
-import SettingScreen from './components/SettingScreen';
-import FeesScreen from './components/FeesScreen';
-import TipsScreen from './components/TipsScreen';
-import SearchCustomerScreen from './components/SearchCustomerScreen';
-import SignatureScreen from './components/SignatureScreen';
+import LoginScreen from './components/screens/LoginScreen';
+import MainScreen from './components/screens/MainScreen';
+import PaymentScreen from './components/screens/PaymentScreen';
+import SettingScreen from './components/screens/SettingScreen';
+import FeesScreen from './components/screens/FeesScreen';
+import TipsScreen from './components/screens/TipsScreen';
+import SearchCustomerScreen from './components/screens/SearchCustomerScreen';
+import SignatureScreen from './components/screens/SignatureScreen';
 import { Button, Icon } from 'react-native-elements';
 import { View, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';

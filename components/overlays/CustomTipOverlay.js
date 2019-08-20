@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Overlay, Button, Input } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 
@@ -8,7 +8,7 @@ export default class CustomTipOverlay extends Component {
         super(props);
 
         this.state = {
-            totalWithTip: this.props.amount,
+            totalWithTip: Number(this.props.subtotal),
             tip: "",
             isButtonDisabled: true
         };
@@ -33,11 +33,12 @@ export default class CustomTipOverlay extends Component {
     adjustTotalWithTip(text) {
         let tipAmount = Number(text);
 
-        tipAmount += Number(this.props.amount);
+        this.props.tipChange(Number(text));
 
-        this.setState({totalWithTip: tipAmount}, () => {
-            console.log(this.state.totalWithTip)
-        });
+        tipAmount += Number(this.props.subtotal);
+
+        this.setState({totalWithTip: tipAmount});
+        
     }
 
     render() {
@@ -58,7 +59,7 @@ export default class CustomTipOverlay extends Component {
                     <View style={styles.headerRow}>
                         <Button 
                             title="Cancel"
-                            onPress={() => this.props.handleClose()}
+                            onPress={() => this.props.handleClose("cancel")}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
                             titleStyle={{color: 'red', fontSize: 20}}
@@ -76,7 +77,7 @@ export default class CustomTipOverlay extends Component {
                                 {dollarSigns}
                             </View>
                             <View style={styles.column}>
-                                <Text style={styles.amount}>{parseFloat(Math.round(this.props.amount * 100) / 100).toFixed(2)}</Text>
+                                <Text style={styles.amount}>{parseFloat(Math.round(this.props.subtotal * 100) / 100).toFixed(2)}</Text>
                                 <Input
                                     placeholder="Dollar Amount"
                                     placeholderTextColor="grey"

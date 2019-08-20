@@ -3,7 +3,9 @@ import { View, Text, Linking, StyleSheet, Alert} from "react-native";
 import SwitchToggle from 'react-native-switch-toggle';
 import { Input, Button } from 'react-native-elements';
 import base64 from 'react-native-base64';
-import { storageGet } from './localStorage';
+import { storageGet } from '../../helperMethods/localStorage';
+import AsyncStorage from '@react-native-community/async-storage'; //Remove later
+
 
 
 export default class LoginScreen extends Component {

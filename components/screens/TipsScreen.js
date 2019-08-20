@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Header, Button } from 'react-native-elements';
-import HeaderIcon from './HeaderIcon';
+import HeaderIcon from '../HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
-import TipOverlay from './TipOverlay';
-import { defaultTips } from './defaultTips';
-import { storageGet, storageSet } from './localStorage';
-import AsyncStorage from '@react-native-community/async-storage';
-import { stringToBoolean } from './stringToBoolean';
+import TipOverlay from '../overlays/TipOverlay';
+import { defaultTips } from '../../helperMethods/defaultTips';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 
 export default class TipsScreen extends Component {

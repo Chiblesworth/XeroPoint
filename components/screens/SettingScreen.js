@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Header, Button, Icon } from 'react-native-elements';
-import HeaderIcon from './HeaderIcon';
+import HeaderIcon from '../HeaderIcon';
 
 export default class SettingScreen extends Component {
     constructor(props) {

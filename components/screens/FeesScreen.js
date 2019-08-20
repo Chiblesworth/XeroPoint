@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Header } from 'react-native-elements';
-import HeaderIcon from './HeaderIcon';
-import FeeDisplay from './FeeDisplay';
-import { storageGet, storageSet } from './localStorage';
+import HeaderIcon from '../HeaderIcon';
+import FeeDisplay from '../FeeDisplay';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 export default class FeeScreen extends Component {
     constructor(props) {

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
-import HeaderIcon from './HeaderIcon';
+import HeaderIcon from '../HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
-import KeyedPaymentForm from './KeyedPaymentForm';
-import { feeCalculations } from './feeCalculations';
-import ApprovalOverlay from './ApprovalOverlay';
-import { months } from './monthsArray';
-import { storageGet, storageSet } from './localStorage';
+import KeyedPaymentForm from '../KeyedPaymentForm';
+import { feeCalculations } from '../../helperMethods/feeCalculations';
+import ApprovalOverlay from '../overlays/ApprovalOverlay';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { formatDate, formatTime } from '../../helperMethods/dateFormats';
 import Orientation from 'react-native-orientation';
 
 /*
@@ -66,8 +66,6 @@ export default class PaymentScreen extends Component {
         this.showAlert = this.showAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
-        this.formatDate = this.formatDate.bind(this);
-        this.formatTime = this.formatTime.bind(this);
     }
 
     async componentDidMount() {
@@ -170,11 +168,12 @@ export default class PaymentScreen extends Component {
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
                 method: "GET",
                 headers: headers,
-                qs: {merchantId: this.state.merchantId}
+                qs: {merchantId: this.state.merchantId, limit: 250 }
             }).then((response) => {
                 return response.json();
             }).then((Json) => {
                 let records = Json.records;
+                console.log(Json);
 
                 for(let i = 0; i < records.length; i++){
                     let record = {'id': records[i].id, 'name': records[i].name};
@@ -247,10 +246,11 @@ export default class PaymentScreen extends Component {
                 }).then((responseJson) => {
                     let authorizedPaymentMade = responseJson.records[0];
         
-                    let formatedDate = this.formatDate();
-                    let formatedTime = this.formatTime();
+                    let formatedDate = formatDate();
+                    let formatedTime = formatTime();
 
                     let tipAdjustmentData = {
+                        id: authorizedPaymentMade.id,
                         merchantId: authorizedPaymentMade.merchantId,
                         amount: authorizedPaymentMade.amount,
                         authCode: authorizedPaymentMade.authCode,
@@ -287,38 +287,6 @@ export default class PaymentScreen extends Component {
        amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
 
         return amount;
-    }
-    //https://stackoverflow.com/questions/29206453/best-way-to-convert-military-time-to-standard-time-in-javascript
-    //For next two methods
-    //Maybe remove these two from class and use as helper methods instead? 
-    formatDate() {
-        let date = new Date();
-        let formatedDate = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
-
-        return formatedDate;
-    }
-
-    formatTime() {
-        let date = new Date();
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
-        let formatedTime;
-
-        if((hours > 0) && (hours <= 12)){
-            formatedTime= hours;
-        } 
-        else if(hours > 12){
-            formatedTime=   (hours - 12);
-        } 
-        else if(hours == 0){
-            formatedTime= "12";
-        }
-
-        formatedTime += (minutes < 10) ? ":0" : ":";
-        formatedTime += minutes; //Putting "+ minutes" on line above caused bug with numbers less than 10 "2:0" instead of "2:07"
-        formatedTime += (hours >= 12) ? " P.M." : " A.M.";
-
-        return formatedTime;
     }
 
     render(){

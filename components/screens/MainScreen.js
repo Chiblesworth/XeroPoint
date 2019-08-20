@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text, Alert, StyleSheet } from "react-native";
-import NumberPad from './NumberPad';
+import NumberPad from '../NumberPad';
 import accounting from 'accounting';
 import { Header } from 'react-native-elements';
-import HeaderIcon from './HeaderIcon';
-import { storageGet, storageSet } from './localStorage';
+import HeaderIcon from '../HeaderIcon';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
 import Orientation from 'react-native-orientation';
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-import { storageGet, storageSet } from './localStorage';
+import { storageGet, storageSet } from '../helperMethods/localStorage';
 import AsyncStorage from '@react-native-community/async-storage'; //Remove when fixed
 
 
