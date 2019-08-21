@@ -16,11 +16,12 @@ export default class CollectTip extends Component {
             <View style={styles.row}>
                     <View style={styles.totalContainer}>
                         <Text style={styles.text}>Subtotal:</Text>
-                        <Text style={styles.text}>$0</Text>
+                        <Text style={styles.text}>${parseFloat(Math.round(this.props.subtotal * 100) / 100).toFixed(2)}</Text>
                     </View>
                     <SegmentedControlTab
                             values={this.props.tipArray}
-                            selectedIndex={0}
+                            selectedIndex={this.props.selectedIndex}
+                            onTabPress={(index) => this.props.handleChange(index) }
                             borderRadius={25}
                             tabsContainerStyle={styles.tabsContainerStyle}
                             tabTextStyle={styles.tabTextStyle}
@@ -31,7 +32,7 @@ export default class CollectTip extends Component {
                     />
                     <View style={styles.totalContainer}>
                         <Text style={styles.text}>Total:</Text>
-                        <Text style={styles.text}>$0</Text>
+                        <Text style={styles.text}>${parseFloat(Math.round(this.props.total * 100) / 100).toFixed(2)}</Text>
                     </View>
             </View>
         );

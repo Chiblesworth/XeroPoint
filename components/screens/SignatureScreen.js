@@ -11,6 +11,7 @@ import { defaultTips } from '../../helperMethods/defaultTips';
 import { getCustomTipsArray } from '../../helperMethods/customTips';
 import { storageGet } from '../../helperMethods/localStorage';
 import { stringToBoolean } from '../../helperMethods/stringToBoolean';
+import { feeCalculations } from '../../helperMethods/feeCalculations';
 
 
 defaultTips.push("Other");
@@ -27,9 +28,14 @@ export default class SignatureScreen extends Component {
         this.state = {
             orientation: "landscape", //Switch when closing the Overlay
             tipArray: [], //Will be either defaultTips or customTips
+            selectedIndex: 0,
+            subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
+            total: 0,
+            tip: 0
         };
 
-        this.test = this.test.bind(this);
+        this.adjustTip = this.adjustTip.bind(this);
+        this.handleSegmentedControlSwitch = this.handleSegmentedControlSwitch.bind(this);
     }
 
     async componentWillMount() {
@@ -42,22 +48,61 @@ export default class SignatureScreen extends Component {
             this.setState({tipArray: [...customTipArray]}, () => {
                 console.log("In state now");
                 console.log(this.state.tipArray);
+
+                this.adjustTip(this.state.selectedIndex);
             });
         }
         else{
-            this.setState({tipArray: [...defaultTips]}, () => {
-                console.log("In state now");
-                console.log(this.state.tipArray);
-            });
+            this.setState({
+                tipArray: [...defaultTips], 
+                selectedIndex: Number(selectedDefaultTip)}, () => {
+                    console.log("In state now");
+                    console.log(this.state.tipArray);
+                    console.log(this.state.selectedIndex);
+
+                    this.adjustTip(this.state.selectedIndex);
+                });
         }
     }
 
     componentDidMount() {
-        //this.test();
     }
 
-    test() {
-        //console.log(this.state.tipArray)
+    adjustTip(index) {
+        if(index === 0){
+            let total = parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2);
+            let tip = parseFloat(Math.round(0 * 100) / 100).toFixed(2) //Formats numbers with two decimals
+            
+            this.setState({
+                total: Number(total),
+                tip: Number(tip)
+            }, () => {
+                console.log("total = " + this.state.total)
+                console.log("tip = " + this.state.tip)
+            })
+        }
+        else{
+            let tipPercentage = this.state.tipArray[index].replace(/(%)+/g, "");
+            
+            let total = feeCalculations(this.state.subtotal, tipPercentage);
+            total = parseFloat(Math.round(total * 100) / 100).toFixed(2);
+
+            let tipDollarAmount = total - this.state.subtotal;
+            tipDollarAmount = parseFloat(Math.round(tipDollarAmount * 100) / 100).toFixed(2);
+
+            this.setState({
+                total: Number(total),
+                tip: Number(tipDollarAmount)
+            }, () => {
+                console.log("total = " + this.state.total)
+                console.log("tip = " + this.state.tip)
+            })
+        }
+    }
+
+    handleSegmentedControlSwitch(index) {
+        this.adjustTip(index);
+        this.setState({selectedIndex: index});
     }
 
     render() {
@@ -65,6 +110,10 @@ export default class SignatureScreen extends Component {
             <View style={styles.container}>
                 <CollectTip
                     tipArray={this.state.tipArray}
+                    selectedIndex={this.state.selectedIndex}
+                    subtotal={this.state.subtotal}
+                    total={this.state.total}
+                    handleChange={this.handleSegmentedControlSwitch}
                 />
                 <View style={styles.signatureContainer}>
                     <SignatureCapture
