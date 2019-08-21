@@ -13,7 +13,6 @@ import { storageGet } from '../../helperMethods/localStorage';
 import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 import { feeCalculations } from '../../helperMethods/feeCalculations';
 
-
 defaultTips.push("Other");
 
 const resetAction = StackActions.reset({
@@ -31,11 +30,15 @@ export default class SignatureScreen extends Component {
             selectedIndex: 0,
             subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
             total: 0,
-            tip: 0
+            tip: 0,
+            overlayVisible: false
         };
 
         this.adjustTip = this.adjustTip.bind(this);
         this.handleSegmentedControlSwitch = this.handleSegmentedControlSwitch.bind(this);
+        this.toggleOverlay = this.toggleOverlay.bind(this);
+        this.overlayCancelPressed = this.overlayCancelPressed.bind(this);
+        this.applyCustomTip = this.applyCustomTip.bind(this);
     }
 
     async componentWillMount() {
@@ -81,6 +84,10 @@ export default class SignatureScreen extends Component {
                 console.log("tip = " + this.state.tip)
             })
         }
+        else if(index === 4){
+            this.setState({orientation: "portrait"})
+            this.toggleOverlay();
+        }
         else{
             let tipPercentage = this.state.tipArray[index].replace(/(%)+/g, "");
             
@@ -103,6 +110,36 @@ export default class SignatureScreen extends Component {
     handleSegmentedControlSwitch(index) {
         this.adjustTip(index);
         this.setState({selectedIndex: index});
+    }
+
+    toggleOverlay() {
+        this.setState({overlayVisible: !this.state.overlayVisible}, () => {
+            if(!this.state.overlayVisible){
+                this.setState({
+                    orientation: "landscape",
+            });
+            }
+        });
+    }
+
+    overlayCancelPressed() {
+        this.setState({
+            total: Number(parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2)),
+            tip: Number(parseFloat(Math.round(0 * 100) / 100).toFixed(2))
+        });
+        this.toggleOverlay();
+    }
+
+    applyCustomTip(total, tip) {
+        console.log("in applyCustomTip")
+        console.log(total)
+        console.log(tip)
+        this.setState({
+            total: total,
+            tip: tip
+        }, () => {
+            this.toggleOverlay();
+        });
     }
 
     render() {
@@ -150,6 +187,11 @@ export default class SignatureScreen extends Component {
                     </View>
                 </View>
                 <CustomTipOverlay 
+                    isVisible={this.state.overlayVisible}
+                    subtotal={this.state.subtotal}
+                    total={this.state.total}
+                    closeOverlay={this.overlayCancelPressed}
+                    applyCustomTip={this.applyCustomTip}
                 />
             </View>
         );

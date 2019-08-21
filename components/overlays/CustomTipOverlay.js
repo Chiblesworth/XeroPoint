@@ -8,7 +8,34 @@ export default class CustomTipOverlay extends Component {
         super(props);
 
         this.state = {
+            total: this.props.subtotal,
+            tip: "",
+            isButtonDisabled: true
         };
+
+        this.handleTextChange = this.handleTextChange.bind(this);
+        this.adjustTotal = this.adjustTotal.bind(this);
+    }
+
+    handleTextChange(text) {
+        this.setState({tip: text}, () => {
+            if(this.state.tip !== ""){
+                this.setState({isButtonDisabled: false});
+                this.adjustTotal(this.state.tip);
+            }
+            else{
+                this.setState({isButtonDisabled: true});
+                this.adjustTotal(this.state.tip);
+            }
+        })
+    }
+
+    adjustTotal(text) {
+        let tip = Number(text);
+
+        tip += Number(this.props.subtotal);
+
+        this.setState({total: tip});
     }
 
     render() {
@@ -21,7 +48,7 @@ export default class CustomTipOverlay extends Component {
         }
         return (
             <Overlay
-                isVisible={false}
+                isVisible={this.props.isVisible}
                 fullScreen={true}
                 overlayBackgroundColor="#808080"
             >
@@ -29,7 +56,7 @@ export default class CustomTipOverlay extends Component {
                     <View style={styles.headerRow}>
                         <Button 
                             title="Cancel"
-                            //onPress={() => this.props.handleClose("cancel")}
+                            onPress={() => this.props.closeOverlay()}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
                             titleStyle={{color: 'red', fontSize: 20}}
@@ -47,7 +74,7 @@ export default class CustomTipOverlay extends Component {
                                 {dollarSigns}
                             </View>
                             <View style={styles.column}>
-                                <Text style={styles.amount}>0</Text>
+                                <Text style={styles.amount}>{parseFloat(Math.round(this.props.subtotal * 100) / 100).toFixed(2)}</Text>
                                 <Input
                                     placeholder="Dollar Amount"
                                     placeholderTextColor="grey"
@@ -57,14 +84,16 @@ export default class CustomTipOverlay extends Component {
                                     autoFocus={true}
                                     keyboardType="numeric"
                                     value={this.state.tip}
+                                    onChangeText={(text) => this.handleTextChange(text)}
                                 />
-                                <Text style={styles.amount}>0</Text>
+                                <Text style={styles.amount}>{parseFloat(Math.round(this.state.total * 100) / 100).toFixed(2)}</Text>
                             </View>
                         </View>
                         <View style={styles.divider}/>
                         <View style={styles.applySection}>
                             <Button
                                 title="Apply Tip"
+                                onPress={() => this.props.applyCustomTip(Number(this.state.total), Number(this.state.tip))}
                                 containerStyle={styles.applyButtonContainer}
                                 buttonStyle={styles.applyButtonStyle}
                                 titleStyle={{color: 'blue', fontSize: 25}}
