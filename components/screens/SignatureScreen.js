@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
-import SignatureCapture from 'react-native-signature-capture';
-import CollectTip from '../CollectTip';
-import { defaultTips } from '../../helperMethods/defaultTips';
-import { storageGet } from '../../helperMethods/localStorage';
 import { Button } from 'react-native-elements';
 import { StackActions, NavigationActions } from 'react-navigation';
+import SignatureCapture from 'react-native-signature-capture';
+//Components
+import CollectTip from '../CollectTip';
+import CustomTipOverlay from '../overlays/CustomTipOverlay';
+//Helpers
+import { defaultTips } from '../../helperMethods/defaultTips';
+import { getCustomTipsArray } from '../../helperMethods/customTips';
+import { storageGet } from '../../helperMethods/localStorage';
+import { stringToBoolean } from '../../helperMethods/stringToBoolean';
+
 
 defaultTips.push("Other");
 
@@ -19,138 +25,46 @@ export default class SignatureScreen extends Component {
         super(props);
 
         this.state = {
-            defaultTipIndex: 0,
-            useCustomTips: false,
-            arraySentToTabbedControl: defaultTips,
-            customTipArray: [],
-            orientation: "landscape",
-            subtotal: this.props.navigation.state.params.tipAdjustmentData.amount,
-            totalWithTip: 0,
-            tipAmount: 0 //Used to store in MX Merchant's backend for tip adjustment
+            orientation: "landscape", //Switch when closing the Overlay
+            tipArray: [], //Will be either defaultTips or customTips
         };
 
-        this.customTips = []; //Used as the array from the string returned from AsyncStorage
+        this.test = this.test.bind(this);
+    }
 
-        this.useCustomTipCheck = this.useCustomTipCheck.bind(this);
-        this.handleTipChange = this.handleTipChange.bind(this);
-        this.manageCustomTips = this.manageCustomTips.bind(this); //Used splitting string of custom tips into array.
-        this.changeOrientation = this.changeOrientation.bind(this);
-        this.handleTotalWithTipChange = this.handleTotalWithTipChange.bind(this);
-        this.handleTipAmountChange = this.handleTipAmountChange.bind(this);
-        this.handleContinuePress = this.handleContinuePress.bind(this);
-        this.handleCancelPress = this.handleCancelPress.bind(this);
-        this.voidPayment = this.voidPayment.bind(this);
+    async componentWillMount() {
+        let selectedDefaultTip = await storageGet("selectedDefaultTip");
+        let useCustomTips = await storageGet("useCustomTips");
+        let customTipsBool = await stringToBoolean(useCustomTips);
+
+        if(customTipsBool){
+            let customTipArray = await getCustomTipsArray();
+            this.setState({tipArray: [...customTipArray]}, () => {
+                console.log("In state now");
+                console.log(this.state.tipArray);
+            });
+        }
+        else{
+            this.setState({tipArray: [...defaultTips]}, () => {
+                console.log("In state now");
+                console.log(this.state.tipArray);
+            });
+        }
     }
 
     componentDidMount() {
-        this.useCustomTipCheck();
+        //this.test();
     }
 
-    async useCustomTipCheck() {
-        let selectedDefaultTip = await storageGet("selectedDefaultTip");
-        let useCustomTips = await storageGet("useCustomTips");
-
-        if(useCustomTips === "true"){
-            this.setState({useCustomTips: true});
-            this.manageCustomTips();
-        }
-        else{
-            this.setState({defaultTipIndex: selectedDefaultTip});
-        }
-    }
-
-    handleTipChange(index) {
-        this.setState({defaultTipIndex: index});
-    }
-
-    async manageCustomTips() {
-        let customTips = await storageGet("customTips");
-        let customTipArray = ["No Tip"];
-
-        customTips = customTips.replace(/(\[)|(\])|(\")+/g, "");
-        let tempArray = customTips.split(",");
-
-
-        for(let i = 0; i < tempArray.length; i++){
-            customTipArray.push(tempArray[i]);
-        }
-
-        customTipArray.push("Other");
-
-        this.setState({customTipArray: [...customTipArray]});
-    }
-
-    changeOrientation(orientation) {
-        this.setState({orientation: orientation});
-    }
-
-    handleTotalWithTipChange(total) {
-        this.setState({totalWithTip: total});
-    }
-
-    handleTipAmountChange(amount) {
-        this.setState({tipAmount: amount});
-    }
-
-    handleContinuePress() {
-        console.log("in continue press")
-        console.log(this.state.totalWithTip)
-        console.log(this.state.tipAmount)
-
-        let saleWithTipAdjustment = {
-            merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,
-            paymentToken: this.props.navigation.state.params.tipAdjustmentData.paymentToken,
-            tenderType: "Card",
-            tip: this.state.tipAmount,
-            amount: this.state.totalWithTip,
-            authCode: this.props.navigation.state.params.tipAdjustmentData.authCode,
-            authOnly: false
-        }
-
-        console.log(saleWithTipAdjustment);
-
-        //navigate to next page withthis 
-    }
-
-    handleCancelPress() {
-        this.voidPayment();
-        this.props.navigation.dispatch(resetAction);
-    }
-
-    async voidPayment() {
-        let encodedUser = await storageGet("encodedUser");
-
-        let headers = {
-            'Authorization' : 'Basic ' + encodedUser,
-            'Content-Type' : 'application/json; charset=utf-8'
-        }
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment/${this.props.navigation.state.params.tipAdjustmentData.id}`,{
-            method: "DELETE",
-            headers: headers,
-        });
+    test() {
+        //console.log(this.state.tipArray)
     }
 
     render() {
-        let tipArray;
-        if(this.state.useCustomTips){
-            tipArray = this.state.customTipArray
-        }
-        else{
-            tipArray = defaultTips;
-        }
         return (
             <View style={styles.container}>
-                <CollectTip 
-                    tipArray={tipArray} 
-                    tipIndex={this.state.defaultTipIndex} 
-                    handleChange={this.handleTipChange}
-                    subtotal={this.state.subtotal}
-                    totalWithTip={this.state.totalWithTip}
-                    tipAmount={this.state.tipAmount}
-                    totalChange={this.handleTotalWithTipChange}
-                    tipChange={this.handleTipAmountChange}
-                    handleOrientationChange={this.changeOrientation}
+                <CollectTip
+                    tipArray={this.state.tipArray}
                 />
                 <View style={styles.signatureContainer}>
                     <SignatureCapture
@@ -169,7 +83,7 @@ export default class SignatureScreen extends Component {
                     <View style={styles.row}>
                         <Button
                             title="Cancel"
-                            onPress={() => this.handleCancelPress()}
+                            //onPress={() => this.handleCancelPress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={[styles.buttonStyle, {backgroundColor: 'red'}]}
@@ -178,7 +92,7 @@ export default class SignatureScreen extends Component {
                         <View style={styles.spacer}></View>
                         <Button
                             title="Continue"
-                            onPress={() => this.handleContinuePress()}
+                            //onPress={() => this.handleContinuePress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
@@ -186,6 +100,8 @@ export default class SignatureScreen extends Component {
                         />
                     </View>
                 </View>
+                <CustomTipOverlay 
+                />
             </View>
         );
     }
