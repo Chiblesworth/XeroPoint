@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
 import { Header, SearchBar, ListItem} from 'react-native-elements';
 import HeaderIcon from '../HeaderIcon';
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet } from '../../helperMethods/localStorage';
 
 //Want to fix this using the endpoints filter feature instead of sending a list to this screen. LOOK INTO THIS AFTER RECIPET IS DONE
 export default class SearchCustomerScreen extends Component {
