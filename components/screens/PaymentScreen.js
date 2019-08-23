@@ -168,7 +168,7 @@ export default class PaymentScreen extends Component {
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
                 method: "GET",
                 headers: headers,
-                qs: {merchantId: this.state.merchantId, limit: 250 }
+                qs: {merchantId: this.state.merchantId}
             }).then((response) => {
                 return response.json();
             }).then((Json) => {
