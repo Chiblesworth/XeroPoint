@@ -61,6 +61,7 @@ export default class TipOverlay extends Component {
                 isVisible={this.props.visible}
                 onBackdropPress={() => this.props.handleClose()}
                 borderRadius={25}
+                height={500}
             >
                 <View style={styles.container}>
                     <Text style={styles.title}>Adjust Tip Amounts</Text>

@@ -39,6 +39,9 @@ export default class SignatureScreen extends Component {
         this.toggleOverlay = this.toggleOverlay.bind(this);
         this.overlayCancelPressed = this.overlayCancelPressed.bind(this);
         this.applyCustomTip = this.applyCustomTip.bind(this);
+        this.handleCancelPress = this.handleCancelPress.bind(this);
+        this.voidPayment = this.voidPayment.bind(this);
+        this.handleContinuePress = this.handleContinuePress.bind(this);
     }
 
     async componentWillMount() {
@@ -142,6 +145,49 @@ export default class SignatureScreen extends Component {
         });
     }
 
+    handleCancelPress() {
+        this.voidPayment();
+        this.props.navigation.dispatch(resetAction);
+    }
+
+    async voidPayment() {
+        let encodedUser = await storageGet("encodedUser");
+
+        let headers = {
+            'Authorization' : 'Basic ' + encodedUser,
+            'Content-Type' : 'application/json; charset=utf-8'
+        }
+
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment/${this.props.navigation.state.params.tipAdjustmentData.id}`,{
+            method: "DELETE",
+            headers: headers,
+        });
+    }
+
+    handleContinuePress() {
+        console.log("in continue press")
+        console.log(this.state.total)
+        console.log(this.state.tip)
+
+        let saleWithTipAdjustment = {
+            merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,
+            paymentToken: this.props.navigation.state.params.tipAdjustmentData.paymentToken,
+            tenderType: "Card",
+            tip: this.state.tip,
+            amount: this.state.total,
+            authCode: this.props.navigation.state.params.tipAdjustmentData.authCode,
+            authOnly: false
+        }
+
+        console.log(saleWithTipAdjustment);
+        
+        this.setState({orientation: "portrait"}, () => {
+            this.props.navigation.navigate("Receipt", {
+                sale: saleWithTipAdjustment
+            });
+        });
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -169,7 +215,7 @@ export default class SignatureScreen extends Component {
                     <View style={styles.row}>
                         <Button
                             title="Cancel"
-                            //onPress={() => this.handleCancelPress()}
+                            onPress={() => this.handleCancelPress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={[styles.buttonStyle, {backgroundColor: 'red'}]}
@@ -178,7 +224,7 @@ export default class SignatureScreen extends Component {
                         <View style={styles.spacer}></View>
                         <Button
                             title="Continue"
-                            //onPress={() => this.handleContinuePress()}
+                            onPress={() => this.handleContinuePress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}

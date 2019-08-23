@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Overlay, Button, Input } from 'react-native-elements';
-import Orientation from 'react-native-orientation';
 
 export default class CustomTipOverlay extends Component {
     constructor(props) {

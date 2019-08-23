@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
-import { storageGet, storageSet } from '../helperMethods/localStorage';
-import { feeCalculations } from '../helperMethods/feeCalculations';
 
 export default class CollectTip extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-        };
     }
 
     render() {
