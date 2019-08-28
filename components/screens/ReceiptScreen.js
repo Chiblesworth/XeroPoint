@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 //Overlays
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
+import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
 import { storageGet } from '../../helperMethods/localStorage';
 
@@ -11,12 +12,18 @@ export default class ReceiptScreen extends Component {
         super(props);
         this.state = {
             customOverlayVisible: false,
+            emailReceiptOverlayVisible: false,
+            textReceiptOverlay: false,
             createdCustomerId: null
         };
 
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
+        this.handleReceiptOverlay = this.handleReceiptOverlay.bind(this);
+        this.handleReceiptButtonPress = this.handleReceiptButtonPress.bind(this);
+        this.createReceiptButton = this.createReceiptButton.bind(this);
         this.createCustomer = this.createCustomer.bind(this);
         this.getCreatedCustomerId = this.getCreatedCustomerId.bind(this);
+        this.finalizeSale = this.finalizeSale.bind(this);
     }
 
     componentDidMount() {
@@ -24,7 +31,41 @@ export default class ReceiptScreen extends Component {
     }
 
     handleCustomerOverlay() {
-        this.setState({customOverlayVisible: !this.state.customOverlayVisible})
+        this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
+    }
+
+    handleReceiptOverlay(buttonPressed) {
+        if (buttonPressed === "Email") {
+            this.setState({ emailReceiptOverlayVisible: !this.state.emailReceiptOverlayVisible });
+        }
+        else {
+            this.setState({ textReceiptOverlay: !this.state.textReceiptOverlay });
+        }
+    }
+
+    handleReceiptButtonPress(text) {
+        this.finalizeSale();
+        this.handleReceiptOverlay(text);
+    }
+
+    createReceiptButton(title, iconName, iconType, text) {
+        return (
+            <Button
+                title={title}
+                containerStyle={styles.receiptButtonContainer}
+                buttonStyle={styles.receiptButtonStyle}
+                titleStyle={styles.receiptTitleStyle}
+                onPress={() => this.handleReceiptButtonPress(text)}
+                icon={
+                    <Icon
+                        name={iconName}
+                        type={iconType}
+                        color="white"
+                        size={50}
+                    />
+                }
+            />
+        );
     }
 
     async createCustomer(customerName, customerNumber) {
@@ -34,8 +75,8 @@ export default class ReceiptScreen extends Component {
         let encodedUser = await storageGet("encodedUser");
 
         let headers = {
-            'Authorization' : 'Basic ' + encodedUser,
-            'Content-Type' : 'application/json; charset=utf-8'
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
         }
 
         let data = {
@@ -51,11 +92,11 @@ export default class ReceiptScreen extends Component {
             body: JSON.stringify(data)
         }).then((response) => {
             console.log(response)
-            if(response.status === 201){
+            if (response.status === 201) {
                 //Get that specific customer that was created.
                 this.getCreatedCustomerId(merchantId, headers);
             }
-            else{
+            else {
                 //Alert there was an error
             }
         });
@@ -63,11 +104,11 @@ export default class ReceiptScreen extends Component {
 
     getCreatedCustomerId(merchantId, headers) {
         console.log(headers);
-        
+
         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
             method: "GET",
             headers: headers,
-            qs: {merchantId: merchantId}
+            qs: { merchantId: merchantId }
         }).then((response) => {
             return response.json();
         }).then((Json) => {
@@ -75,10 +116,41 @@ export default class ReceiptScreen extends Component {
 
             console.log(newCustomer);
 
-            this.setState({createdCustomerId: newCustomer.id}, () => {
+            this.setState({ createdCustomerId: newCustomer.id }, () => {
                 console.log(this.state.createdCustomerId)
             });
         });
+    }
+
+    async finalizeSale() {
+        let encodedUser = await storageGet("encodedUser");
+
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+
+        let data = {
+            merchantId: this.props.navigation.state.params.sale.merchantId,
+            paymentToken: this.props.navigation.state.params.sale.paymentToken,
+            tenderType: this.props.navigation.state.params.sale.tenderType,
+            amount: this.props.navigation.state.params.sale.amount,
+            tip: this.props.navigation.state.params.sale.tip,
+            authCode: this.props.navigation.state.params.sale.authCode,
+            authOnly: this.props.navigation.state.params.sale.authOnly,
+            customer: {
+                id: this.state.createdCustomerId,
+            }
+        }
+
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data)
+        }).then((response) => {
+            console.log(response)
+            console.log(response.json())
+        })
     }
 
     render() {
@@ -95,53 +167,35 @@ export default class ReceiptScreen extends Component {
                 <View style={styles.divider} />
                 <Text style={styles.text}>Send receipt through:</Text>
                 <View style={styles.row}>
-                    <Button
-                        title="EMAIL"
-                        containerStyle={styles.receiptButtonContainer}
-                        buttonStyle={styles.receiptButtonStyle}
-                        titleStyle={styles.receiptTitleStyle}
-                        icon={
-                            <Icon
-                                name="mail"
-                                type="feather"
-                                color="white"
-                                size={50}
-                            />
-                        }
-                    />
-                    <Button
-                        title="TEXT"
-                        containerStyle={styles.receiptButtonContainer}
-                        buttonStyle={styles.receiptButtonStyle}
-                        titleStyle={styles.receiptTitleStyle}
-                        icon={
-                            <Icon
-                                name="message1"
-                                type="antdesign"
-                                color="white"
-                                size={50}
-                            />
-                        }
-                    />
-                    <Button
-                        title="Print"
-                        containerStyle={styles.receiptButtonContainer}
-                        buttonStyle={styles.receiptButtonStyle}
-                        titleStyle={styles.receiptTitleStyle}
-                        icon={
-                            <Icon
-                                name="printer"
-                                type="feather"
-                                color="white"
-                                size={50}
-                            />
-                        }
-                    />
+                    {this.createReceiptButton("EMAIL", "mail", "feather", "Email")}
+                    {this.createReceiptButton("TEXT", "message1", "antdesign", "Text")}
+                    {this.createReceiptButton("PRINT", "printer", "feather", null)}
                 </View>
                 <CreateCustomerOverlay
                     isVisible={this.state.customOverlayVisible}
                     closeOverlay={this.handleCustomerOverlay}
                     createCustomer={this.createCustomer}
+                />
+                <View style={styles.divider} />
+                <Button
+                    title="No Receipt"
+                    containerStyle={styles.horizontalButtonContainer}
+                    buttonStyle={styles.horizontalButtonStyle}
+                    titleStyle={styles.titleStyle}
+                />
+                <SendReceiptOverlay
+                    isVisible={this.state.emailReceiptOverlayVisible}
+                    closeOverlay={this.handleReceiptOverlay}
+                    title="Email Receipt"
+                    inputPlaceholder="Email Address"
+                    text="Email"
+                />
+                <SendReceiptOverlay
+                    isVisible={this.state.textReceiptOverlay}
+                    closeOverlay={this.handleReceiptOverlay}
+                    title="Text Receipt"
+                    inputPlaceholder="Phone Number"
+                    text="Text"
                 />
             </View>
         );
@@ -201,4 +255,12 @@ const styles = StyleSheet.create({
     receiptTitleStyle: {
         fontSize: 20
     },
+    horizontalButtonContainer: {
+        width: 250,
+        height: 60
+    },
+    horizontalButtonStyle: {
+        width: 250,
+        height: 60
+    }
 });

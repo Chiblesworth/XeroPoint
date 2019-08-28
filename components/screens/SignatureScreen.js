@@ -171,6 +171,7 @@ export default class SignatureScreen extends Component {
 
         let saleWithTipAdjustment = {
             merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,
+            id: this.props.navigation.state.params.tipAdjustmentData.id,
             paymentToken: this.props.navigation.state.params.tipAdjustmentData.paymentToken,
             tenderType: "Card",
             tip: this.state.tip,
