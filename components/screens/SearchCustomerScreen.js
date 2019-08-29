@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
-import { Header, SearchBar, ListItem} from 'react-native-elements';
+import { Header, SearchBar, ListItem } from 'react-native-elements';
 import HeaderIcon from '../HeaderIcon';
 import { storageGet } from '../../helperMethods/localStorage';
 
@@ -10,119 +10,46 @@ export default class SearchCustomerScreen extends Component {
         super(props);
 
         this.state = {
-            customers: this.props.navigation.state.params.customers,
+            customers: [],
+            //customers: [{ name: "test", id: 1 }, { name: "test2", id: 2 }, { name: "test3", id: 3 },],
             search: "",
             merchantId: null
         }
 
-        this.filteredCustomers = this.state.customers;
-
         this.updateSearch = this.updateSearch.bind(this);
-        this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
+        // this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
         this.navigateToPayment = this.navigateToPayment.bind(this);
-    }
-
-    async componentDidMount() {
-        let merchantId = await storageGet("merchantId");
-        
-        this.setState({merchantId: merchantId});
-    }
-
-    updateSearch = search => {
-        this.setState({search: search});
-
-        const newData = this.filteredCustomers.filter(item => {
-            const itemData = `${item.name.toUpperCase()}`
-            const textData = search.toUpperCase();
-
-            return itemData.indexOf(textData) > -1;
-        });
-
-        this.setState({customers: newData});
-    }
-
-    handleSelectedCustomer(customerId, customerName) {
-        Alert.alert(
-            "Customer Added to Payment",
-            `${customerName} added to payment.`
-        )
-
-        this.navigateToPayment(customerId);
+        this.getFilteredCustomers = this.getFilteredCustomers.bind(this);
     }
 
     navigateToPayment(customerId) {
-        //Empty list before going back that way no duplicates are made
-        this.setState({customers: null});
-        this.filteredCustomers = null;
-
-        this.props.navigation.navigate("Payment", {customerId: customerId});
+        this.props.navigation.navigate("Payment");
     }
 
-    // createNewCustomer() {
-    //     AsyncStorage.getItem("encodedUser").then((encoded) => {
-    //         let headers = {
-    //             'Authorization' : 'Basic ' + encoded,
-    //             'Content-Type' : 'application/json; charset=utf-8'
-    //         }
+    updateSearch(text) {
+        this.setState({ search: text },  () => {
+            this.getFilteredCustomers();
+        });
+    }
 
-    //         let data = {
-    //             merchantId: this.state.merchantId,
-    //             name: this.state.search,
-    //             firstName: this.state.search
-    //         }
+    async getFilteredCustomers() {
+        let encodedUser = await storageGet("encodedUser");
+        let merchantId = await storageGet("merchantId");
 
-    //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-    //             method: "POST",
-    //             headers: headers,
-    //             body: JSON.stringify(data)
-    //         }).then((response) => {
-    //             console.log(response)
-    //         });
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
 
-    //         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-    //             method: "GET",
-    //             headers: headers,
-    //             qs: this.state.merchantId
-    //         }).then((response) => {
-    //             console.log(response.json())
-    //         })
-
-    //         Alert.alert(
-    //             "Customer Added to Payment",
-    //             `${this.state.search} added to payment.`
-    //         )
-
-    //         this.navigateToPayment();
-    //     });
-    // }
-
-    renderHeader = () => {
-        return (
-            <View>
-                <Header 
-                    leftComponent={
-                        <HeaderIcon 
-                            name="chevron-left"
-                            type="entypo"
-                            size={70}
-                            handlePress={() => this.navigateToPayment()}
-                        /> 
-                    }
-                    backgroundColor='#808080'
-                    containerStyle={{ borderBottomWidth: 0 }}
-                    centerComponent={
-                        <SearchBar
-                            placeholder="Search"
-                            containerStyle={styles.searchContainer}
-                            inputContainerStyle={styles.inputContainer}
-                            onChangeText={(text) => this.updateSearch(text)}
-                            value={this.state.search}
-                        />
-                    }
-                    centerContainerStyle={styles.centerComponent}
-                />
-            </View>
-        )
+        console.log("search in getFil " + this.state.search)
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+            method: "GET",
+            headers: headers,
+            //qs: {merchantId: merchantId, filter: 'test'}
+        }).then((response) => {
+            console.log(response)
+            console.log(response.json())
+        })
     }
 
     renderEmpty = () => {
@@ -134,24 +61,56 @@ export default class SearchCustomerScreen extends Component {
         );
     }
 
-    render() {
+    renderCustomers = (customer) => {
         return (
-            <View style={styles.mainContainer}>
+            <View>
                 <FlatList
                     data={this.state.customers}
-                    renderItem={({item}) => (
+                    renderItem={({ item }) => (
                         <ListItem
                             containerStyle={styles.listContainer}
                             title={`${item.name}`}
                             titleStyle={styles.listItemTitle}
-                            onPress={() => this.handleSelectedCustomer(item.id, item.name)}
+                        //onPress={() => this.handleSelectedCustomer(item.id, item.name)}
                         />
                     )}
                     keyExtractor={item => item.id.toString()}
-                    ListHeaderComponent={this.renderHeader}
-                    ListHeaderComponentStyle={styles.header}
                     ListEmptyComponent={this.renderEmpty}
                 />
+            </View>
+        );
+    }
+
+    render() {
+        return (
+            <View style={styles.mainContainer}>
+                <View style={styles.header}>
+                    <Header
+                        leftComponent={
+                            <HeaderIcon
+                                name="chevron-left"
+                                type="entypo"
+                                size={70}
+                                handlePress={() => this.navigateToPayment()}
+                            />
+                        }
+                        backgroundColor='#808080'
+                        containerStyle={{ borderBottomWidth: 0 }}
+                        centerComponent={
+                            <SearchBar
+                                placeholder="Search"
+                                containerStyle={styles.searchContainer}
+                                inputContainerStyle={styles.inputContainer}
+                                onChangeText={(text) => this.updateSearch(text)}
+                                value={this.state.search}
+                            />
+                        }
+                        centerContainerStyle={styles.centerComponent}
+                    />
+                </View>
+                {this.state.customers.length > 0 &&
+                    this.renderCustomers()
+                }
             </View>
         )
     }

@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
 
+//https://stackoverflow.com/questions/55988065/react-how-to-format-phone-number-as-user-types
+const phoneRegex = /^\(?([0-9]{0,3})\)?[-. ]?([0-9]{0,3})[-. ]?([0-9]{0,4})$/;
+
 export default class SendReceiptOverlay extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isDisabled: false,
+            isDisabled: true,
             input: "",
             errorMessage: ""
         };
@@ -28,27 +31,37 @@ export default class SendReceiptOverlay extends Component {
 
     validateInput(inputName, textEntered){
         let regEx;
-        console.log("Here in validate input")
+
         if(inputName === "Email"){
-            //Validate email
             regEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
             
             if(!regEx.test(textEntered)){
-                this.setState({errorMessage: "Invalid email entered."});
+                this.setState({
+                    errorMessage: "Invalid email entered.",
+                    isDisabled: true
+                });
             }
             else{
-                this.setState({errorMessage: ""});
+                this.setState({
+                    errorMessage: "",
+                    isDisabled: false
+                });
             }
         }
         else{
-            //Validate number
             regEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
             if(!regEx.test(textEntered)){
-                this.setState({errorMessage: "Invalid phone number entered."});
+                this.setState({
+                    errorMessage: "Invalid phone number entered.",
+                    isDisabled: true
+                });
             }
             else{
-                this.setState({errorMessage: ""});
+                this.setState({
+                    errorMessage: "",
+                    isDisabled: false
+                });
             }
         }
     }
@@ -78,6 +91,7 @@ export default class SendReceiptOverlay extends Component {
                         <Input
                             placeholder={this.props.inputPlaceholder}
                             onChangeText={(text) => this.handleInputChange(text)}
+                            value={this.state.input}
                             autoFocus={true}
                             errorMessage={this.state.errorMessage}
                             errorStyle={styles.errorStyle}
@@ -89,7 +103,8 @@ export default class SendReceiptOverlay extends Component {
                     <View style={styles.createSection}>
                         <Button
                             title="Send"
-                            //disabled={this.state.isDisabled}
+                            onPress={() => this.props.handleSendButtonPress(this.state.input, this.props.text)}
+                            disabled={this.state.isDisabled}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
                             titleStyle={styles.titleStyle}
@@ -148,5 +163,8 @@ const styles = StyleSheet.create({
     errorStyle: {
         fontSize: 14,
         paddingLeft: 20
-    }
+    },
+    disabledButton: {
+        backgroundColor: 'white'
+    },
 });

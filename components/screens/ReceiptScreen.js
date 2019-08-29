@@ -24,6 +24,8 @@ export default class ReceiptScreen extends Component {
         this.createCustomer = this.createCustomer.bind(this);
         this.getCreatedCustomerId = this.getCreatedCustomerId.bind(this);
         this.finalizeSale = this.finalizeSale.bind(this);
+        this.handleSendButtonPress = this.handleSendButtonPress.bind(this);
+        this.sendReceipt = this.sendReceipt.bind(this);
     }
 
     componentDidMount() {
@@ -153,6 +155,47 @@ export default class ReceiptScreen extends Component {
         })
     }
 
+    handleSendButtonPress(input, fieldName) {
+        this.finalizeSale();
+
+        this.sendReceipt(input, fieldName);
+    }
+
+    async sendReceipt(input, fieldName) {
+        let url;
+        let paymentId = this.props.navigation.state.params.sale.id;
+        let encodedUser = await storageGet("encodedUser");
+
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+        console.log("input in sendReceipt " + input);
+        if(fieldName === "Email"){
+            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}} HTTP/1.1`
+            
+            fetch(url, {
+                method: "POST",
+                headers: headers,
+                qs: {id: paymentId, contact: input}
+            }).then((response) => {
+                console.log(response);
+                console.log(response.json());
+            })
+        }
+        else{
+            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}} HTTP/1.1`;
+
+            fetch(url, {
+                method: "POST",
+                headers: headers
+            }).then((response) => {
+                console.log(response);
+                console.log(response.json());
+            })
+        }
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -189,6 +232,7 @@ export default class ReceiptScreen extends Component {
                     title="Email Receipt"
                     inputPlaceholder="Email Address"
                     text="Email"
+                    handleSendButtonPress={this.handleSendButtonPress}
                 />
                 <SendReceiptOverlay
                     isVisible={this.state.textReceiptOverlay}
@@ -196,6 +240,7 @@ export default class ReceiptScreen extends Component {
                     title="Text Receipt"
                     inputPlaceholder="Phone Number"
                     text="Text"
+                    handleSendButtonPress={this.handleSendButtonPress}
                 />
             </View>
         );

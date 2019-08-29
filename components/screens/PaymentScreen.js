@@ -196,7 +196,7 @@ export default class PaymentScreen extends Component {
     }
 
     handleSearchCustomerButton() {
-        this.getCustomers();
+        this.props.navigation.navigate("SearchCustomer");
     }
 
     async authorizePayment(stateOfForm) { //FIX ASYNC API CALL MADE
