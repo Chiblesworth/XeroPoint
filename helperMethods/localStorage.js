@@ -24,4 +24,14 @@ const storageGet = async(key) => {
     }
 }
 
-export {storageSet, storageGet};
+const removeItem = async(key) => {
+    try{
+        AsyncStorage.removeItem(key);
+        console.log("AsyncStorage helper method removed: " + key);
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+export {storageSet, storageGet, removeItem};

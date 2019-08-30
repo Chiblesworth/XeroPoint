@@ -5,7 +5,7 @@ import { Button, Icon } from 'react-native-elements';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
-import { storageGet } from '../../helperMethods/localStorage';
+import { storageGet, removeItem, storageSet} from '../../helperMethods/localStorage';
 
 export default class ReceiptScreen extends Component {
     constructor(props) {
@@ -14,7 +14,8 @@ export default class ReceiptScreen extends Component {
             customOverlayVisible: false,
             emailReceiptOverlayVisible: false,
             textReceiptOverlay: false,
-            createdCustomerId: null
+            createdCustomerId: null,
+            isDisabled: false
         };
 
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
@@ -28,8 +29,17 @@ export default class ReceiptScreen extends Component {
         this.sendReceipt = this.sendReceipt.bind(this);
     }
 
-    componentDidMount() {
+    async componentWillMount() {
         console.log(this.props.navigation.state.params.sale);
+        let selectedCustomerId = await storageGet("selectedCustomerId");
+
+        if(!!selectedCustomerId){
+            console.log("selectedCustomerId is " + selectedCustomerId);
+            this.setState({
+                createdCustomerId: Number(selectedCustomerId),
+                isDisabled: true
+            }); //Used in case the user already chose a customer
+        }
     }
 
     handleCustomerOverlay() {
@@ -46,7 +56,6 @@ export default class ReceiptScreen extends Component {
     }
 
     handleReceiptButtonPress(text) {
-        this.finalizeSale();
         this.handleReceiptOverlay(text);
     }
 
@@ -105,8 +114,6 @@ export default class ReceiptScreen extends Component {
     }
 
     getCreatedCustomerId(merchantId, headers) {
-        console.log(headers);
-
         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
             method: "GET",
             headers: headers,
@@ -116,8 +123,9 @@ export default class ReceiptScreen extends Component {
         }).then((Json) => {
             let newCustomer = Json.records[0];
 
+            console.log("new customer")
             console.log(newCustomer);
-
+            storageSet("selectedCustomerId", newCustomer.id);
             this.setState({ createdCustomerId: newCustomer.id }, () => {
                 console.log(this.state.createdCustomerId)
             });
@@ -126,6 +134,8 @@ export default class ReceiptScreen extends Component {
 
     async finalizeSale() {
         let encodedUser = await storageGet("encodedUser");
+        let selectedCustomerId = await storageGet("selectedCustomerId");
+        let paymentId = this.props.navigation.state.params.sale.id;
 
         let headers = {
             'Authorization': 'Basic ' + encodedUser,
@@ -138,20 +148,18 @@ export default class ReceiptScreen extends Component {
             tenderType: this.props.navigation.state.params.sale.tenderType,
             amount: this.props.navigation.state.params.sale.amount,
             tip: this.props.navigation.state.params.sale.tip,
-            authCode: this.props.navigation.state.params.sale.authCode,
-            authOnly: this.props.navigation.state.params.sale.authOnly,
             customer: {
-                id: this.state.createdCustomerId,
+                id: selectedCustomerId
             }
         }
 
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
-            method: "POST",
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment/${paymentId}`, {
+            method: "PUT",
             headers: headers,
             body: JSON.stringify(data)
         }).then((response) => {
             console.log(response)
-            console.log(response.json())
+            removeItem("selectedCustomerId");
         })
     }
 
@@ -170,14 +178,16 @@ export default class ReceiptScreen extends Component {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
         }
-        console.log("input in sendReceipt " + input);
+        console.log("input in sendReceipt 80777020" + input);
+        paymentId = Number(paymentId);
         if(fieldName === "Email"){
-            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}} HTTP/1.1`
-            
+            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}}`
+           //   url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
+           // url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id=80775985&contact=dustin.branch@selu.edu`;
             fetch(url, {
                 method: "POST",
                 headers: headers,
-                qs: {id: paymentId, contact: input}
+                //qs: {id: paymentId, contact: input}
             }).then((response) => {
                 console.log(response);
                 console.log(response.json());
@@ -202,6 +212,7 @@ export default class ReceiptScreen extends Component {
                 <Text style={styles.text}>Send receipt to:</Text>
                 <Button
                     title="Create Customer"
+                    disabled={this.state.isDisabled}
                     onPress={() => this.handleCustomerOverlay()}
                     containerStyle={styles.buttonContainer}
                     buttonStyle={styles.buttonStyle}
@@ -222,6 +233,7 @@ export default class ReceiptScreen extends Component {
                 <View style={styles.divider} />
                 <Button
                     title="No Receipt"
+                    onPress={() => this.finalizeSale()}
                     containerStyle={styles.horizontalButtonContainer}
                     buttonStyle={styles.horizontalButtonStyle}
                     titleStyle={styles.titleStyle}
@@ -307,5 +319,5 @@ const styles = StyleSheet.create({
     horizontalButtonStyle: {
         width: 250,
         height: 60
-    }
+    },
 });

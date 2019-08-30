@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
 import { Header, SearchBar, ListItem } from 'react-native-elements';
 import HeaderIcon from '../HeaderIcon';
-import { storageGet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 //Want to fix this using the endpoints filter feature instead of sending a list to this screen. LOOK INTO THIS AFTER RECIPET IS DONE
 export default class SearchCustomerScreen extends Component {
@@ -11,23 +11,23 @@ export default class SearchCustomerScreen extends Component {
 
         this.state = {
             customers: [],
-            //customers: [{ name: "test", id: 1 }, { name: "test2", id: 2 }, { name: "test3", id: 3 },],
             search: "",
             merchantId: null
         }
 
         this.updateSearch = this.updateSearch.bind(this);
-        // this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
         this.navigateToPayment = this.navigateToPayment.bind(this);
         this.getFilteredCustomers = this.getFilteredCustomers.bind(this);
+        this.filterCustomers = this.filterCustomers.bind(this);
+        this.handleSelectedCustomer = this.handleSelectedCustomer.bind(this);
     }
 
-    navigateToPayment(customerId) {
+    navigateToPayment() {
         this.props.navigation.navigate("Payment");
     }
 
     updateSearch(text) {
-        this.setState({ search: text },  () => {
+        this.setState({ search: text }, () => {
             this.getFilteredCustomers();
         });
     }
@@ -40,23 +40,41 @@ export default class SearchCustomerScreen extends Component {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
         }
+        this.setState({customers: []});
 
-        console.log("search in getFil " + this.state.search)
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/customer?merchantId=${merchantId}&filter=${this.state.search}`, {
             method: "GET",
             headers: headers,
-            //qs: {merchantId: merchantId, filter: 'test'}
+            // qs: { merchantId: merchantId, filter: this.state.search.toString() }
         }).then((response) => {
-            console.log(response)
-            console.log(response.json())
-        })
+            return response.json();
+        }).then((Json) => {
+            this.filterCustomers(Json.records);
+        });
+    }
+
+    filterCustomers(records) {
+        let filteredCustomers = [];
+
+        for(let i = 0; i < records.length; i++){
+            if(records[i].name !== "UNKNOWN"){
+                filteredCustomers.push(records[i]);
+            }
+        }
+
+        this.setState({customers: filteredCustomers});
+    }
+
+    handleSelectedCustomer(customer) {
+        Alert.alert("Customer Added", customer.name + " was added to payment!");
+        storageSet("selectedCustomerId", customer.id.toString());
+        this.navigateToPayment();
     }
 
     renderEmpty = () => {
         return (
             <View>
                 <Text style={styles.newCustomerText}>"{this.state.search}"</Text>
-                <Text style={styles.newCustomerText}>Cannot find customer. Will need to create the customer before payment is submitted.</Text>
             </View>
         );
     }
@@ -71,7 +89,7 @@ export default class SearchCustomerScreen extends Component {
                             containerStyle={styles.listContainer}
                             title={`${item.name}`}
                             titleStyle={styles.listItemTitle}
-                        //onPress={() => this.handleSelectedCustomer(item.id, item.name)}
+                            onPress={() => this.handleSelectedCustomer(item)}
                         />
                     )}
                     keyExtractor={item => item.id.toString()}
@@ -108,9 +126,10 @@ export default class SearchCustomerScreen extends Component {
                         centerContainerStyle={styles.centerComponent}
                     />
                 </View>
-                {this.state.customers.length > 0 &&
+                {/* {this.state.customers.length > 0 &&
                     this.renderCustomers()
-                }
+                } */}
+                {this.renderCustomers()}
             </View>
         )
     }

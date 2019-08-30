@@ -40,8 +40,6 @@ export default class PaymentScreen extends Component {
             tipAdjustmentData: null
         }
 
-        this.customers = []; //Used to hold list of customers when moving to the search screen
-
         //These values will be set when the component mounts and will render based on switches
         this.amountWithTax = 0;
         this.amountWithService = 0;
@@ -61,7 +59,6 @@ export default class PaymentScreen extends Component {
         this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
-        this.getCustomers = this.getCustomers.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
         this.showAlert = this.showAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
@@ -154,56 +151,21 @@ export default class PaymentScreen extends Component {
         }
     }
 
-    getCustomers() { //FIX ASYNC API CALL MADE
-        /*
-            Gets users current customers they have linked to account.
-            Used for the searcha and add customer feature
-        */
-       AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
-            }
-
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-                method: "GET",
-                headers: headers,
-                qs: {merchantId: this.state.merchantId}
-            }).then((response) => {
-                return response.json();
-            }).then((Json) => {
-                let records = Json.records;
-                console.log(Json);
-
-                for(let i = 0; i < records.length; i++){
-                    let record = {'id': records[i].id, 'name': records[i].name};
-                    
-                    //If users POST payments without creating a customer, MX Merchant will have a customers with names of "UNKNOWN"
-                    if(record.name !== "UNKNOWN"){ 
-                        this.customers = [...this.customers, record];
-                    }
-                }
-
-                this.props.navigation.navigate("SearchCustomer", {
-                    customers: this.customers
-                });
-
-                //Used to get rid of duplicate lists of customers being made when 
-                //search for customer button clicked multiple times in one session
-                this.customers = [];
-            })
-       })
-    }
-
     handleSearchCustomerButton() {
         this.props.navigation.navigate("SearchCustomer");
     }
 
     async authorizePayment(stateOfForm) { //FIX ASYNC API CALL MADE
         //console.log(stateOfForm);
-        let amount  = this.determineAmount();
+        let selectedCustomerId = await storageGet("selectedCustomerId");
 
-        this.showAlert("approval");
+        if(!!selectedCustomerId){
+            selectedCustomerId = Number(selectedCustomerId);
+        }
+        else{
+            selectedCustomerId = "";
+        }
+        let amount  = this.determineAmount();
 
         // console.log("amount in auth is " + amount);
         AsyncStorage.getItem("encodedUser").then((encoded) => {
@@ -216,7 +178,6 @@ export default class PaymentScreen extends Component {
                 merchantId: stateOfForm.merchantId,
                 tenderType: "Card",
                 amount: amount,
-                authOnly: true,
                 cardAccount: {
                     number: stateOfForm.cardAccount.number,
                     expiryMonth: stateOfForm.cardAccount.expiryMonth,
@@ -226,7 +187,7 @@ export default class PaymentScreen extends Component {
                     avsStreet: stateOfForm.cardAccount.avsStreet,
                 },
                 customer: {
-                    id: this.props.navigation.state.params.customerId
+                    id: selectedCustomerId,
                 },
                 meta: this.state.memo,
                 invoice: this.state.invoice
@@ -245,7 +206,7 @@ export default class PaymentScreen extends Component {
                     return response.json();
                 }).then((responseJson) => {
                     let authorizedPaymentMade = responseJson.records[0];
-        
+                    console.log(responseJson)
                     let formatedDate = formatDate();
                     let formatedTime = formatTime();
 
@@ -253,7 +214,6 @@ export default class PaymentScreen extends Component {
                         id: authorizedPaymentMade.id,
                         merchantId: authorizedPaymentMade.merchantId,
                         amount: authorizedPaymentMade.amount,
-                        authCode: authorizedPaymentMade.authCode,
                         paymentToken: authorizedPaymentMade.paymentToken
                     }
 
@@ -263,6 +223,8 @@ export default class PaymentScreen extends Component {
                         authCode: authorizedPaymentMade.authCode,
                         tipAdjustmentData: tipAdjustmentData
                     });
+                    
+                    this.showAlert("approval");
                 });
             });
         });

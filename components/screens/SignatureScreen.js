@@ -9,7 +9,7 @@ import CustomTipOverlay from '../overlays/CustomTipOverlay';
 //Helpers
 import { defaultTips } from '../../helperMethods/defaultTips';
 import { getCustomTipsArray } from '../../helperMethods/customTips';
-import { storageGet } from '../../helperMethods/localStorage';
+import { storageGet, removeItem } from '../../helperMethods/localStorage';
 import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 import { feeCalculations } from '../../helperMethods/feeCalculations';
 
@@ -162,6 +162,8 @@ export default class SignatureScreen extends Component {
             method: "DELETE",
             headers: headers,
         });
+
+        removeItem("selectedCustomerId"); //Removes selectedCustomerId if payment voided to avoid bugs for future payments
     }
 
     handleContinuePress() {
@@ -176,8 +178,6 @@ export default class SignatureScreen extends Component {
             tenderType: "Card",
             tip: this.state.tip,
             amount: this.state.total,
-            authCode: this.props.navigation.state.params.tipAdjustmentData.authCode,
-            authOnly: false
         }
 
         console.log(saleWithTipAdjustment);
