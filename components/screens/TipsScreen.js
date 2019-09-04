@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Header, Button } from 'react-native-elements';
-import HeaderIcon from '../HeaderIcon';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
+//Components
+import HeaderIcon from '../HeaderIcon';
 import TipOverlay from '../overlays/TipOverlay';
+//Helper Methods
 import { defaultTips } from '../../helperMethods/defaultTips';
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
 import { stringToBoolean } from '../../helperMethods/stringToBoolean';
@@ -99,13 +101,11 @@ export default class TipsScreen extends Component {
     }
 
     setCollectedTips() {
-        let key = "collectTips";
-        storageSet(key, this.state.collectTips.toString());
+        storageSet("collectTips", this.state.collectTips.toString());
     }
 
     customTipsUsed() {
-        let key = "useCustomTips";
-        storageSet(key, this.state.useCustomPercentages.toString());
+        storageSet("useCustomTips", this.state.useCustomPercentages.toString());
     }
 
     handleDefaultTipChange(index) {

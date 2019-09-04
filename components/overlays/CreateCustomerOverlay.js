@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Alert,StyleSheet } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
+//Helper Methods
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 export default class CreateCustomerOverlay extends Component {
     constructor(props) {
@@ -14,6 +16,8 @@ export default class CreateCustomerOverlay extends Component {
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleNumberChange = this.handleNumberChange.bind(this);
         this.isButtonDisabled = this.isButtonDisabled.bind(this);
+        this.createCustomer = this.createCustomer.bind(this);
+        this.getCreatedCustomerId = this.getCreatedCustomerId.bind(this);
     }
 
     handleNameChange(text) {
@@ -35,6 +39,56 @@ export default class CreateCustomerOverlay extends Component {
         else{
             this.setState({isDisabled: true});
         }
+    }
+
+    async createCustomer(customerName, customerNumber) {
+        //POST a customer
+        let merchantId = await storageGet("merchantId");
+        let encodedUser = await storageGet("encodedUser");
+
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+
+        let data = {
+            merchantId: merchantId,
+            name: customerName,
+            firstName: customerName,
+            number: customerNumber
+        }
+
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data)
+        }).then((response) => {
+            console.log(response)
+            if (response.status === 201) {
+                this.getCreatedCustomerId(merchantId, headers); //Get that specific customer that was created.
+            }
+            else {
+                Alert.alert("Customer could not be created.", "The customer was not created. Please try again.")
+            }
+        });
+    }
+
+    getCreatedCustomerId(merchantId, headers) {
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
+            method: "GET",
+            headers: headers,
+            qs: { merchantId: merchantId }
+        }).then((response) => {
+            return response.json();
+        }).then((Json) => {
+            let newCustomer = Json.records[0];
+
+            console.log("new customer")
+            console.log(newCustomer);
+            Alert.alert("Customer Added", newCustomer.name + " was added to payment!");
+            storageSet("selectedCustomerId", newCustomer.id.toString());
+            this.props.closeOverlay();
+        });
     }
 
     render() {
@@ -79,7 +133,7 @@ export default class CreateCustomerOverlay extends Component {
                             <Button
                                 title="Create"
                                 disabled={this.state.isDisabled}
-                                onPress={() => this.props.createCustomer(this.state.customerName, this.state.customerNumber)}
+                                onPress={() => this.createCustomer(this.state.customerName, this.state.customerNumber)}
                                 containerStyle={styles.buttonContainer}
                                 buttonStyle={styles.buttonStyle}
                                 titleStyle={styles.titleStyle}

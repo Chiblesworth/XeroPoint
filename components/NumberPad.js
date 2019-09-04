@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
+//Components
 import NumberPadRow from './NumberPadRow';
 
 export default class NumberPad extends Component {

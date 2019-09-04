@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Header } from 'react-native-elements';
+//Components
 import HeaderIcon from '../HeaderIcon';
 import FeeDisplay from '../FeeDisplay';
+//Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 export default class FeeScreen extends Component {
     constructor(props) {
@@ -11,19 +14,32 @@ export default class FeeScreen extends Component {
     
         this.state = {
             serviceFee: "0",
-            tax: "0"
+            tax: "0",
+            collectServiceFee: false,
+            collectTaxFee: false
         };
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleServiceFeeChange = this.handleServiceFeeChange.bind(this);
         this.handleTaxFeeChange = this.handleTaxFeeChange.bind(this);
+        this.handleSwitchPress = this.handleSwitchPress.bind(this);
     }
 
-    async componentDidMount() {
+    async componentWillMount() {
+        let collectServiceFee = await storageGet("collectServiceFee");
+        let collectTaxFee = await storageGet("collectTaxFee");
         let serviceFee = await storageGet("serviceFee");
         let taxFee = await storageGet("taxFee");
-        
-        this.setState({ serviceFee: serviceFee, tax: taxFee});
+
+        collectServiceFee = await stringToBoolean(collectServiceFee);
+        collectTaxFee = await stringToBoolean(collectTaxFee); 
+
+        this.setState({
+            collectServiceFee: collectServiceFee,
+            collectTaxFee: collectTaxFee,
+            serviceFee: serviceFee, 
+            tax: taxFee
+        });
     }
 
     handleHeaderIconPress() {
@@ -31,17 +47,26 @@ export default class FeeScreen extends Component {
     }
 
     handleServiceFeeChange(newFee) {
-        let key = "serviceFee";
-
-        storageSet(key, newFee);
+        storageSet("serviceFee", newFee);
         this.setState({serviceFee: newFee});
     }
 
     handleTaxFeeChange(newFee) {
-        let key = "taxFee";
-        
-        storageSet(key, newFee);
+        storageSet("taxFee", newFee);
         this.setState({tax: newFee});
+    }
+
+    handleSwitchPress(switchHit){
+        if(switchHit === "Service Fee"){
+            this.setState({collectServiceFee: !this.state.collectServiceFee}, () => {
+                storageSet("collectServiceFee", this.state.collectServiceFee.toString());
+            });
+        }
+        else{
+            this.setState({collectTaxFee: !this.state.collectTaxFee}, () => {
+                storageSet("collectTaxFee", this.state.collectTaxFee.toString());
+            });
+        }
     }
 
     render() {
@@ -71,14 +96,18 @@ export default class FeeScreen extends Component {
                             mainTitle="Service Fee" 
                             feeAmount={this.state.serviceFee}
                             handleFeeChange={this.handleServiceFeeChange}
+                            swtichPress={this.handleSwitchPress}
+                            switchValue={this.state.collectServiceFee}
                         />
                     </View>
                     <View style={styles.divider}/>
                         <View style={styles.extraPadding}>
                             <FeeDisplay
-                                mainTitle="Tax" 
+                                mainTitle="Tax Fee" 
                                 feeAmount={this.state.tax}
                                 handleFeeChange={this.handleTaxFeeChange}
+                                swtichPress={this.handleSwitchPress}
+                                switchValue={this.state.collectTaxFee}
                             />
                         </View>
                 </ScrollView>
@@ -105,7 +134,7 @@ const styles = StyleSheet.create({
     divider: {
         marginTop: 20,
         borderBottomColor: 'white',
-        borderBottomWidth: 8
+        borderBottomWidth: 4
     },
     extraPadding: {
         marginTop: 20

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Header, Button, Icon } from 'react-native-elements';
+//Components
 import HeaderIcon from '../HeaderIcon';
 
 export default class SettingScreen extends Component {
@@ -102,6 +103,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E8E8E8',
     },
     buttonTitle: {
-        fontSize: 30
+        fontSize: 25
     }
 });

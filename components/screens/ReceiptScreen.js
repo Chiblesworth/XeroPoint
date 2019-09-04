@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 //Overlays
-import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
 import { storageGet, removeItem, storageSet} from '../../helperMethods/localStorage';
@@ -11,19 +10,14 @@ export default class ReceiptScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            customOverlayVisible: false,
             emailReceiptOverlayVisible: false,
             textReceiptOverlay: false,
-            createdCustomerId: null,
             isDisabled: false
         };
 
-        this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
         this.handleReceiptOverlay = this.handleReceiptOverlay.bind(this);
         this.handleReceiptButtonPress = this.handleReceiptButtonPress.bind(this);
         this.createReceiptButton = this.createReceiptButton.bind(this);
-        this.createCustomer = this.createCustomer.bind(this);
-        this.getCreatedCustomerId = this.getCreatedCustomerId.bind(this);
         this.finalizeSale = this.finalizeSale.bind(this);
         this.handleSendButtonPress = this.handleSendButtonPress.bind(this);
         this.sendReceipt = this.sendReceipt.bind(this);
@@ -40,10 +34,6 @@ export default class ReceiptScreen extends Component {
                 isDisabled: true
             }); //Used in case the user already chose a customer
         }
-    }
-
-    handleCustomerOverlay() {
-        this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
     }
 
     handleReceiptOverlay(buttonPressed) {
@@ -77,59 +67,6 @@ export default class ReceiptScreen extends Component {
                 }
             />
         );
-    }
-
-    async createCustomer(customerName, customerNumber) {
-        this.handleCustomerOverlay();
-        //POST a customer
-        let merchantId = await storageGet("merchantId");
-        let encodedUser = await storageGet("encodedUser");
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
-        let data = {
-            merchantId: merchantId,
-            name: customerName,
-            firstName: customerName,
-            number: customerNumber
-        }
-
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data)
-        }).then((response) => {
-            console.log(response)
-            if (response.status === 201) {
-                //Get that specific customer that was created.
-                this.getCreatedCustomerId(merchantId, headers);
-            }
-            else {
-                //Alert there was an error
-            }
-        });
-    }
-
-    getCreatedCustomerId(merchantId, headers) {
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-            method: "GET",
-            headers: headers,
-            qs: { merchantId: merchantId }
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            let newCustomer = Json.records[0];
-
-            console.log("new customer")
-            console.log(newCustomer);
-            storageSet("selectedCustomerId", newCustomer.id);
-            this.setState({ createdCustomerId: newCustomer.id }, () => {
-                console.log(this.state.createdCustomerId)
-            });
-        });
     }
 
     async finalizeSale() {
@@ -178,8 +115,7 @@ export default class ReceiptScreen extends Component {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
         }
-        console.log("input in sendReceipt 80777020" + input);
-        paymentId = Number(paymentId);
+
         if(fieldName === "Email"){
             url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}}`
            //   url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
@@ -209,27 +145,12 @@ export default class ReceiptScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.text}>Send receipt to:</Text>
-                <Button
-                    title="Create Customer"
-                    disabled={this.state.isDisabled}
-                    onPress={() => this.handleCustomerOverlay()}
-                    containerStyle={styles.buttonContainer}
-                    buttonStyle={styles.buttonStyle}
-                    titleStyle={styles.titleStyle}
-                />
-                <View style={styles.divider} />
                 <Text style={styles.text}>Send receipt through:</Text>
                 <View style={styles.row}>
                     {this.createReceiptButton("EMAIL", "mail", "feather", "Email")}
                     {this.createReceiptButton("TEXT", "message1", "antdesign", "Text")}
                     {this.createReceiptButton("PRINT", "printer", "feather", null)}
                 </View>
-                <CreateCustomerOverlay
-                    isVisible={this.state.customOverlayVisible}
-                    closeOverlay={this.handleCustomerOverlay}
-                    createCustomer={this.createCustomer}
-                />
                 <View style={styles.divider} />
                 <Button
                     title="No Receipt"

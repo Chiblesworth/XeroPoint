@@ -1,16 +1,20 @@
 import React, { Component } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
-import HeaderIcon from '../HeaderIcon';
+import Orientation from 'react-native-orientation';
 import SwitchToggle from 'react-native-switch-toggle';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
+//Components/Overlays
+import HeaderIcon from '../HeaderIcon';
 import KeyedPaymentForm from '../KeyedPaymentForm';
-import { feeCalculations } from '../../helperMethods/feeCalculations';
+import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import ApprovalOverlay from '../overlays/ApprovalOverlay';
+//Helper Methods
+import { feeCalculations } from '../../helperMethods/feeCalculations';
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
 import { formatDate, formatTime } from '../../helperMethods/dateFormats';
-import Orientation from 'react-native-orientation';
+import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 /*
     This resets the component of the main screen 
@@ -37,7 +41,8 @@ export default class PaymentScreen extends Component {
             formatedDate: "",
             formatedTime: "",
             authCode: "",
-            tipAdjustmentData: null
+            tipAdjustmentData: null,
+            customOverlayVisible: false,
         }
 
         //These values will be set when the component mounts and will render based on switches
@@ -63,6 +68,20 @@ export default class PaymentScreen extends Component {
         this.showAlert = this.showAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
+        this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
+    }
+
+    async componentWillMount() {
+        let collectServiceFee = await storageGet("collectServiceFee");
+        let collectTaxFee = await storageGet("collectTaxFee");
+
+        collectServiceFee = await stringToBoolean(collectServiceFee);
+        collectTaxFee = await stringToBoolean(collectTaxFee);
+
+        this.setState({
+            serviceFeeSwitchValue: collectServiceFee,
+            taxSwitchValue: collectTaxFee
+        });
     }
 
     async componentDidMount() {
@@ -167,7 +186,6 @@ export default class PaymentScreen extends Component {
         }
         let amount  = this.determineAmount();
 
-        // console.log("amount in auth is " + amount);
         AsyncStorage.getItem("encodedUser").then((encoded) => {
             let headers = {
                 'Authorization' : 'Basic ' + encoded,
@@ -231,6 +249,7 @@ export default class PaymentScreen extends Component {
     }
 
     determineAmount() {
+        //Determines total amount charged based on if service and tax fee are pressed.
         let amount = 0;
 
         if(this.state.taxSwitchValue && this.state.serviceFeeSwitchValue){
@@ -251,14 +270,14 @@ export default class PaymentScreen extends Component {
         return amount;
     }
 
+    handleCustomerOverlay() {
+        this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
+    }
+
     render(){
         let serviceFee; 
         let tax;
-        /*
-            This is the only way I've been able to get AsyncStorage to work
-            without causing an infinite loop. Can't get component to remount
-            when new pages are added to stack. This is a quick solution for that.
-        */
+
         if(this.state.taxSwitchValue){
             tax = <Text style={styles.feeText}>{this.state.tax}</Text>;
         }
@@ -316,14 +335,6 @@ export default class PaymentScreen extends Component {
                         placeholderTextColor="grey"
                         onChangeText={(text) => this.setState({memo: text})}
                     />
-                    <Button 
-                        type="solid"
-                        title="Search Customer"
-                        containerStyle={styles.buttonContainer}
-                        buttonStyle={styles.button}
-                        titleStyle={styles.customerTitle}
-                        onPress={() => this.handleSearchCustomerButton()}
-                    />
                     <Input
                         placeholder="Invoice"
                         placeholderTextColor="grey"
@@ -331,6 +342,24 @@ export default class PaymentScreen extends Component {
                         inputStyle={styles.input}
                         onChangeText={(text) => this.setState({invoice: text})}
                     />
+                    <View style={styles.rowButtons}>
+                        <Button 
+                            type="solid"
+                            title="Search Customer"
+                            containerStyle={styles.rowButtonContainer}
+                            buttonStyle={styles.button}
+                            titleStyle={styles.customerTitle}
+                            onPress={() => this.handleSearchCustomerButton()}
+                        />
+                        <Button 
+                            type="solid"
+                            title="Create Customer"
+                            containerStyle={styles.rowButtonContainer}
+                            buttonStyle={styles.button}
+                            titleStyle={styles.customerTitle}
+                            onPress={() => this.handleCustomerOverlay()}
+                        />
+                    </View>
                     <View style={styles.row}>
                         <Text style={{fontSize: 20, color: 'white', paddingRight: 10}}>
                             Tax Fee
@@ -373,6 +402,11 @@ export default class PaymentScreen extends Component {
                     formatedDate={this.state.formatedDate}
                     formatedTime={this.state.formatedTime}
                     authCode={this.state.authCode}
+                />
+                <CreateCustomerOverlay
+                    isVisible={this.state.customOverlayVisible}
+                    closeOverlay={this.handleCustomerOverlay}
+                    createCustomer={this.createCustomer}
                 />
             </View>
         );
@@ -428,6 +462,12 @@ const styles = StyleSheet.create({
         height: 40,
         marginBottom: 25
     },
+    rowButtonContainer: {
+        width: '50%',
+        height: 40,
+        marginBottom: 25,
+        marginRight: 5
+    },
     button: {
         backgroundColor: '#C8C8C8'
     },
@@ -452,6 +492,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         marginBottom: 25
+    },
+    rowButtons: {
+        flex: 1,
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between',
     },
     bottomContainer: {
         borderStyle: 'solid',
