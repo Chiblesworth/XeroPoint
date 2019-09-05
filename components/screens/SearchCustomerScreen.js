@@ -58,9 +58,11 @@ export default class SearchCustomerScreen extends Component {
     filterCustomers(records) {
         let filteredCustomers = [];
 
-        for(let i = 0; i < records.length; i++){
-            if(records[i].name !== "UNKNOWN"){
-                filteredCustomers.push(records[i]);
+        if(!!records){
+            for(let i = 0; i < records.length; i++){
+                if(records[i].name !== "UNKNOWN"){
+                    filteredCustomers.push(records[i]);
+                }
             }
         }
 

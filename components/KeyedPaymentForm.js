@@ -6,7 +6,6 @@ import AsyncStorage from '@react-native-community/async-storage'; //Remove when 
 import { storageGet, storageSet } from '../helperMethods/localStorage';
 
 
-
 export default class KeyedPaymentForm extends Component {
     constructor(props) {
         super(props);
@@ -39,87 +38,116 @@ export default class KeyedPaymentForm extends Component {
 
     async getMerchantSettings() { //FIX API CALL MADE WITH NEW HELPER METHODS
         let merchantId = await storageGet("merchantId");
-        
-        this.setState({merchantId: merchantId});
+
+        this.setState({ merchantId: merchantId });
 
         AsyncStorage.getItem("encodedUser").then((encoded) => {
             let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
+                'Authorization': 'Basic ' + encoded,
+                'Content-Type': 'application/json; charset=utf-8'
             }
 
             fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${this.state.merchantId}/setting`, {
-                    headers: headers
-                }).then((response) => {
-                    return response.json();
-                }).then((Json) => {
-                    let isStreetOn = Json.lossPrevention.keyedAvsAddress;
-                    let isZipOn = Json.lossPrevention.keyedAvsZip;
-                    let isCvvOn = Json.lossPrevention.keyedCvv;
+                headers: headers
+            }).then((response) => {
+                return response.json();
+            }).then((Json) => {
+                let isStreetOn = Json.lossPrevention.keyedAvsAddress;
+                let isZipOn = Json.lossPrevention.keyedAvsZip;
+                let isCvvOn = Json.lossPrevention.keyedCvv;
 
-                    this.setState({
-                        streetOn: isStreetOn,
-                        zipOn: isZipOn,
-                        cvvOn: isCvvOn
-                    });
-                })
+                this.setState({
+                    streetOn: isStreetOn,
+                    zipOn: isZipOn,
+                    cvvOn: isCvvOn
+                });
+            })
         })
     }
 
     checkStreetAndZipValue() {
-        const streetInput = <Input 
-                                placeholder="Street Number" 
-                                placeholderTextColor="grey"
-                                inputContainerStyle={styles.inputContainer}
-                                inputStyle={styles.input}
-                                keyboardType="numeric"
-                                maxLength={20}
-                                onChangeText={(text) => this.setState(prevState => ({
-                                    cardAccount: {
-                                        ...prevState.cardAccount,
-                                        avsStreet: text
-                                    }
-                                }))}
-                            />
-        const zipInput = <Input 
-                            placeholder="ZIP" 
-                            placeholderTextColor="grey"
-                            inputContainerStyle={styles.inputContainer}
-                            inputStyle={styles.input}
-                            keyboardType="numeric"
-                            maxLength={5}
-                            onChangeText={(text) => this.setState(prevState => ({
-                                cardAccount: {
-                                    ...prevState.cardAccount,
-                                    avsZip: text
-                                }
-                            }))}
-                        />
+        let streetInput = <Input
+            placeholder="Street Number"
+            placeholderTextColor="grey"
+            inputContainerStyle={styles.zipAddressRowContainers}
+            inputStyle={styles.rowInputs}
+            keyboardType="numeric"
+            maxLength={20}
+            onChangeText={(text) => this.setState(prevState => ({
+                cardAccount: {
+                    ...prevState.cardAccount,
+                    avsStreet: text
+                }
+            }))}
+        />
+        let zipInput = <Input
+            placeholder="ZIP Code"
+            placeholderTextColor="grey"
+            inputContainerStyle={styles.zipAddressRowContainers}
+            inputStyle={styles.rowInputs}
+            keyboardType="numeric"
+            maxLength={5}
+            onChangeText={(text) => this.setState(prevState => ({
+                cardAccount: {
+                    ...prevState.cardAccount,
+                    avsZip: text
+                }
+            }))}
+        />
 
-        if(this.state.streetOn && this.state.zipOn){
+        if (this.state.streetOn && this.state.zipOn) {
             return (
-                <View style={styles.doubleFields}>
-                    <View style={{flex: 1}}>
+                <View style={styles.row}>
+                    <View style={{ flex: 1 }}>
                         {streetInput}
                     </View>
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         {zipInput}
                     </View>
                 </View>
             );
         }
-        else if(!this.state.streetOn && !this.state.zipOn){
+        else if (!this.state.streetOn && !this.state.zipOn) {
             return null;
         }
-        else{
-            if(this.state.streetOn){
+        else {
+            //Really ugly work around for keep the form looking decent when either street or zip are not required
+            if (this.state.streetOn) {
+                streetInput = <Input
+                    placeholder="Street Number"
+                    placeholderTextColor="grey"
+                    inputContainerStyle={styles.zipAddressRowContainersOneUsed}
+                    inputStyle={styles.rowInputs}
+                    keyboardType="numeric"
+                    maxLength={20}
+                    onChangeText={(text) => this.setState(prevState => ({
+                        cardAccount: {
+                            ...prevState.cardAccount,
+                            avsStreet: text
+                        }
+                    }))}
+                />
                 return (
                     <View>
                         {streetInput}
                     </View>
                 );
             }
-            else{
+            else {
+                zipInput = <Input
+                    placeholder="ZIP Code"
+                    placeholderTextColor="grey"
+                    inputContainerStyle={styles.zipAddressRowContainersOneUsed}
+                    inputStyle={styles.rowInputs}
+                    keyboardType="numeric"
+                    maxLength={5}
+                    onChangeText={(text) => this.setState(prevState => ({
+                        cardAccount: {
+                            ...prevState.cardAccount,
+                            avsZip: text
+                        }
+                    }))}
+                />
                 return (
                     <View>
                         {zipInput}
@@ -144,33 +172,33 @@ export default class KeyedPaymentForm extends Component {
         //Remove spaces from card number
         number = number.replace(/ /g, "");
 
-        this.setState({numberWithoutSpaces: number}, () => {
+        this.setState({ numberWithoutSpaces: number }, () => {
             this.props.charge(this.state);
         })
     }
 
     render() {
         return (
-            <View stlye={styles.form}>
-                <Input 
+            <View style={styles.form}>
+                <Input
                     placeholder="1234 5678 9012 3..."
                     placeholderTextColor="grey"
-                    leftIcon={{type: 'entypo', name: 'credit-card', size: 25, color: 'gray'}}
+                    leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: 'gray' }}
                     inputContainerStyle={styles.inputContainer}
                     inputStyle={styles.input}
                     keyboardType="numeric"
                     maxLength={20}
                     onChangeText={(text) => this.handleCardInputChange(text)}
                     value={this.state.cardAccount.number}
-                    
                 />
-                <View style={styles.doubleFields}>
-                    <View style={{flex: 1}}>
-                        <Input 
+                <View style={styles.spacer} />
+                <View style={styles.row}>
+                    <View style={{ flex: 1 }}>
+                        <Input
                             placeholder="Month EXP"
                             placeholderTextColor="grey"
-                            inputContainerStyle={styles.doubleFieldInputs}
-                            inputStyle={styles.input}
+                            inputContainerStyle={styles.rowInputContainer}
+                            inputStyle={styles.rowInputs}
                             keyboardType="numeric"
                             maxLength={2}
                             onChangeText={(text) => this.setState(prevState => ({
@@ -181,12 +209,12 @@ export default class KeyedPaymentForm extends Component {
                             }))}
                         />
                     </View>
-                    <View style={{flex: 1}}>
-                        <Input 
+                    <View style={{ flex: 1 }}>
+                        <Input
                             placeholder="Year EXP"
                             placeholderTextColor="grey"
-                            inputContainerStyle={styles.doubleFieldInputs}
-                            inputStyle={styles.input}
+                            inputContainerStyle={styles.rowInputContainer}
+                            inputStyle={styles.rowInputs}
                             keyboardType="numeric"
                             maxLength={2}
                             onChangeText={(text) => this.setState(prevState => ({
@@ -198,14 +226,16 @@ export default class KeyedPaymentForm extends Component {
                         />
                     </View>
                 </View>
+                <View style={styles.spacer} />
                 {this.checkStreetAndZipValue()}
+                <View style={styles.spacer} />
                 {this.state.cvvOn
                     ? (
                         <Input 
                             placeholder="CVV" 
                             placeholderTextColor="grey"
                             inputContainerStyle={styles.cvvContainer}
-                            inputStyle={styles.input}
+                            inputStyle={styles.cvvInput}
                             keyboardType="numeric"
                             maxLength={4}
                             onChangeText={(text) => this.setState(prevState => ({
@@ -217,6 +247,7 @@ export default class KeyedPaymentForm extends Component {
                         />
                     ) : (null)
                 }
+                <View style={styles.spacer} />
                 <Button 
                     type="solid"
                     title="Charge"
@@ -231,49 +262,61 @@ export default class KeyedPaymentForm extends Component {
 //Styles
 const styles = StyleSheet.create({
     form: {
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: '100%',
+        alignItems: 'center'
+    },
+    spacer: {
+        marginBottom: '4%'
+    },
+    row: {
+        flexDirection: 'row',
+        width: '100%'
     },
     inputContainer: {
-        marginBottom: 15,
-        borderStyle: 'solid',
-        borderColor: 'black',
-        borderRadius: 25,
+        width: '84%',
+        borderRadius: 15,
         backgroundColor: 'white',
-        width: '100%'
+        marginLeft: '8%',
     },
     input: {
         paddingLeft: 20,
-        fontSize: 20
+        fontSize: 14
     },
-    doubleFields: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
+    rowInputContainer: {
+        width: '64%',
+        marginLeft: '17%',
+        borderRadius: 15,
+        backgroundColor: 'white'
     },
-    doubleFieldInputs: {
-        marginBottom: 15,
-        borderStyle: 'solid',
-        borderColor: 'black',
-        borderRadius: 25,
-        backgroundColor: 'white',
-        width: '100%'
+    zipAddressRowContainers: {
+        width: "64%",
+        marginLeft: '17%',
+        borderRadius: 15,
+        backgroundColor: 'white'
+    },
+    zipAddressRowContainersOneUsed: {
+        width: "84%",
+        borderRadius: 15,
+        backgroundColor: 'white'
+    },
+    rowInputs: {
+        paddingLeft: 10,
+        fontSize: 16
     },
     cvvContainer: {
-        marginBottom: 15,
-        marginLeft: '38%',
-        borderStyle: 'solid',
-        borderColor: 'black',
-        borderRadius: 25,
+        borderRadius: 15,
         backgroundColor: 'white',
-        width: '25%'
+        width: '25%',
+        marginLeft: '35%'
+    },
+    cvvInput: {
+        paddingLeft: 30,
+        fontSize: 14
     },
     buttonContainer: {
-        width: 332,
-        height: 40,
-        marginBottom: 20,
-        marginLeft: 16
+        width: '80%',
     },
     buttonTitle: {
-        fontSize: 25
+        fontSize: 16
     }
 });

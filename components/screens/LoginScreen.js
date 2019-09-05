@@ -4,6 +4,7 @@ import { Input, Button } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage'; //Remove later
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
+import Orientation from 'react-native-orientation';
 //Helper Methods
 import { storageGet } from '../../helperMethods/localStorage';
 
@@ -25,6 +26,7 @@ export default class LoginScreen extends Component {
 	}
 
 	async componentDidMount() {
+		Orientation.lockToPortrait();
 		let stayLoggedIn = await storageGet("stayLoggedIn");
 		
 		if(stayLoggedIn === "True"){

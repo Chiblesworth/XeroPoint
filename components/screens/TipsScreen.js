@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     text: {
-        fontSize: 25,
+        fontSize: 18,
         color: 'white', 
         paddingRight: 10,
         marginLeft: 10,

@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
         height: 70
     },
     mainScreenTextSection: {
-        marginBottom: 15
+        marginBottom: 5
     },
     refundText: {
         color: 'red',

@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
         height: 70
     },
     headerText: {
-        fontSize: 30,
+        fontSize: 25,
         color: 'white',
         paddingBottom: 20
     },

@@ -180,11 +180,10 @@ export default class ReceiptScreen extends Component {
     }
 }
 
-const height = Dimensions.get('window').height;
 //Styles
 const styles = StyleSheet.create({
     container: {
-        height: height,
+        height: '100%',
         backgroundColor: '#808080',
         justifyContent: 'center',
         alignItems: 'center',
@@ -216,7 +215,7 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        marginLeft: 23
+        marginLeft: '10%'
     },
     receiptButtonContainer: {
         flex: 1,
