@@ -1,13 +1,17 @@
 
 import React from 'react';
-import { createDrawerNavigator, 
-		 createStackNavigator, 
-		 createAppContainer, 
-		 SafeAreaView, 
-		 DrawerItems, 
-		 NavigationActions, 
-		 StackActions
-		} from 'react-navigation';
+import {
+	createDrawerNavigator,
+	createStackNavigator,
+	createAppContainer,
+	SafeAreaView,
+	DrawerItems,
+	NavigationActions,
+	StackActions
+} from 'react-navigation';
+import { Button, Icon } from 'react-native-elements';
+import { View, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import LoginScreen from './components/screens/LoginScreen';
 import MainScreen from './components/screens/MainScreen';
 import PaymentScreen from './components/screens/PaymentScreen';
@@ -17,10 +21,7 @@ import TipsScreen from './components/screens/TipsScreen';
 import SearchCustomerScreen from './components/screens/SearchCustomerScreen';
 import SignatureScreen from './components/screens/SignatureScreen';
 import ReceiptScreen from './components/screens/ReceiptScreen';
-import { Button, Icon } from 'react-native-elements';
-import { View, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-
+import HistoryScreen from './components/screens/HistoryScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -76,12 +77,26 @@ const DrawerNavigation = createDrawerNavigator(
 		Main: {
 			screen: StackNavigator
 		},
+		History: {
+			screen: HistoryScreen,
+			navigationOptions: {
+				header: null,
+				drawerIcon: (
+					<Icon
+						name="computer"
+						type="material"
+						color="white"
+						size={25}
+					/>
+				)
+			}
+		},
 		Settings: {
 			screen: SettingScreen,
 			navigationOptions: {
 				header: null,
 				drawerIcon: (
-					<Icon 
+					<Icon
 						name="settings"
 						type="feather"
 						color="white"
@@ -109,17 +124,17 @@ const DrawerNavigation = createDrawerNavigator(
 		drawerBackgroundColor: '#808080',
 		contentOptions: {
 			labelStyle: {
-				fontSize: 25,
+				fontSize: 22,
 				color: 'white'
 			}
 		},
 		contentComponent: (props) => (
 			<View>
-				<SafeAreaView forceInset={{top: 'always', horizontal: 'never'}}>
+				<SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
 					<DrawerItems {...props} />
 					<Button
 						icon={
-							<Icon 
+							<Icon
 								name="power"
 								type="feather"
 								color="white"
@@ -130,7 +145,7 @@ const DrawerNavigation = createDrawerNavigator(
 						title="Sign Out"
 						onPress={() => signOut(props)}
 						buttonStyle={styles.button}
-						titleStyle={styles.buttonTitle} 
+						titleStyle={styles.buttonTitle}
 					/>
 				</SafeAreaView>
 			</View>
@@ -141,13 +156,13 @@ const DrawerNavigation = createDrawerNavigator(
 const signOut = (props) => {
 	//Where the idea came from
 	//https://stackoverflow.com/questions/43090884/resetting-the-navigation-stack-for-the-home-screen-react-navigation-and-react-n
-	
+
 	AsyncStorage.setItem("stayLoggedIn", "False").then(() => {
 		props.navigation.dispatch(StackActions.reset({
 			index: 0,
 			key: null,
 			actions: [
-				NavigationActions.navigate({routeName: 'Login'})
+				NavigationActions.navigate({ routeName: 'Login' })
 			]
 		}))
 	})
@@ -161,7 +176,7 @@ const styles = StyleSheet.create({
 		marginRight: 100
 	},
 	buttonTitle: {
-		fontSize: 25,
+		fontSize: 22,
 		color: 'white',
 		marginLeft: 30
 	}

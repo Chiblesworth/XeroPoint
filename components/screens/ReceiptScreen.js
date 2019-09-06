@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 //Overlays
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';

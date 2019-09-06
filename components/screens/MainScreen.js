@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, Text, Alert, StyleSheet } from "react-native";
 import { Header } from 'react-native-elements';
 import accounting from 'accounting';
-import AsyncStorage from '@react-native-community/async-storage';
 import Orientation from 'react-native-orientation';
 //Components
 import NumberPad from '../NumberPad';
@@ -12,7 +11,7 @@ import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 
 export default class MainScreen extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -32,7 +31,7 @@ export default class MainScreen extends Component {
         this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         Orientation.lockToPortrait();
         this.getMerchantId();
     }
@@ -40,20 +39,20 @@ export default class MainScreen extends Component {
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
 
-        if(Number(valueGotBack) >= 0){
+        if (Number(valueGotBack) >= 0) {
             this.state.numbersPressed += valueGotBack;
 
             this.formatNumbersPressed();
         }
-        else if(valueGotBack === "delete"){
+        else if (valueGotBack === "delete") {
             //Chops last character off of string.
             newNumbersPressed = this.state.numbersPressed.substr(0, this.state.numbersPressed.length - 1);
 
-            this.setState({numbersPressed: newNumbersPressed}, () => {
+            this.setState({ numbersPressed: newNumbersPressed }, () => {
                 this.formatNumbersPressed();
             })
         }
-        else if(valueGotBack === "refund"){
+        else if (valueGotBack === "refund") {
             this.handleRefundChange();
         }
     }
@@ -62,33 +61,36 @@ export default class MainScreen extends Component {
         let numsPressed = Number(this.state.numbersPressed);
 
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
-        
-        this.setState({amount: numsPressed});
+
+        this.setState({ amount: numsPressed });
     }
 
     handleRefundChange() {
-        if(this.state.refundSelected){
-            this.setState({refundSelected: false, amountFontColor: "white"});
+        if (this.state.refundSelected) {
+            this.setState({ refundSelected: false, amountFontColor: "white" });
         }
-        else{
-            this.setState({refundSelected: true, amountFontColor: "red"});
+        else {
+            this.setState({ refundSelected: true, amountFontColor: "red" });
         }
     }
 
     handleHeaderIconPress(iconPushed) {
-        if(iconPushed === "dollar"){
-            if(Number(this.state.amount) === 0 || this.state.amount === "$0.00"){
+        if (iconPushed === "dollar") {
+            if (Number(this.state.amount) === 0 || this.state.amount === "$0.00") {
                 this.showAlert();
             }
-            else{
+            else {
                 this.checkDefaults();
                 this.props.navigation.navigate(
                     "Payment",
-                    {amountCharged: this.state.amount}
+                    {
+                        amountCharged: this.state.amount,
+                        refundSelected: this.state.refundSelected
+                    }
                 );
             }
         }
-        else{
+        else {
             this.props.navigation.toggleDrawer()
         }
     }
@@ -106,52 +108,53 @@ export default class MainScreen extends Component {
         let serviceFee = await storageGet("serviceFee");
         let taxFee = await storageGet("taxFee");
 
-        if(serviceFee === null){
+        if (serviceFee === null) {
             key = "serviceFee";
             storageSet(key, 5);
         }
-        if(taxFee === null){
+        if (taxFee === null) {
             key = "taxFee";
             storageSet(key, 10);
         }
     }
 
-    getMerchantId() {       //FIX API CALL ASYNC  
-        AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization' : 'Basic ' + encoded,
-                'Content-Type' : 'application/json; charset=utf-8'
-            }
+    async getMerchantId() {
+        let encodedUser = await storageGet("encodedUser");
 
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/merchant", {
-                method: 'get',
-                headers: headers
-            }).then((response) => {
-                return response.json(); //Get response into JSON format
-            }).then((Json) => {
-                let merchantId = Json.records[0].id.toString();
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
 
-                AsyncStorage.setItem("merchantId", merchantId);
-            });
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/merchant", {
+            method: 'get',
+            headers: headers
+        }).then((response) => {
+            return response.json(); //Get response into JSON format
+        }).then((Json) => {
+            let merchantId = Json.records[0].id.toString();
+
+            storageSet("merchantId", merchantId)
         });
+
     }
 
     render() {
         return (
             <View style={styles.mainContainer}>
                 <View style={styles.header}>
-                    <Header 
+                    <Header
                         backgroundColor="#808080"
                         leftComponent={
-                            <HeaderIcon 
+                            <HeaderIcon
                                 name="menu"
                                 type="entypo"
                                 size={70}
-                                handlePress={this.handleHeaderIconPress} 
+                                handlePress={this.handleHeaderIconPress}
                             />
                         }
                         rightComponent={
-                            <HeaderIcon 
+                            <HeaderIcon
                                 name="dollar"
                                 type="font-awesome"
                                 size={65}
@@ -163,7 +166,7 @@ export default class MainScreen extends Component {
                 <View style={styles.container}>
                     <View style={styles.mainScreenTextSection}>
                         {/* Text doesn't has styles this way b/c its easier to manipulate inside the class */}
-                        <Text style={{color: this.state.amountFontColor, fontSize: 70}}>
+                        <Text style={{ color: this.state.amountFontColor, fontSize: 70 }}>
                             {this.state.amount}
                         </Text>
                         <Text style={styles.refundText}>
@@ -171,7 +174,7 @@ export default class MainScreen extends Component {
                         </Text>
                     </View>
                     <View style={styles.numberPad}>
-                        <NumberPad handlePress={this.handleNumberPadPress}/>
+                        <NumberPad handlePress={this.handleNumberPadPress} />
                     </View>
                 </View>
             </View>
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#808080'
     },
     container: {
-		justifyContent: 'center',
+        justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#808080'
     },

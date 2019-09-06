@@ -3,7 +3,6 @@ import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-nati
 import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import SwitchToggle from 'react-native-switch-toggle';
-import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 //Components/Overlays
 import HeaderIcon from '../HeaderIcon';
@@ -38,6 +37,7 @@ export default class PaymentScreen extends Component {
             tax: 0,
             serviceFee: 0,
             approvalVisible: false,
+            approvalTitle: "",
             formatedDate: "",
             formatedTime: "",
             authCode: "",
@@ -78,10 +78,20 @@ export default class PaymentScreen extends Component {
         collectServiceFee = await stringToBoolean(collectServiceFee);
         collectTaxFee = await stringToBoolean(collectTaxFee);
 
-        this.setState({
-            serviceFeeSwitchValue: collectServiceFee,
-            taxSwitchValue: collectTaxFee
-        });
+        console.log(this.props.navigation.state.params.refundSelected);
+        //Don't want the service and tax fee to apply automatically for a refund
+        if (this.props.navigation.state.params.refundSelected) {
+            this.setState({
+                serviceFeeSwitchValue: false,
+                taxSwitchValue: false
+            })
+        }
+        else {
+            this.setState({
+                serviceFeeSwitchValue: collectServiceFee,
+                taxSwitchValue: collectTaxFee
+            });
+        }
     }
 
     async componentDidMount() {
@@ -157,15 +167,32 @@ export default class PaymentScreen extends Component {
         }
         else if (typeOfAlert === "approval") {
             if (this.state.approvalVisible) {
-                //Going from true to false, navigate to finalize payment.
                 this.setState({ approvalVisible: !this.state.approvalVisible });
-                this.props.navigation.navigate(
-                    "Signature",
-                    { tipAdjustmentData: this.state.tipAdjustmentData }
-                );
+
+                if (this.props.navigation.state.params.refundSelected) {
+                    this.props.navigation.dispatch(resetAction);
+                }
+                else {
+                    this.props.navigation.navigate(
+                        "Signature",
+                        { tipAdjustmentData: this.state.tipAdjustmentData }
+                    );
+                }
             }
             else {
-                this.setState({ approvalVisible: !this.state.approvalVisible });
+                let approvalTitle;
+
+                if (this.props.navigation.state.params.refundSelected) {
+                    approvalTitle = "Refund Approved!";
+                }
+                else {
+                    approvalTitle = "Approved!";
+                }
+
+                this.setState({
+                    approvalVisible: !this.state.approvalVisible,
+                    approvalTitle: approvalTitle
+                });
             }
         }
     }
@@ -174,9 +201,10 @@ export default class PaymentScreen extends Component {
         this.props.navigation.navigate("SearchCustomer");
     }
 
-    async authorizePayment(stateOfForm) { //FIX ASYNC API CALL MADE
-        //console.log(stateOfForm);
+    async authorizePayment(stateOfForm) {
+        let encodedUser = await storageGet("encodedUser");
         let selectedCustomerId = await storageGet("selectedCustomerId");
+        let amount = this.determineAmount();
 
         if (!!selectedCustomerId) {
             selectedCustomerId = Number(selectedCustomerId);
@@ -184,67 +212,68 @@ export default class PaymentScreen extends Component {
         else {
             selectedCustomerId = "";
         }
-        let amount = this.determineAmount();
 
-        AsyncStorage.getItem("encodedUser").then((encoded) => {
-            let headers = {
-                'Authorization': 'Basic ' + encoded,
-                'Content-Type': 'application/json; charset=utf-8'
-            }
+        if (this.props.navigation.state.params.refundSelected) {
+            amount = -Math.abs(amount);
+        }
 
-            let data = {
-                merchantId: stateOfForm.merchantId,
-                tenderType: "Card",
-                amount: amount,
-                cardAccount: {
-                    number: stateOfForm.cardAccount.number,
-                    expiryMonth: stateOfForm.cardAccount.expiryMonth,
-                    expiryYear: stateOfForm.cardAccount.expiryYear,
-                    cvv: stateOfForm.cardAccount.cvv,
-                    avsZip: stateOfForm.cardAccount.avsZip,
-                    avsStreet: stateOfForm.cardAccount.avsStreet,
-                },
-                customer: {
-                    id: selectedCustomerId,
-                },
-                meta: this.state.memo,
-                invoice: this.state.invoice
-            }
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
 
+        let data = {
+            merchantId: stateOfForm.merchantId,
+            tenderType: "Card",
+            amount: amount,
+            cardAccount: {
+                number: stateOfForm.cardAccount.number,
+                expiryMonth: stateOfForm.cardAccount.expiryMonth,
+                expiryYear: stateOfForm.cardAccount.expiryYear,
+                cvv: stateOfForm.cardAccount.cvv,
+                avsZip: stateOfForm.cardAccount.avsZip,
+                avsStreet: stateOfForm.cardAccount.avsStreet,
+            },
+            customer: {
+                id: selectedCustomerId,
+            },
+            meta: this.state.memo,
+            invoice: this.state.invoice
+        }
+
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data),
+            dataType: "json"
+        }).then(() => {
             fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(data),
-                dataType: "json"
-            }).then(() => {
-                fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
-                    method: "GET",
-                    headers: headers
-                }).then((response) => {
-                    return response.json();
-                }).then((responseJson) => {
-                    let authorizedPaymentMade = responseJson.records[0];
-                    console.log(responseJson)
-                    let formatedDate = formatDate();
-                    let formatedTime = formatTime();
+                method: "GET",
+                headers: headers
+            }).then((response) => {
+                return response.json();
+            }).then((responseJson) => {
+                let authorizedPaymentMade = responseJson.records[0];
+                console.log(responseJson)
+                let formatedDate = formatDate();
+                let formatedTime = formatTime();
 
-                    let tipAdjustmentData = {
-                        id: authorizedPaymentMade.id,
-                        merchantId: authorizedPaymentMade.merchantId,
-                        amount: authorizedPaymentMade.amount,
-                        paymentToken: authorizedPaymentMade.paymentToken
-                    }
+                let tipAdjustmentData = {
+                    id: authorizedPaymentMade.id,
+                    merchantId: authorizedPaymentMade.merchantId,
+                    amount: authorizedPaymentMade.amount,
+                    paymentToken: authorizedPaymentMade.paymentToken
+                }
 
-                    this.setState({
-                        formatedDate: formatedDate,
-                        formatedTime: formatedTime,
-                        authCode: authorizedPaymentMade.authCode,
-                        tipAdjustmentData: tipAdjustmentData
-                    });
-
-                    this.showAlert("approval");
+                this.setState({
+                    formatedDate: formatedDate,
+                    formatedTime: formatedTime,
+                    authCode: authorizedPaymentMade.authCode,
+                    tipAdjustmentData: tipAdjustmentData
                 });
-            });
+
+                this.showAlert("approval");
+            })
         });
     }
 
@@ -277,6 +306,7 @@ export default class PaymentScreen extends Component {
     render() {
         let serviceFee;
         let tax;
+        let text;
 
         if (this.state.taxSwitchValue) {
             tax = <Text style={styles.feeText}>{this.state.tax}</Text>;
@@ -290,6 +320,13 @@ export default class PaymentScreen extends Component {
         }
         else {
             serviceFee = <Text style={styles.feeText}>0</Text>;
+        }
+
+        if (this.props.navigation.state.params.refundSelected) {
+            text = "REFUND";
+        }
+        else {
+            text = "CHARGED";
         }
 
         return (
@@ -308,7 +345,7 @@ export default class PaymentScreen extends Component {
                     }
                 />
                 <View style={styles.chargedContainer}>
-                    <Text style={styles.text}>CHARGED AMOUNT</Text>
+                    <Text style={styles.text}>{text} AMOUNT</Text>
                     <Text style={styles.amountText}>
                         ${this.determineAmount()}
                     </Text>
@@ -397,6 +434,7 @@ export default class PaymentScreen extends Component {
                 </ScrollView>
                 <ApprovalOverlay
                     visible={this.state.approvalVisible}
+                    title={this.state.approvalTitle}
                     handleClose={this.showAlert}
                     determineAmount={this.determineAmount}
                     formatedDate={this.state.formatedDate}

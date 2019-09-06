@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { View, Text, Linking, StyleSheet, Alert} from "react-native";
 import { Input, Button } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage'; //Remove later
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation';
 //Helper Methods
-import { storageGet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 
 
@@ -68,10 +67,10 @@ export default class LoginScreen extends Component {
 			console.log(response);
 			if(response.status === 200){
 				if(this.state.switchValue){
-					AsyncStorage.setItem("stayLoggedIn", "True");
+					storageSet("stayLoggedIn", "True");
 				}
 
-				AsyncStorage.setItem("encodedUser", encodedString);
+				storageSet("encodedUser", encodedString);
 				this.props.navigation.navigate("Main");
 			}
 			else{

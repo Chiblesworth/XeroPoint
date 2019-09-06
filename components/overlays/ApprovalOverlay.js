@@ -18,7 +18,7 @@ export default class ApprovalOverlay extends Component {
             >
                 <View style={styles.container}>
                     <View style={styles.row}>
-                        <Text style={styles.title}>Approved!</Text>
+                        <Text style={styles.title}>{this.props.title}</Text>
                         <Icon
                             type="antdesign"
                             name="checkcircle"

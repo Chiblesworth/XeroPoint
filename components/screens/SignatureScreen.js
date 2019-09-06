@@ -71,9 +71,6 @@ export default class SignatureScreen extends Component {
         }
     }
 
-    componentDidMount() {
-    }
-
     adjustTip(index) {
         if(index === 0){
             let total = parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2);
