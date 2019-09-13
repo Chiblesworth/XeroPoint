@@ -4,8 +4,9 @@ import { Button, Icon } from 'react-native-elements';
 //Overlays
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
-import { storageGet, removeItem, storageSet} from '../../helperMethods/localStorage';
-
+import { storageGet, removeItem, storageSet } from '../../helperMethods/localStorage';
+//TEST
+import base64 from 'react-native-base64';
 export default class ReceiptScreen extends Component {
     constructor(props) {
         super(props);
@@ -27,7 +28,7 @@ export default class ReceiptScreen extends Component {
         console.log(this.props.navigation.state.params.sale);
         let selectedCustomerId = await storageGet("selectedCustomerId");
 
-        if(!!selectedCustomerId){
+        if (!!selectedCustomerId) {
             console.log("selectedCustomerId is " + selectedCustomerId);
             this.setState({
                 createdCustomerId: Number(selectedCustomerId),
@@ -108,18 +109,25 @@ export default class ReceiptScreen extends Component {
 
     async sendReceipt(input, fieldName) {
         let url;
-        let paymentId = this.props.navigation.state.params.sale.id;
-        let encodedUser = await storageGet("encodedUser");
-
+        //let paymentId = this.props.navigation.state.params.sale.id;
+        //let encodedUser = await storageGet("encodedUser");
+        let encodedUser = base64.encode("procinc:processing2019");
         let headers = {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
         }
+        //Right now this is how I'm doing receipt sending. MX MErchant does have an endpoint set up for the sandbox environemnt
+        paymentId = 84002558;
+        fetch("https://api.mxmerchant.com/checkout/v3/payment", {
+            method: "GET",
+            headers: headers
+        }).then((response) => {
+            console.log("Procinc payments")
+            console.log(response.json())
+        })
+        if (fieldName === "Email") {
+            url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
 
-        if(fieldName === "Email"){
-            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}}`
-           //   url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
-           // url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id=80775985&contact=dustin.branch@selu.edu`;
             fetch(url, {
                 method: "POST",
                 headers: headers,
@@ -129,8 +137,8 @@ export default class ReceiptScreen extends Component {
                 console.log(response.json());
             })
         }
-        else{
-            url = `https://sandbox.api.mxmerchant.com/checkout/v3/paymentreceipt?id={${paymentId}}&contact={${input}} HTTP/1.1`;
+        else {
+            url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
 
             fetch(url, {
                 method: "POST",

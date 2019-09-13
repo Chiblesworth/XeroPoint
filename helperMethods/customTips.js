@@ -12,8 +12,6 @@ const getCustomTipsArray = async() => {
         customTipArray.push(tempArray[i]);
     }
 
-    customTipArray.push("Other");
-
     return customTipArray;
 }
 

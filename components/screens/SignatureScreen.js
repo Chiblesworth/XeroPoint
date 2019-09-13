@@ -51,6 +51,8 @@ export default class SignatureScreen extends Component {
 
         if(customTipsBool){
             let customTipArray = await getCustomTipsArray();
+            customTipArray.push("Other");
+            
             this.setState({tipArray: [...customTipArray]}, () => {
                 console.log("In state now");
                 console.log(this.state.tipArray);
@@ -59,6 +61,7 @@ export default class SignatureScreen extends Component {
             });
         }
         else{
+            defaultTips.push("Other");
             this.setState({
                 tipArray: [...defaultTips], 
                 selectedIndex: Number(selectedDefaultTip)}, () => {

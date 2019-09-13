@@ -44,6 +44,10 @@ export default class TipsScreen extends Component {
         this.useCustomTipsCheck();
         this.selectedDefaultTipCheck();
         this.customTipArrayCheck();
+        
+        if(this.defaultTips.length >= 4){
+            this.defaultTips.pop();
+        }
     }
 
     async collectingTipsCheck() {
@@ -57,7 +61,7 @@ export default class TipsScreen extends Component {
     }
 
     async useCustomTipsCheck() {
-        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments?
+        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments
         let boolean; //Used because switches can only be bool values and Async only stores strings
         
         if(!!collectTips){
