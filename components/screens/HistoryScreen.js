@@ -4,17 +4,41 @@ import { Header } from 'react-native-elements';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 //Components
 import HeaderIcon from '../HeaderIcon';
-import { black } from 'ansi-colors';
+import BatchHistory from '../BatchHistory';
+//Helper Methods
+import { storageGet, storageSet } from '../../helperMethods/localStorage';
 
 export default class HistoryScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedIndex: 0
+            selectedIndex: 0,
+            batches: []
         };
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+    }
+
+    async componentWillMount() {
+        let encodedUser = await storageGet("encodedUser");
+        let merchantId = await storageGet("merchantId");
+
+        let headers = {
+            'Authorization': 'Basic ' + encodedUser,
+            'Content-Type': 'application/json; charset=utf-8'
+        };
+
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=5`, {
+            method: "GET",
+            headers: headers,
+        }).then((response) => {
+            return response.json();
+        }).then((Json) => {
+            this.setState({ batches: Json.records }, () => {
+                //console.log(this.state.batches)
+            });
+        });
     }
 
     handleHeaderIconPress() {
@@ -27,7 +51,7 @@ export default class HistoryScreen extends Component {
 
     render() {
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <Header
                     leftComponent={
                         <HeaderIcon
@@ -57,81 +81,12 @@ export default class HistoryScreen extends Component {
                     />
                 </View>
                 <ScrollView>
-                    <View style={styles.batchContainer}>
-                        <View style={[styles.row, { backgroundColor: "#D3D3D3" }]}>
-                            <Text style={styles.text}>
-                                Batch ID
-                            </Text>
-                            <Text style={styles.text}>
-                                Closed By: System
-                            </Text>
-                        </View>
-                        <View style={[styles.row, { padding: 20 }]}>
-                            <View style={styles.batchInfoContainer}>
-                                <View style={
-                                    {
-                                        backgroundColor: '#2E2B2B',
-                                        borderTopLeftRadius: 17,
-                                        borderTopRightRadius: 17,
-                                        width: '100%',
-                                        alignItems: 'center'
-                                    }
-                                }>
-                                    <Text style={[styles.infoText, { color: '#fff' }]}>
-                                        CLOSED
-                                    </Text>
-                                </View>
-                                <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#000' }}>
-                                    0
-                                </Text>
-                                <View style={
-                                    {
-                                        backgroundColor: '#DCDCDC',
-                                        borderBottomLeftRadius: 20,
-                                        borderBottomRightRadius: 20,
-                                        width: '100%',
-                                        alignItems: 'center'
-                                    }
-                                }>
-                                    <Text style={[styles.infoText, { color: '#000' }]}>
-                                        $0.00
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={styles.column}>
-                                <Text>Sales:          0</Text>
-                                <Text>Refunds:     0</Text>
-                                <View style={{paddingTop: '15%'}}>
-                                    <Text>Open Date:</Text>
-                                    <Text>Date</Text>
-                                    <Text>Time</Text>
-                                </View>
-                            </View>
-                            <View style={styles.column}>
-                                <Text>$0.00</Text>
-                                <Text>$0.00</Text>
-                                <View style={{paddingTop: '15%'}}>
-                                    <Text>Close Date:</Text>
-                                    <Text>Date</Text>
-                                    <Text>Time</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
+                    <BatchHistory batches={this.state.batches}/>
                 </ScrollView>
             </View>
         );
     }
 }
-{/* <View style={{paddingTop: '3%'}}>
-                                <Text>Sales:       0</Text>
-                                <Text>Refunds:  0</Text>
-                            </View>
-                            <View style={{paddingTop: '3%', paddingRight: '20%'}}>
-                                <Text>$0.00</Text>
-                                <Text>$0.00</Text>
-                            </View> */}
-
 
 //Styles
 const styles = StyleSheet.create({
@@ -164,34 +119,4 @@ const styles = StyleSheet.create({
     activeTabTextStyle: {
         color: 'black'
     },
-    batchContainer: {
-        borderColor: "#696969",
-        borderWidth: 1,
-        height: '100%'
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    text: {
-        padding: 10,
-        fontSize: 16,
-        color: "#000"
-    },
-    batchInfoContainer: {
-        borderRadius: 20,
-        borderWidth: 2,
-        borderColor: "#2E2B2B",
-        width: '25%',
-        height: 115,
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-    },
-    infoText: {
-        padding: 10,
-        borderRadius: 20
-    },
-    // batchSaleContainer: {
-    //    paddingRight: '20%',
-    // }
 });
