@@ -22,6 +22,7 @@ import SearchCustomerScreen from './components/screens/SearchCustomerScreen';
 import SignatureScreen from './components/screens/SignatureScreen';
 import ReceiptScreen from './components/screens/ReceiptScreen';
 import HistoryScreen from './components/screens/HistoryScreen';
+import BatchPaymentScreen from './components/screens/BatchPaymentScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -89,6 +90,13 @@ const DrawerNavigation = createDrawerNavigator(
 						size={25}
 					/>
 				)
+			}
+		},
+		BatchPayments: {
+			screen: BatchPaymentScreen,
+			navigationOptions: {
+				header: null,
+				drawerLabel: () => null
 			}
 		},
 		Settings: {

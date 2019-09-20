@@ -81,7 +81,7 @@ export default class HistoryScreen extends Component {
                     />
                 </View>
                 <ScrollView>
-                    <BatchHistory batches={this.state.batches}/>
+                    <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>
                 </ScrollView>
             </View>
         );
