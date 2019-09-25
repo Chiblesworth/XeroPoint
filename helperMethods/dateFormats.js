@@ -38,7 +38,6 @@ const convertMilitaryToStandardTime = (time) => {
 
     let hours = Number(time[0]);
     let minutes = Number(time[1]);
-    let seconds = Number(time[2]);
 
     let standardTime;
 
@@ -53,7 +52,6 @@ const convertMilitaryToStandardTime = (time) => {
     }
 
     standardTime += (minutes < 10) ? ":0" + minutes : ":" + minutes;
-    standardTime += (seconds < 10) ? ":0" + seconds : ":" + seconds;
     standardTime += (hours >= 12) ? " P.M." : " A.M.";
 
     return standardTime;

@@ -29,7 +29,7 @@ export default class HistoryScreen extends Component {
             'Content-Type': 'application/json; charset=utf-8'
         };
 
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=5`, {
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=1000`, {
             method: "GET",
             headers: headers,
         }).then((response) => {

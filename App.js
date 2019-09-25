@@ -73,13 +73,30 @@ const StackNavigator = createStackNavigator(
 	}
 );
 
+const HistoryStackNav = createStackNavigator(
+	{
+		History: {
+			screen: HistoryScreen,
+			navigationOptions: {
+				header: null
+			}
+		},
+		BatchPayments: {
+			screen: BatchPaymentScreen,
+			navigationOptions: {
+				header: null
+			}
+		},
+	}
+);
+
 const DrawerNavigation = createDrawerNavigator(
 	{
 		Main: {
 			screen: StackNavigator
 		},
 		History: {
-			screen: HistoryScreen,
+			screen: HistoryStackNav,
 			navigationOptions: {
 				header: null,
 				drawerIcon: (
@@ -90,13 +107,6 @@ const DrawerNavigation = createDrawerNavigator(
 						size={25}
 					/>
 				)
-			}
-		},
-		BatchPayments: {
-			screen: BatchPaymentScreen,
-			navigationOptions: {
-				header: null,
-				drawerLabel: () => null
 			}
 		},
 		Settings: {
