@@ -8,6 +8,9 @@ import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
 //Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
+//Test
+//import base64 from 'react-native-base64';
+
 
 
 export default class MainScreen extends Component {
@@ -34,6 +37,19 @@ export default class MainScreen extends Component {
     componentDidMount() {
         Orientation.lockToPortrait();
         this.getMerchantId();
+
+        // let encodedUser = base64.encode("procinc:processing2019");
+        // let headers = {
+        //     'Authorization': 'Basic ' + encodedUser,
+        //     'Content-Type': 'application/json; charset=utf-8'
+        // }
+
+        // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
+        //     method: "GET",
+        //     headers: headers,
+        // }).then((response) => {
+        //     console.log(response.json())
+        // })
     }
 
     handleNumberPadPress(valueGotBack) {

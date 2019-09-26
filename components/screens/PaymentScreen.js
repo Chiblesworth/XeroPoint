@@ -33,7 +33,8 @@ export default class PaymentScreen extends Component {
             amountCharged: this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""),
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
-            invoice: "",
+            invoice: null,
+            meno: null,
             tax: 0,
             serviceFee: 0,
             approvalVisible: false,
@@ -239,6 +240,7 @@ export default class PaymentScreen extends Component {
             },
             meta: this.state.memo,
             invoice: this.state.invoice
+            
         }
 
         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {

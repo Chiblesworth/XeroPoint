@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Header, Icon } from 'react-native-elements';
 //Components
 import HeaderIcon from '../HeaderIcon';
@@ -16,6 +16,7 @@ export default class BatchPaymentScreen extends Component {
         };
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
+        this.handlePaymentPress = this.handlePaymentPress.bind(this);
     }
 
     componentDidMount() {
@@ -24,7 +25,11 @@ export default class BatchPaymentScreen extends Component {
     }
 
     handleHeaderIconPress() {
-        this.props.navigation.navigate("History");
+        this.props.navigation.pop();
+    }
+
+    handlePaymentPress(payment) {
+        this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 
     render() {
@@ -57,42 +62,47 @@ export default class BatchPaymentScreen extends Component {
                         timeOfPayment = convertMilitaryToStandardTime(timeOfPayment[0]);
 
                         return (
-                            <View style={styles.payment} key={index}>
-                                <View style={[styles.row, { justifyContent: 'space-between' }]}>
-                                    <View>
-                                        <View style={styles.row}>
-                                            <Icon
-                                                type='entypo'
-                                                name='credit-card'
-                                                size={35}
-                                            />
-                                            <View style={{ padding: 5 }} />
-                                            <Text style={[styles.paymentText, { paddingTop: 5 }]}>
-                                                ${parseFloat(Math.round(payment.amount * 100) / 100).toFixed(2)}
-                                            </Text>
-                                        </View>
-                                        <View style={[styles.row], { paddingTop: 0, paddingLeft: 10 }}>
-                                            <Text style={styles.paymentText}>
-                                                {timeOfPayment}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View>
-                                        <View style={styles.row}>
-                                            <Text style={styles.paymentText}>
-                                                Tip: ${parseFloat(Math.round(payment.tip * 100) / 100).toFixed(2)}
-                                            </Text>
-                                        </View>
-                                        <View style={[styles.row], { paddingTop: 10, paddingLeft: 10 }}>
-                                            <View style={styles.settledContainer}>
-                                                <Text style={[styles.paymentText], { color: '#fff', paddingTop: 2 }}>
-                                                    {payment.status}
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => this.handlePaymentPress(payment)}
+                            >
+                                <View style={styles.payment}>
+                                    <View style={[styles.row, { justifyContent: 'space-between' }]}>
+                                        <View>
+                                            <View style={styles.row}>
+                                                <Icon
+                                                    type='entypo'
+                                                    name='credit-card'
+                                                    size={35}
+                                                />
+                                                <View style={{ padding: 5 }} />
+                                                <Text style={[styles.paymentText, { paddingTop: 5 }]}>
+                                                    ${parseFloat(Math.round(payment.amount * 100) / 100).toFixed(2)}
                                                 </Text>
+                                            </View>
+                                            <View style={[styles.row], { paddingTop: 0, paddingLeft: 10 }}>
+                                                <Text style={styles.paymentText}>
+                                                    {timeOfPayment}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View>
+                                            <View style={styles.row}>
+                                                <Text style={styles.paymentText}>
+                                                    Tip: ${parseFloat(Math.round(payment.tip * 100) / 100).toFixed(2)}
+                                                </Text>
+                                            </View>
+                                            <View style={[styles.row], { paddingTop: 10, paddingLeft: 10 }}>
+                                                <View style={styles.settledContainer}>
+                                                    <Text style={[styles.paymentText], { color: '#fff', paddingTop: 2 }}>
+                                                        {payment.status}
+                                                    </Text>
+                                                </View>
                                             </View>
                                         </View>
                                     </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         )
                     })}
                 </ScrollView>

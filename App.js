@@ -23,6 +23,7 @@ import SignatureScreen from './components/screens/SignatureScreen';
 import ReceiptScreen from './components/screens/ReceiptScreen';
 import HistoryScreen from './components/screens/HistoryScreen';
 import BatchPaymentScreen from './components/screens/BatchPaymentScreen';
+import ViewReceiptScreen from './components/screens/ViewReceiptScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -87,6 +88,12 @@ const HistoryStackNav = createStackNavigator(
 				header: null
 			}
 		},
+		ViewReceipt: {
+			screen: ViewReceiptScreen,
+			navigationOptions: {
+				header: null
+			}
+		}
 	}
 );
 

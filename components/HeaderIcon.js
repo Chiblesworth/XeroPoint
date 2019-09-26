@@ -8,7 +8,8 @@ import { Icon } from 'react-native-elements';
             type={props.type}
             size={props.size}
             color="white"
-            iconStyle={{paddingBottom: 40}}
+            iconStyle={{}}
+            containerStyle={{height: '100%', paddingBottom: 50}}
             underlayColor={'#808080'}
             onPress={() => props.handlePress(props.name)}
         />
