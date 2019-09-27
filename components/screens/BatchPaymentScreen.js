@@ -59,7 +59,7 @@ export default class BatchPaymentScreen extends Component {
                         let timeOfPayment = dateOfPayment.toTimeString();
 
                         timeOfPayment = timeOfPayment.split(" ");
-                        timeOfPayment = convertMilitaryToStandardTime(timeOfPayment[0]);
+                        timeOfPayment = convertMilitaryToStandardTime(timeOfPayment[0], false);
 
                         return (
                             <TouchableOpacity

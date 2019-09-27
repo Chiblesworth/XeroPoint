@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 //Helper Methods
 import { storageGet } from '../helperMethods/localStorage';
+import { formatPhoneNumber } from '../helperMethods/formatPhoneNumber';
 //Test
 import base64 from 'react-native-base64';
 
@@ -59,7 +60,9 @@ export default class MerchantInfo extends Component {
                 <Text style={styles.text}> 
                     {this.state.address.city}, {this.state.address.state} {this.state.address.zip}
                 </Text>
-                <Text style={styles.text}> {this.state.phone} </Text>
+                <Text style={styles.text}> {formatPhoneNumber(this.state.phone)} </Text>
+                <Text style={styles.text}>{this.props.dateCreated} at {this.props.timeCreated}</Text>
+                <Text style={styles.text}>Merchant ID: {this.props.merchantId}</Text>
             </View>
         );
     }
@@ -80,6 +83,8 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5
     },
     text: {
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        fontSize: 14,
+        color: 'black'
     }
 });

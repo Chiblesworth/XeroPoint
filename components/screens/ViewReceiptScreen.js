@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Header } from 'react-native-elements';
+import { ScrollView } from 'react-native-gesture-handler';
 //Components
 import HeaderIcon from '../HeaderIcon';
 import MerchantInfo from '../MerchantInfo';
+import PaymentInfo from '../PaymentInfo';
+import TotalInfo from '../TotalInfo';
+import CustomerInfo from '../CustomerInfo';
+//Helper Methods
+import { convertMilitaryToStandardTime } from '../../helperMethods/dateFormats';
+
 
 export default class ViewReceiptScreen extends Component {
     constructor(props) {
@@ -24,10 +31,15 @@ export default class ViewReceiptScreen extends Component {
     }
 
     render() {
-        let payment = this.props.navigation.state.params.payment; 
-  
+        let payment = this.props.navigation.state.params.payment;
+        let paymentCreated = new Date(payment.created);
+        let dateCreated = paymentCreated.toDateString();
+        let timeCreated = paymentCreated.toTimeString();
+
+        timeCreated = timeCreated.split(" ");
+        timeCreated = convertMilitaryToStandardTime(timeCreated[0], true);
         return (
-            <View style={{backgroundColor: '#ECE7E7', height: '100%'}}>
+            <View style={{ backgroundColor: '#ECE7E7', height: '100%' }}>
                 <Header
                     leftComponent={
                         <HeaderIcon
@@ -43,9 +55,40 @@ export default class ViewReceiptScreen extends Component {
                     backgroundColor="#808080"
                     containerStyle={{ borderBottomWidth: 0 }}
                 />
-                <View style={styles.receiptContainer}>
-                    <MerchantInfo />
-                </View>
+                <ScrollView style={styles.receiptContainer}>
+                    <View>
+                        <MerchantInfo dateCreated={dateCreated} timeCreated={timeCreated} merchantId={payment.merchantId} />
+                        {/* Divider wrapped in view so it doesn't center all content within the component */}
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.divider} />
+                        </View>
+                        <PaymentInfo 
+                            last4={payment.cardAccount.last4}
+                            authCode={payment.authCode}
+                            cardPresent={payment.cardPresent}
+                            entryMode={payment.cardAccount.entryMode}
+                            reference={payment.reference}
+                            batch={payment.batch}
+                            creatorName={payment.creatorName}
+                            status={payment.status}
+                        />
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.divider} />
+                        </View>
+                        <TotalInfo 
+                            originalAmount={payment.originalAmount}
+                            tip={payment.tip}
+                            total={payment.amount}
+                        />
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.divider} />
+                        </View>
+                        <CustomerInfo
+                            customerName={payment.customerName}
+                            customerCode={payment.customerCode}
+                        />
+                    </View>
+                </ScrollView>
             </View>
         );
     }
@@ -61,6 +104,11 @@ const styles = StyleSheet.create({
     receiptContainer: {
         backgroundColor: '#fff',
         height: '100%',
-        margin: 20
+        margin: 20,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderColor: 'black',
+        width: '90%',
     }
 });

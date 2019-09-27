@@ -253,6 +253,9 @@ export default class PaymentScreen extends Component {
                 method: "GET",
                 headers: headers
             }).then((response) => {
+                console.log("LOOK HERE Payment bug?")
+                console.log(response)
+                console.log(response.json())
                 return response.json();
             }).then((responseJson) => {
                 let authorizedPaymentMade = responseJson.records[0];

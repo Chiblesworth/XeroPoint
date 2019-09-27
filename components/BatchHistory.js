@@ -59,10 +59,10 @@ export default class BatchHistory extends Component {
                     let timeClosed = batchClosed.toTimeString();
 
                     timeOpened = timeOpened.split(" ");
-                    timeOpened = convertMilitaryToStandardTime(timeOpened[0]);
+                    timeOpened = convertMilitaryToStandardTime(timeOpened[0], false);
 
                     timeClosed = timeClosed.split(" ");
-                    timeClosed = convertMilitaryToStandardTime(timeClosed[0]);
+                    timeClosed = convertMilitaryToStandardTime(timeClosed[0], false);
 
                     return (
                         <TouchableOpacity

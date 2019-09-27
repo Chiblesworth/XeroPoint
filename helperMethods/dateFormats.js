@@ -32,12 +32,13 @@ const formatTime = () => {
     return formatedTime;
 }
 
-const convertMilitaryToStandardTime = (time) => {
+const convertMilitaryToStandardTime = (time, includeSeconds) => {
     //https://stackoverflow.com/questions/29206453/best-way-to-convert-military-time-to-standard-time-in-javascript
     time = time.split(":");
 
     let hours = Number(time[0]);
     let minutes = Number(time[1]);
+    let seconds = Number(time[2]);
 
     let standardTime;
 
@@ -52,6 +53,11 @@ const convertMilitaryToStandardTime = (time) => {
     }
 
     standardTime += (minutes < 10) ? ":0" + minutes : ":" + minutes;
+    
+    if(includeSeconds){
+        standardTime += (seconds < 10) ? ":0" + seconds : ":" + seconds;
+    }
+
     standardTime += (hours >= 12) ? " P.M." : " A.M.";
 
     return standardTime;
