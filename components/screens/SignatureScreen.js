@@ -61,7 +61,6 @@ export default class SignatureScreen extends Component {
             });
         }
         else{
-            defaultTips.push("Other");
             this.setState({
                 tipArray: [...defaultTips], 
                 selectedIndex: Number(selectedDefaultTip)}, () => {
@@ -70,7 +69,8 @@ export default class SignatureScreen extends Component {
                     console.log(this.state.selectedIndex);
 
                     this.adjustTip(this.state.selectedIndex);
-                });
+            });
+
         }
     }
 

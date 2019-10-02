@@ -5,15 +5,18 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 //Components
 import HeaderIcon from '../HeaderIcon';
 import BatchHistory from '../BatchHistory';
+import DailyPurchaseHistory from '../DailyPaymentHistory';
 //Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import DailyPaymentHistory from '../DailyPaymentHistory';
 
 export default class HistoryScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             selectedIndex: 0,
-            batches: []
+            batches: [],
+            lastThreeMonthsPayments: []
         };
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
@@ -29,16 +32,32 @@ export default class HistoryScreen extends Component {
             'Content-Type': 'application/json; charset=utf-8'
         };
 
+        //Get batches 
         fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=1000`, {
             method: "GET",
             headers: headers,
         }).then((response) => {
             return response.json();
         }).then((Json) => {
-            this.setState({ batches: Json.records }, () => {
-                //console.log(this.state.batches)
-            });
+            this.setState({ batches: Json.records });
         });
+
+        //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
+        let startDate = new Date();
+        let endDate = new Date();
+        endDate.setMonth(startDate.getMonth() - 3);
+
+        console.log(startDate.toLocaleDateString());
+        console.log(endDate.toLocaleDateString());
+
+        //Get payments in past 3 months
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`, {
+            method: "GET",
+            headers: headers
+        }).then((response) => {
+            console.log(response);
+            console.log(response.json());
+        })
     }
 
     handleHeaderIconPress() {
@@ -50,6 +69,13 @@ export default class HistoryScreen extends Component {
     }
 
     render() {
+        let paymentHistoryContent 
+        if(this.state.selectedIndex === 0){
+            paymentHistoryContent = <DailyPaymentHistory navigation={this.props.navigation}/>;
+        }
+        else{
+            paymentHistoryContent = <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>;
+        }
         return (
             <View style={{flex: 1}}>
                 <Header
@@ -81,7 +107,7 @@ export default class HistoryScreen extends Component {
                     />
                 </View>
                 <ScrollView>
-                    <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>
+                    {paymentHistoryContent}
                 </ScrollView>
             </View>
         );

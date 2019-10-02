@@ -86,6 +86,7 @@ export default class ViewReceiptScreen extends Component {
                         <CustomerInfo
                             customerName={payment.customerName}
                             customerCode={payment.customerCode}
+                            invoice={payment.invoice}
                         />
                     </View>
                 </ScrollView>
