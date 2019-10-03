@@ -16,11 +16,14 @@ export default class HistoryScreen extends Component {
         this.state = {
             selectedIndex: 0,
             batches: [],
-            lastThreeMonthsPayments: []
+            lastThreeMonthsPayments: [],
         };
+
+        this.paymentsSplitByDay = null;
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.parsePaymentsByDay = this.parsePaymentsByDay.bind(this);
     }
 
     async componentWillMount() {
@@ -43,20 +46,23 @@ export default class HistoryScreen extends Component {
         });
 
         //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
-        let startDate = new Date();
         let endDate = new Date();
-        endDate.setMonth(startDate.getMonth() - 3);
+        endDate.setDate(endDate.getDate() + 1)
+        let startDate = new Date();
+        startDate.setMonth(endDate.getMonth() - 3);
 
-        console.log(startDate.toLocaleDateString());
-        console.log(endDate.toLocaleDateString());
+        console.log(endDate.toLocaleDateString())
+        console.log(startDate.toLocaleDateString())
 
         //Get payments in past 3 months
+        //`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`
         fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`, {
             method: "GET",
             headers: headers
         }).then((response) => {
-            console.log(response);
-            console.log(response.json());
+            return response.json();
+        }).then((Json) => {
+            this.parsePaymentsByDay(Json.records);
         })
     }
 
@@ -66,6 +72,36 @@ export default class HistoryScreen extends Component {
 
     handleTabChange(index) {
         this.setState({ selectedIndex: index });
+    }
+
+    parsePaymentsByDay(payments){
+        console.log(payments)
+        console.log(payments.length);
+        console.log(payments[0].created)
+
+        let dateToBeCompared = new Date(payments[0].created); //Holds the first date for other records to compare date to
+        let paymentsForOneDay = [];
+        let allPaymentsSplitByDay = [];
+
+        for(let i = 0; i < payments.length; i++){
+            dateOfPayment = new Date(payments[i].created);
+
+            if(dateToBeCompared.toLocaleDateString() === dateOfPayment.toLocaleDateString()){
+                paymentsForOneDay.push(payments[i]);
+            }
+            else{
+                allPaymentsSplitByDay.push(paymentsForOneDay);
+
+                paymentsForOneDay = [];
+                dateToBeCompared = new Date(payments[i].created);
+                
+                if(dateToBeCompared.toLocaleDateString() === dateOfPayment.toLocaleDateString()){
+                    paymentsForOneDay.push(payments[i]);
+                }
+            }
+        }
+        allPaymentsSplitByDay.push(paymentsForOneDay);
+        console.log(allPaymentsSplitByDay)
     }
 
     render() {
