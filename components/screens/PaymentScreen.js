@@ -249,10 +249,7 @@ export default class PaymentScreen extends Component {
             body: JSON.stringify(data),
             dataType: "json"
         }).then((response) => {
-            console.log("LOOK HERE Payment bug?")
-                console.log(response)
-                console.log(response.json())
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?limit=1", {
                 method: "GET",
                 headers: headers
             }).then((response) => {
