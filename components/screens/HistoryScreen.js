@@ -5,10 +5,9 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 //Components
 import HeaderIcon from '../HeaderIcon';
 import BatchHistory from '../BatchHistory';
-import DailyPurchaseHistory from '../DailyPaymentHistory';
+import DailyPaymentHistory from '../DailyPaymentHistory';
 //Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
-import DailyPaymentHistory from '../DailyPaymentHistory';
 
 export default class HistoryScreen extends Component {
     constructor(props) {
@@ -17,9 +16,8 @@ export default class HistoryScreen extends Component {
             selectedIndex: 0,
             batches: [],
             lastThreeMonthsPayments: [],
+            paymentsSplitByDay: []
         };
-
-        this.paymentsSplitByDay = null;
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
@@ -47,7 +45,7 @@ export default class HistoryScreen extends Component {
 
         //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
         let endDate = new Date();
-        endDate.setDate(endDate.getDate() + 1)
+        endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
         let startDate = new Date();
         startDate.setMonth(endDate.getMonth() - 3);
 
@@ -77,7 +75,6 @@ export default class HistoryScreen extends Component {
     parsePaymentsByDay(payments){
         console.log(payments)
         console.log(payments.length);
-        console.log(payments[0].created)
 
         let dateToBeCompared = new Date(payments[0].created); //Holds the first date for other records to compare date to
         let paymentsForOneDay = [];
@@ -101,13 +98,14 @@ export default class HistoryScreen extends Component {
             }
         }
         allPaymentsSplitByDay.push(paymentsForOneDay);
-        console.log(allPaymentsSplitByDay)
+
+        this.setState({paymentsSplitByDay: allPaymentsSplitByDay});
     }
 
     render() {
         let paymentHistoryContent 
         if(this.state.selectedIndex === 0){
-            paymentHistoryContent = <DailyPaymentHistory navigation={this.props.navigation}/>;
+            paymentHistoryContent = <DailyPaymentHistory navigation={this.props.navigation} paymentsSplitByDay={this.state.paymentsSplitByDay} />;
         }
         else{
             paymentHistoryContent = <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>;

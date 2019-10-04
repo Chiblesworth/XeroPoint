@@ -10,13 +10,23 @@ export default class PaymentInfo extends Component {
     }
 
     render() {
-        let bgColor;
-        if (this.props.status === "Settled" || "Approved") {
-            bgColor = 'green';
+        console.log("here in payment Info " + this.props.status)
+        let backgroundCol;
+        if (this.props.status === "Settled") {
+            backgroundCol = 'green';
         }
-        else {
-            bgColor = 'red';
+        else if(this.props.status === "Declined") {
+            backgroundCol = 'red';
         }
+        else if(this.props.status === "Voided"){
+            backgroundCol = 'orange';
+        }
+        else if(this.props.status === "Approved"){
+            //This was originally in the settled condition, but it kept causing voided to be green rather than orange
+            backgroundCol = "green";
+        }
+
+        console.log(backgroundCol)
 
         return (
             <View style={styles.container}>
@@ -41,7 +51,7 @@ export default class PaymentInfo extends Component {
                         <Text style={styles.text}>Batch #{this.props.batch}</Text>
                         <Text style={styles.text}>Team Member: {this.props.creatorName}</Text>
                     </View>
-                    <View style={[{backgroundColor: bgColor}, styles.statusContainer]}>
+                    <View style={[styles.statusContainer, {backgroundColor: backgroundCol},]}>
                         <Text style={styles.statusText}>{this.props.status}</Text>
                     </View>
                 </View>

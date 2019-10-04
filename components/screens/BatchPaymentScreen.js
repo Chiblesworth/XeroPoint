@@ -29,7 +29,7 @@ export default class BatchPaymentScreen extends Component {
     }
 
     handlePaymentPress(payment) {
-        this.props.navigation.push("ViewReceipt", {payment: payment});
+        this.props.navigation.push("ViewReceipt", { payment: payment });
     }
 
     render() {
@@ -54,6 +54,17 @@ export default class BatchPaymentScreen extends Component {
                     {this.state.batchPayments.map((payment, index) => {
                         if (payment.tip === undefined) {
                             payment.tip = "0.00";
+                        }
+
+                        let backgroundCol;
+                        if (payment.status === "Settled") {
+                            backgroundCol = "green";
+                        }
+                        else if (payment.status === "Declined") {
+                            backgroundCol = "red";
+                        }
+                        else if (payment.status === "Voided") {
+                            backgroundCol = "orange";
                         }
                         let dateOfPayment = new Date(payment.created);
                         let timeOfPayment = dateOfPayment.toTimeString();
@@ -93,7 +104,7 @@ export default class BatchPaymentScreen extends Component {
                                                 </Text>
                                             </View>
                                             <View style={[styles.row], { paddingTop: 10, paddingLeft: 10 }}>
-                                                <View style={styles.settledContainer}>
+                                                <View style={[styles.statusContainer, {backgroundColor: backgroundCol}]}>
                                                     <Text style={[styles.paymentText], { color: '#fff', paddingTop: 2 }}>
                                                         {payment.status}
                                                     </Text>
@@ -130,8 +141,7 @@ const styles = StyleSheet.create({
     paymentText: {
         fontSize: 18
     },
-    settledContainer: {
-        backgroundColor: "green",
+    statusContainer: {
         alignItems: 'center',
         height: 25,
         borderRadius: 5

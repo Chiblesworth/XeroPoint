@@ -14,7 +14,7 @@ export default class CustomerInfo extends Component {
                 <Text style={styles.text}> Customer Name: {this.props.customerName} </Text>
                 <Text style={styles.text}> Customer Number: {this.props.customerCode} </Text>
                 <Text style={styles.text}> Invoice: {this.props.invoice} </Text>
-                <Text style={styles.text}> Tax: </Text>
+                <Text style={styles.text}> Tax: ${this.props.tax}</Text>
             </View>
         );
     }
