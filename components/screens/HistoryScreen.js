@@ -32,9 +32,16 @@ export default class HistoryScreen extends Component {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
         };
+        
+        let endDate = new Date();
+        endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
+        let startDate = new Date();
+        startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
 
+        console.log(endDate.toLocaleDateString())
+        console.log(startDate.toLocaleDateString())
         //Get batches 
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=1000`, {
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`, {
             method: "GET",
             headers: headers,
         }).then((response) => {
@@ -44,13 +51,13 @@ export default class HistoryScreen extends Component {
         });
 
         //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
-        let endDate = new Date();
-        endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
-        let startDate = new Date();
-        startDate.setMonth(endDate.getMonth() - 3);
+        // let endDate = new Date();
+        // endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
+        // let startDate = new Date();
+        // startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
 
-        console.log(endDate.toLocaleDateString())
-        console.log(startDate.toLocaleDateString())
+        // console.log(endDate.toLocaleDateString())
+        // console.log(startDate.toLocaleDateString())
 
         //Get payments in past 3 months
         //`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`
