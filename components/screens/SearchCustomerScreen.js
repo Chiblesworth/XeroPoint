@@ -112,11 +112,11 @@ export default class SearchCustomerScreen extends Component {
                             <HeaderIcon
                                 name="chevron-left"
                                 type="entypo"
-                                size={70}
+                                size={50}
                                 handlePress={() => this.navigateToPayment()}
                             />
                         }
-                        backgroundColor='#808080'
+                        backgroundColor='#454343'
                         containerStyle={{ borderBottomWidth: 0 }}
                         centerComponent={
                             <SearchBar
@@ -143,7 +143,7 @@ export default class SearchCustomerScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         width: '100%',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         marginLeft: 25
     },
     listContainer: {
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         width: '100%'
     },
     centerComponent: {

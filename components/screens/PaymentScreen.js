@@ -336,13 +336,13 @@ export default class PaymentScreen extends Component {
             <View style={styles.content}>
                 <Header
                     style={styles.header}
-                    backgroundColor='#808080'
+                    backgroundColor='#454343'
                     containerStyle={{ borderBottomWidth: 0 }}
                     leftComponent={
                         <HeaderIcon
                             name="chevron-left"
                             type="entypo"
-                            size={70}
+                            size={50}
                             handlePress={this.handleHeaderIconPress}
                         />
                     }
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     content: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         height: '10%',

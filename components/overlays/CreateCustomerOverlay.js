@@ -96,7 +96,7 @@ export default class CreateCustomerOverlay extends Component {
             <Overlay
                 isVisible={this.props.isVisible}
                 fullScreen={true}
-                overlayBackgroundColor="#808080"
+                overlayBackgroundColor="#454343"
             >
                 <View style={styles.container}>
                     <View style={styles.row}>
@@ -106,7 +106,7 @@ export default class CreateCustomerOverlay extends Component {
                             title="Cancel"
                             onPress={() => this.props.closeOverlay()}
                             containerStyle={{width: 100, height: 50}}
-                            buttonStyle={{width: 100, height: 50, backgroundColor: '#808080'}}
+                            buttonStyle={{width: 100, height: 50, backgroundColor: '#454343'}}
                             titleStyle={{color: 'red', fontSize: 20}}
                         />
                         <Text style={styles.headerText}>Create Customer</Text>

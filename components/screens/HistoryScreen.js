@@ -124,14 +124,14 @@ export default class HistoryScreen extends Component {
                         <HeaderIcon
                             name="chevron-left"
                             type="entypo"
-                            size={60}
+                            size={50}
                             handlePress={this.handleHeaderIconPress}
                         />
                     }
                     centerComponent={
                         <Text style={styles.headerText}>History</Text>
                     }
-                    backgroundColor="#808080"
+                    backgroundColor="#454343"
                     containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <View style={styles.segmentedControlContainer}>
@@ -164,16 +164,16 @@ const styles = StyleSheet.create({
     },
     segmentedControlContainer: {
         alignItems: 'center',
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         width: '100%',
         paddingBottom: 10
     },
     tabsContainerStyle: {
         width: '50%',
-        borderColor: '#808080'
+        borderColor: '#454343'
     },
     tabStyle: {
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         borderColor: 'black'
     },
     tabTextStyle: {

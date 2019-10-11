@@ -160,7 +160,7 @@ export default class MainScreen extends Component {
             <View style={styles.mainContainer}>
                 <View style={styles.header}>
                     <Header
-                        backgroundColor="#808080"
+                        backgroundColor="#454343"
                         leftComponent={
                             <HeaderIcon
                                 name="menu"
@@ -202,12 +202,12 @@ export default class MainScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     container: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         width: '100%',

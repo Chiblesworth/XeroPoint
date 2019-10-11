@@ -45,14 +45,14 @@ export default class ViewReceiptScreen extends Component {
                         <HeaderIcon
                             name="chevron-left"
                             type="entypo"
-                            size={60}
+                            size={50}
                             handlePress={this.handleHeaderIconPress}
                         />
                     }
                     centerComponent={
                         <Text style={styles.headerText}>#{payment.invoice}</Text>
                     }
-                    backgroundColor="#808080"
+                    backgroundColor="#454343"
                     containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <ScrollView style={styles.receiptContainer}>

@@ -40,14 +40,14 @@ export default class BatchPaymentScreen extends Component {
                         <HeaderIcon
                             name="chevron-left"
                             type="entypo"
-                            size={60}
+                            size={50}
                             handlePress={this.handleHeaderIconPress}
                         />
                     }
                     centerComponent={
                         <Text style={styles.headerText}>Payments</Text>
                     }
-                    backgroundColor="#808080"
+                    backgroundColor="#454343"
                     containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <ScrollView>

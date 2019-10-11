@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     },
     tabsContainerStyle: {
         flex: 1,
-        borderColor: '#808080'
+        borderColor: '#454343'
     },
     tabStyle: {
         backgroundColor: 'white',
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     activeTabStyle: {
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     activeTabTextStyle: {
         color: 'white'

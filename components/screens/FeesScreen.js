@@ -78,17 +78,18 @@ export default class FeeScreen extends Component {
                             <HeaderIcon 
                                 name="chevron-left"
                                 type="entypo"
-                                size={70}
+                                size={50}
                                 handlePress={this.handleHeaderIconPress}
                             /> 
                         }
                         centerComponent={
                             <Text style={styles.headerText}>Additional Fees</Text>
                         }
-                        backgroundColor='#808080'
+                        backgroundColor='#656565'
                         containerStyle={{ borderBottomWidth: 0 }}
                     />
                 </View>
+                <View style={{paddingTop: 10}} />
                 {/* Wrapped this a ScrollView so the keyboard doesn't cover input areas. */}
                 <ScrollView>
                     <View>
@@ -120,16 +121,16 @@ export default class FeeScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         width: '100%',
         height: 70
     },
     headerText: {
-        fontSize: 25,
+        fontSize: 30,
         color: 'white',
-        paddingBottom: 20
+        paddingBottom: 30
     },
     divider: {
         marginTop: 20,

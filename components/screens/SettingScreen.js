@@ -62,14 +62,14 @@ export default class SettingScreen extends Component {
                             <HeaderIcon 
                                 name="chevron-left"
                                 type="entypo"
-                                size={60}
+                                size={50}
                                 handlePress={this.handleHeaderIconPress}
                             /> 
                         }
                         centerComponent={
                             <Text style={styles.headerText}>Settings</Text>
                         }
-                        backgroundColor='#808080'
+                        backgroundColor='#656565'
                         containerStyle={{ borderBottomWidth: 0 }}
                     />
                 </View>
@@ -85,20 +85,20 @@ export default class SettingScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         width: '100%',
         height: 70
     },
     headerText: {
-        fontSize: 40,
+        fontSize: 30,
         color: 'white',
-        paddingBottom: 20
+        paddingBottom: 30
     },
     button: {
         justifyContent: 'space-between',
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         borderBottomWidth: 2,
         borderBottomColor: '#E8E8E8',
     },

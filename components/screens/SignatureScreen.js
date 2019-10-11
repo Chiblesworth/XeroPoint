@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
         fontSize: 25
     },
     lowerSection: {
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         height: 120,
         alignItems: 'center'
     },

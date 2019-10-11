@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
-//Components
-import Loader from './Loader';
 //Helper Methods
 import { convertMilitaryToStandardTime } from '../helperMethods/dateFormats';
 

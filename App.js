@@ -75,7 +75,8 @@ const DrawerStack = createDrawerNavigator(
 		navigationOptions: {
 			header: null
 		},
-		drawerBackgroundColor: '#808080',
+		drawerBackgroundColor: '#2D2D2D',
+		drawerType: "back",
 		contentOptions: {
 			labelStyle: {
 				fontSize: 22,
@@ -97,7 +98,7 @@ const DrawerStack = createDrawerNavigator(
 					<View style={styles.drawerLogo}>
 						<Image
 							source={require("./images/logo.png")}
-							transform={[{scale: 0.3}]}
+							transform={[{scale: 0.35}]}
 						/>
 					</View>
 				</SafeAreaView>
@@ -131,7 +132,7 @@ const PrimaryNavigation = createStackNavigator({
 const signOut = (props) => {
 	//Where the idea came from
 	//https://stackoverflow.com/questions/43090884/resetting-the-navigation-stack-for-the-home-screen-react-navigation-and-react-n
-
+	//Delete saved token and use storage get/set
 	AsyncStorage.setItem("stayLoggedIn", "False").then(() => {
 		props.navigation.dispatch(StackActions.reset({
 			index: 0,
@@ -148,7 +149,7 @@ export default createAppContainer(PrimaryNavigation);
 //Styles for drawer signOut button
 const styles = StyleSheet.create({
 	button: {
-		backgroundColor: '#808080',
+		backgroundColor: '#2D2D2D',
 		marginRight: 100
 	},
 	buttonTitle: {

@@ -140,17 +140,18 @@ export default class TipsScreen extends Component {
                             <HeaderIcon 
                                 name="chevron-left"
                                 type="entypo"
-                                size={60}
+                                size={50}
                                 handlePress={this.handleHeaderIconPress}
                             /> 
                         }
                         centerComponent={
                             <Text style={styles.headerText}>Tips</Text>
                         }
-                        backgroundColor='#808080'
+                        backgroundColor='#656565'
                         containerStyle={{ borderBottomWidth: 0 }}
                     />
                 </View>
+                <View style={{paddingTop: 10}} />
                 <View style={styles.container}>
                     <View stlye={styles.row}>
                         <View style={styles.textContainer}>
@@ -227,14 +228,14 @@ export default class TipsScreen extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         height: '100%',
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     header: {
         width: '100%',
-        height: 70
+        height: 70,
     },
     headerText: {
-        fontSize: 40,
+        fontSize: 30,
         color: 'white',
         paddingBottom: 25,
         paddingRight: 25
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
         borderColor: 'white'
     },
     tabStyle: {
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         borderColor: 'white'
     },
     tabTextStyle: {

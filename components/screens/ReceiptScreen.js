@@ -192,7 +192,7 @@ export default class ReceiptScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: '#808080',
+        backgroundColor: '#454343',
         justifyContent: 'center',
         alignItems: 'center',
     },
