@@ -7,7 +7,7 @@ import {
 	SafeAreaView,
 	DrawerItems,
 	NavigationActions,
-	StackActions
+	StackActions,
 } from 'react-navigation';
 import { Button, Icon } from 'react-native-elements';
 import { View, StyleSheet, Image } from 'react-native';
@@ -33,139 +33,61 @@ import ViewReceiptScreen from './components/screens/ViewReceiptScreen';
 	Stack for main screens, drawer for settings etc.
 */
 
-const StackNavigator = createStackNavigator(
+const MainStack = createStackNavigator(
 	{
-		Login: {
-			screen: LoginScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		Main: {
-			screen: MainScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		Payment: {
-			screen: PaymentScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		SearchCustomer: {
-			screen: SearchCustomerScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		Signature: {
-			screen: SignatureScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		Receipt: {
-			screen: ReceiptScreen,
-			navigationOptions: {
-				header: null
-			}
-		}
+		Main: {screen: MainScreen, navigationOptions: {header: null}},
+		Payment: {screen: PaymentScreen, navigationOptions: {header: null}},
+		SearchCustomer: {screen: SearchCustomerScreen, navigationOptions: {header: null}}, //Consider making this just a full screen overlay
+		Signature: {screen: SignatureScreen, navigationOptions: {header: null}},
+		Receipt: {screen: ReceiptScreen, navigationOptions: {header: null}}
+	},
+);
+
+const HistoryStack = createStackNavigator(
+	{
+		History: {screen: HistoryScreen, navigationOptions: {header: null}},
+		BatchPayments: {screen: BatchPaymentScreen, navigationOptions: {header: null}},
+		ViewReceipt: {screen: ViewReceiptScreen, navigationOptions: {header: null}}
 	}
 );
 
-const HistoryStackNav = createStackNavigator(
+const SettingStack = createStackNavigator(
 	{
-		History: {
-			screen: HistoryScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		BatchPayments: {
-			screen: BatchPaymentScreen,
-			navigationOptions: {
-				header: null
-			}
-		},
-		ViewReceipt: {
-			screen: ViewReceiptScreen,
-			navigationOptions: {
-				header: null
-			}
-		}
+		Settings: {screen: SettingScreen, navigationOptions: {header: null}},
+		Fees: {screen: FeesScreen, navigationOptions: {header: null}},
+		Tips: {screen: TipsScreen, navigationOptions: {header: null}}
 	}
 );
 
-const DrawerNavigation = createDrawerNavigator(
+const DrawerStack = createDrawerNavigator(
 	{
-		Main: {
-			screen: StackNavigator
-		},
+		Main: {screen: MainStack},
 		History: {
-			screen: HistoryStackNav,
-			navigationOptions: {
-				header: null,
-				drawerIcon: (
-					<Icon
-						name="computer"
-						type="material"
-						color="white"
-						size={25}
-					/>
-				)
-			}
+			screen: HistoryStack,
+			navigationOptions: {drawerIcon: (<Icon name="computer" type="material" color="#fff" size={25}/>)}
 		},
 		Settings: {
-			screen: SettingScreen,
-			navigationOptions: {
-				header: null,
-				drawerIcon: (
-					<Icon
-						name="settings"
-						type="feather"
-						color="white"
-						size={25}
-					/>
-				)
-			}
+			screen: SettingStack,
+			navigationOptions: {drawerIcon: (<Icon name="settings" type="feather" color="#fff" size={25}/>)}
 		},
-		Fees: {
-			screen: FeesScreen,
-			navigationOptions: {
-				header: null,
-				drawerLabel: () => null
-			}
-		},
-		Tips: {
-			screen: TipsScreen,
-			navigationOptions: {
-				header: null,
-				drawerLabel: () => null
-			}
-		}
 	},
 	{
+		navigationOptions: {
+			header: null
+		},
 		drawerBackgroundColor: '#808080',
 		contentOptions: {
 			labelStyle: {
 				fontSize: 22,
-				color: 'white'
+				color: '#fff'
 			}
 		},
-		contentComponent: (props) => (
-			<View>
-				<SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
+		contentComponent: (props) => {
+			return (<View>
+				<SafeAreaView forceInset={{top: 'always', horizontal: 'never'}}>
 					<DrawerItems {...props} />
 					<Button
-						icon={
-							<Icon
-								name="power"
-								type="feather"
-								color="white"
-								size={25}
-							/>
-						}
+						icon={<Icon name="power" type="feather" color="#fff" size={25}/>}
 						type="solid"
 						title="Sign Out"
 						onPress={() => signOut(props)}
@@ -179,10 +101,32 @@ const DrawerNavigation = createDrawerNavigator(
 						/>
 					</View>
 				</SafeAreaView>
-			</View>
-		)
-	}
+			</View>)
+		}
+	},
 );
+
+const DrawerNavigation = createStackNavigator({
+	DrawerStack: {
+		screen: DrawerStack
+	},
+});
+
+const PrimaryNavigation = createStackNavigator({
+	Login: {
+		screen: LoginScreen,
+		navigationOptions: {
+			header: null
+		}
+	}, 
+	DrawerStack: {
+		screen: DrawerNavigation,
+		navigationOptions: {
+			header: null
+		}
+	},
+	
+});
 
 const signOut = (props) => {
 	//Where the idea came from
@@ -198,7 +142,8 @@ const signOut = (props) => {
 		}))
 	})
 }
-export default createAppContainer(DrawerNavigation);
+
+export default createAppContainer(PrimaryNavigation);
 
 //Styles for drawer signOut button
 const styles = StyleSheet.create({

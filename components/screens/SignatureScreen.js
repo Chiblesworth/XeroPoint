@@ -17,7 +17,7 @@ defaultTips.push("Other");
 
 const resetAction = StackActions.reset({
     index: 0,
-    actions: [NavigationActions.navigate({ routeName: 'Main' })],
+    actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
 }); //Reset stack if payment is cancelled
 
 export default class SignatureScreen extends Component {

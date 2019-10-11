@@ -22,7 +22,7 @@ import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 */
 const resetAction = StackActions.reset({
     index: 0,
-    actions: [NavigationActions.navigate({ routeName: 'Main' })],
+    actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
 });
 
 export default class PaymentScreen extends Component {
@@ -120,6 +120,7 @@ export default class PaymentScreen extends Component {
 
     handleHeaderIconPress() {
         this.props.navigation.dispatch(resetAction);
+        //this.props.navigation.pop();
     }
 
     async handleSwitchPress(switchHit) { //Using async here so values are being read as switched at the right times
