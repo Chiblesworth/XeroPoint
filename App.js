@@ -61,7 +61,7 @@ const SettingStack = createStackNavigator(
 
 const DrawerStack = createDrawerNavigator(
 	{
-		Main: {screen: MainStack},
+		Main: {screen: MainStack, navigationOptions: {drawerLabel: () => null}},
 		History: {
 			screen: HistoryStack,
 			navigationOptions: {drawerIcon: (<Icon name="computer" type="material" color="#fff" size={25}/>)}
@@ -95,10 +95,11 @@ const DrawerStack = createDrawerNavigator(
 						buttonStyle={styles.button}
 						titleStyle={styles.buttonTitle}
 					/>
+					<View style={{marginBottom: '60%'}} />
 					<View style={styles.drawerLogo}>
 						<Image
 							source={require("./images/logo.png")}
-							transform={[{scale: 0.35}]}
+							transform={[{scale: 0.4}]}
 						/>
 					</View>
 				</SafeAreaView>
