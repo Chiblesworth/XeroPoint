@@ -49,7 +49,7 @@ export default class CustomTipOverlay extends Component {
             <Overlay
                 isVisible={this.props.isVisible}
                 fullScreen={true}
-                overlayBackgroundColor="#808080"
+                overlayBackgroundColor="#454343"
             >
                 <View style={styles.container}>
                     <View style={styles.headerRow}>
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     buttonStyle: {
         width: 100,
         height: 50,
-        backgroundColor: '#808080'
+        backgroundColor: '#454343'
     },
     applyButtonStyle: {
         width: 150,
