@@ -13,8 +13,6 @@ import { storageGet, removeItem } from '../../helperMethods/localStorage';
 import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 import { feeCalculations } from '../../helperMethods/feeCalculations';
 
-defaultTips.push("Other");
-
 const resetAction = StackActions.reset({
     index: 0,
     actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
@@ -61,6 +59,9 @@ export default class SignatureScreen extends Component {
             });
         }
         else{
+            if(defaultTips.length === 4){
+                defaultTips.push("Other");
+            }
             this.setState({
                 tipArray: [...defaultTips], 
                 selectedIndex: Number(selectedDefaultTip)}, () => {

@@ -45,7 +45,7 @@ export default class TipsScreen extends Component {
         this.selectedDefaultTipCheck();
         this.customTipArrayCheck();
         
-        if(this.defaultTips.length >= 4){
+        if(this.defaultTips.length >= 5){
             this.defaultTips.pop();
         }
     }
