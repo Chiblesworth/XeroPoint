@@ -10,7 +10,7 @@ import {
 	StackActions
 } from 'react-navigation';
 import { Button, Icon } from 'react-native-elements';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import LoginScreen from './components/screens/LoginScreen';
 import MainScreen from './components/screens/MainScreen';
@@ -172,6 +172,12 @@ const DrawerNavigation = createDrawerNavigator(
 						buttonStyle={styles.button}
 						titleStyle={styles.buttonTitle}
 					/>
+					<View style={styles.drawerLogo}>
+						<Image
+							source={require("./images/logo.png")}
+							transform={[{scale: 0.3}]}
+						/>
+					</View>
 				</SafeAreaView>
 			</View>
 		)
@@ -204,5 +210,8 @@ const styles = StyleSheet.create({
 		fontSize: 22,
 		color: 'white',
 		marginLeft: 30
+	}, 
+	drawerLogo: {
+		marginLeft: '-48%'
 	}
 })

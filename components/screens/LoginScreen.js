@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Linking, StyleSheet, Alert} from "react-native";
+import { View, Text, Linking, StyleSheet, Alert, Image} from "react-native";
 import { Input, Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
@@ -87,8 +87,11 @@ export default class LoginScreen extends Component {
 
 		return (
 			<View style={styles.container}>
-				<View style={styles.loginTextSection}>
-					<Text>On LoginScreen</Text>
+				<View style={styles.logo}>
+					<Image
+						source={require("../../images/logo.png")}
+						transform={[{scale: 0.8}]}
+					/>
 				</View>
 				<View style={styles.loginFormSection}>
 					<Input 
@@ -160,11 +163,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: '#808080'
 	},
-	loginTextSection: {
-		marginBottom: 25,
+	logo: {
+		marginTop: '-30%',
+		marginLeft: '5%'
 	},
 	loginFormSection: {
-		width: '90%'
+		width: '90%',
+		marginTop: "-45%"
 	},
 	policyTextSection: {
 		marginLeft: 38,
