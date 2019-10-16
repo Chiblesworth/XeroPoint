@@ -24,6 +24,7 @@ import ReceiptScreen from './components/screens/ReceiptScreen';
 import HistoryScreen from './components/screens/HistoryScreen';
 import BatchPaymentScreen from './components/screens/BatchPaymentScreen';
 import ViewReceiptScreen from './components/screens/ViewReceiptScreen';
+import SupportScreen from './components/screens/SupportScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -59,6 +60,12 @@ const SettingStack = createStackNavigator(
 	}
 );
 
+const SupportStack = createStackNavigator(
+	{
+		Support: {screen: SupportScreen, navigationOptions: {header: null}}
+	}
+);
+
 const DrawerStack = createDrawerNavigator(
 	{
 		Main: {screen: MainStack, navigationOptions: {drawerLabel: () => null}},
@@ -70,6 +77,10 @@ const DrawerStack = createDrawerNavigator(
 			screen: SettingStack,
 			navigationOptions: {drawerIcon: (<Icon name="settings" type="feather" color="#fff" size={25}/>)}
 		},
+		Support: {
+			screen: SupportStack,
+			navigationOptions: {drawerIcon: (<Icon name="person" type="material" color="#fff" size={25} />)}
+		}
 	},
 	{
 		navigationOptions: {
