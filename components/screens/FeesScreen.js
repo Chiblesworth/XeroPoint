@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Header } from 'react-native-elements';
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomHeader from '../CustomHeader';
 import FeeDisplay from '../FeeDisplay';
 //Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
@@ -11,7 +10,7 @@ import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 export default class FeeScreen extends Component {
     constructor(props) {
         super(props);
-    
+
         this.state = {
             serviceFee: "0",
             tax: "0",
@@ -32,12 +31,12 @@ export default class FeeScreen extends Component {
         let taxFee = await storageGet("taxFee");
 
         collectServiceFee = await stringToBoolean(collectServiceFee);
-        collectTaxFee = await stringToBoolean(collectTaxFee); 
+        collectTaxFee = await stringToBoolean(collectTaxFee);
 
         this.setState({
             collectServiceFee: collectServiceFee,
             collectTaxFee: collectTaxFee,
-            serviceFee: serviceFee, 
+            serviceFee: serviceFee,
             tax: taxFee
         });
     }
@@ -48,22 +47,22 @@ export default class FeeScreen extends Component {
 
     handleServiceFeeChange(newFee) {
         storageSet("serviceFee", newFee);
-        this.setState({serviceFee: newFee});
+        this.setState({ serviceFee: newFee });
     }
 
     handleTaxFeeChange(newFee) {
         storageSet("taxFee", newFee);
-        this.setState({tax: newFee});
+        this.setState({ tax: newFee });
     }
 
-    handleSwitchPress(switchHit){
-        if(switchHit === "Service Fee"){
-            this.setState({collectServiceFee: !this.state.collectServiceFee}, () => {
+    handleSwitchPress(switchHit) {
+        if (switchHit === "Service Fee") {
+            this.setState({ collectServiceFee: !this.state.collectServiceFee }, () => {
                 storageSet("collectServiceFee", this.state.collectServiceFee.toString());
             });
         }
-        else{
-            this.setState({collectTaxFee: !this.state.collectTaxFee}, () => {
+        else {
+            this.setState({ collectTaxFee: !this.state.collectTaxFee }, () => {
                 storageSet("collectTaxFee", this.state.collectTaxFee.toString());
             });
         }
@@ -73,44 +72,36 @@ export default class FeeScreen extends Component {
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
-                    <Header 
-                        leftComponent={
-                            <HeaderIcon 
-                                name="chevron-left"
-                                type="entypo"
-                                size={50}
-                                handlePress={this.handleHeaderIconPress}
-                            /> 
-                        }
-                        centerComponent={
-                            <Text style={styles.headerText}>Additional Fees</Text>
-                        }
-                        backgroundColor='#656565'
-                        containerStyle={{ borderBottomWidth: 0 }}
+                    <CustomHeader
+                        iconName="chevron-left"
+                        type="entypo"
+                        title="Additional Fees"
+                        handlePress={this.handleHeaderIconPress}
+                        backgroundColor="#656565"
                     />
                 </View>
-                <View style={{paddingTop: 10}} />
+                <View style={{ paddingTop: 10 }} />
                 {/* Wrapped this a ScrollView so the keyboard doesn't cover input areas. */}
                 <ScrollView>
                     <View>
                         <FeeDisplay
-                            mainTitle="Service Fee" 
+                            mainTitle="Service Fee"
                             feeAmount={this.state.serviceFee}
                             handleFeeChange={this.handleServiceFeeChange}
                             swtichPress={this.handleSwitchPress}
                             switchValue={this.state.collectServiceFee}
                         />
                     </View>
-                    <View style={styles.divider}/>
-                        <View style={styles.extraPadding}>
-                            <FeeDisplay
-                                mainTitle="Tax Fee" 
-                                feeAmount={this.state.tax}
-                                handleFeeChange={this.handleTaxFeeChange}
-                                swtichPress={this.handleSwitchPress}
-                                switchValue={this.state.collectTaxFee}
-                            />
-                        </View>
+                    <View style={styles.divider} />
+                    <View style={styles.extraPadding}>
+                        <FeeDisplay
+                            mainTitle="Tax Fee"
+                            feeAmount={this.state.tax}
+                            handleFeeChange={this.handleTaxFeeChange}
+                            swtichPress={this.handleSwitchPress}
+                            switchValue={this.state.collectTaxFee}
+                        />
+                    </View>
                 </ScrollView>
             </View>
         );

@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet, } from 'react-native';
-import { Header } from 'react-native-elements';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomHeader from '../CustomHeader';
 import BatchHistory from '../BatchHistory';
 import DailyPaymentHistory from '../DailyPaymentHistory';
 //Helper Methods
@@ -119,20 +118,12 @@ export default class HistoryScreen extends Component {
         }
         return (
             <View style={{flex: 1}}>
-                <Header
-                    leftComponent={
-                        <HeaderIcon
-                            name="chevron-left"
-                            type="entypo"
-                            size={50}
-                            handlePress={this.handleHeaderIconPress}
-                        />
-                    }
-                    centerComponent={
-                        <Text style={styles.headerText}>History</Text>
-                    }
+                <CustomHeader 
+                    iconName="chevron-left"
+                    type="entypo"
+                    title="History"
+                    handlePress={this.handleHeaderIconPress}
                     backgroundColor="#454343"
-                    containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <View style={styles.segmentedControlContainer}>
                     <SegmentedControlTab

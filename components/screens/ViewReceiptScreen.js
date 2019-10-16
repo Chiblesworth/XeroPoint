@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Header } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomHeader from '../CustomHeader';
 import MerchantInfo from '../MerchantInfo';
 import PaymentInfo from '../PaymentInfo';
 import TotalInfo from '../TotalInfo';
@@ -32,6 +31,7 @@ export default class ViewReceiptScreen extends Component {
 
     render() {
         let payment = this.props.navigation.state.params.payment;
+        let paymentInvoice = "#" + payment.invoice;
         let paymentCreated = new Date(payment.created);
         let dateCreated = paymentCreated.toDateString();
         let timeCreated = paymentCreated.toTimeString();
@@ -40,20 +40,12 @@ export default class ViewReceiptScreen extends Component {
         timeCreated = convertMilitaryToStandardTime(timeCreated[0], true);
         return (
             <View style={{ backgroundColor: '#ECE7E7', height: '100%' }}>
-                <Header
-                    leftComponent={
-                        <HeaderIcon
-                            name="chevron-left"
-                            type="entypo"
-                            size={50}
-                            handlePress={this.handleHeaderIconPress}
-                        />
-                    }
-                    centerComponent={
-                        <Text style={styles.headerText}>#{payment.invoice}</Text>
-                    }
+                <CustomHeader
+                    iconName="chevron-left"
+                    type="entypo"
+                    title={paymentInvoice}
+                    handlePress={this.handleHeaderIconPress}
                     backgroundColor="#454343"
-                    containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <ScrollView style={styles.receiptContainer}>
                     <View>
@@ -62,7 +54,7 @@ export default class ViewReceiptScreen extends Component {
                         <View style={{ alignItems: 'center' }}>
                             <View style={styles.divider} />
                         </View>
-                        <PaymentInfo 
+                        <PaymentInfo
                             last4={payment.cardAccount.last4}
                             authCode={payment.authCode}
                             cardPresent={payment.cardPresent}
@@ -75,7 +67,7 @@ export default class ViewReceiptScreen extends Component {
                         <View style={{ alignItems: 'center' }}>
                             <View style={styles.divider} />
                         </View>
-                        <TotalInfo 
+                        <TotalInfo
                             originalAmount={payment.originalAmount}
                             tip={payment.tip}
                             total={payment.amount}

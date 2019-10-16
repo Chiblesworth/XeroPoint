@@ -71,6 +71,7 @@ export default class LoginScreen extends Component {
 				}
 
 				storageSet("encodedUser", encodedString);
+				storageSet("username", decodedUsername);
 				this.props.navigation.navigate("Main");
 			}
 			else{

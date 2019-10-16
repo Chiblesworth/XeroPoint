@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Header, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
+import { ScrollView } from 'react-native-gesture-handler';
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomerHeader from '../CustomHeader';
 //Helper Methods
 import { convertMilitaryToStandardTime } from '../../helperMethods/dateFormats';
-import { ScrollView } from 'react-native-gesture-handler';
 
 
 export default class BatchPaymentScreen extends Component {
@@ -35,20 +35,12 @@ export default class BatchPaymentScreen extends Component {
     render() {
         return (
             <View>
-                <Header
-                    leftComponent={
-                        <HeaderIcon
-                            name="chevron-left"
-                            type="entypo"
-                            size={50}
-                            handlePress={this.handleHeaderIconPress}
-                        />
-                    }
-                    centerComponent={
-                        <Text style={styles.headerText}>Payments</Text>
-                    }
+                <CustomerHeader 
+                    iconName="chevron-left"
+                    type="entype"
+                    title="Payments"
+                    handlePress={this.handleHeaderIconPress}
                     backgroundColor="#454343"
-                    containerStyle={{ borderBottomWidth: 0 }}
                 />
                 <ScrollView>
                     {this.state.batchPayments.map((payment, index) => {

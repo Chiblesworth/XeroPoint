@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Header, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomHeader from '../CustomHeader';
 import TipOverlay from '../overlays/TipOverlay';
 //Helper Methods
 import { defaultTips } from '../../helperMethods/defaultTips';
@@ -15,7 +15,7 @@ import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 export default class TipsScreen extends Component {
     constructor(props) {
         super(props);
-    
+
         this.state = {
             collectTips: true,
             defaultTip: 0,
@@ -44,8 +44,8 @@ export default class TipsScreen extends Component {
         this.useCustomTipsCheck();
         this.selectedDefaultTipCheck();
         this.customTipArrayCheck();
-        
-        if(this.defaultTips.length >= 5){
+
+        if (this.defaultTips.length >= 5) {
             this.defaultTips.pop();
         }
     }
@@ -53,36 +53,36 @@ export default class TipsScreen extends Component {
     async collectingTipsCheck() {
         let useCustomTips = await storageGet("useCustomTips"); //Is the user collecting tips after payments?
         let boolean; //Used because switches can only be bool values and Async only stores strings
-        
-        if(!!useCustomTips){
+
+        if (!!useCustomTips) {
             boolean = stringToBoolean(useCustomTips);
-            this.setState({useCustomPercentages: boolean});
+            this.setState({ useCustomPercentages: boolean });
         }
     }
 
     async useCustomTipsCheck() {
         let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments
         let boolean; //Used because switches can only be bool values and Async only stores strings
-        
-        if(!!collectTips){
+
+        if (!!collectTips) {
             boolean = stringToBoolean(collectTips);
-            this.setState({collectTips: boolean});
+            this.setState({ collectTips: boolean });
         }
     }
 
     async selectedDefaultTipCheck() {
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
-        this.setState({defaultTip: Number(selectedDefaultTip)});
+        this.setState({ defaultTip: Number(selectedDefaultTip) });
     }
 
     async customTipArrayCheck() {
         //See if custom tips exist
         let customTipArray = await storageGet("customTips");
 
-        if(customTipArray === null){
+        if (customTipArray === null) {
             this.customTips = ["15%", "20%", "25%"];
         }
-        else{
+        else {
             this.customTips = JSON.parse(customTipArray);
         }
     }
@@ -92,13 +92,13 @@ export default class TipsScreen extends Component {
     }
 
     handleSwitchPress(switchHit) {
-        if(switchHit === "collectTips"){
-            this.setState({collectTips: !this.state.collectTips}, () => {
+        if (switchHit === "collectTips") {
+            this.setState({ collectTips: !this.state.collectTips }, () => {
                 this.setCollectedTips();
             });
         }
-        else if(switchHit === "useCustomTips"){
-            this.setState({useCustomPercentages: !this.state.useCustomPercentages}, () => {
+        else if (switchHit === "useCustomTips") {
+            this.setState({ useCustomPercentages: !this.state.useCustomPercentages }, () => {
                 this.customTipsUsed();
             });
         }
@@ -115,7 +115,7 @@ export default class TipsScreen extends Component {
     handleDefaultTipChange(index) {
         let key = "selectedDefaultTip";
 
-        this.setState({defaultTip: index}, () => {
+        this.setState({ defaultTip: index }, () => {
             storageSet(key, index.toString());
         });
 
@@ -123,7 +123,7 @@ export default class TipsScreen extends Component {
     }
 
     handleOverlay() {
-        this.setState({overlayVisible: !this.state.overlayVisible});
+        this.setState({ overlayVisible: !this.state.overlayVisible });
     }
 
     applyCustomTipChanges(newCustomTips) {
@@ -135,36 +135,28 @@ export default class TipsScreen extends Component {
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
-                    <Header 
-                        leftComponent={
-                            <HeaderIcon 
-                                name="chevron-left"
-                                type="entypo"
-                                size={50}
-                                handlePress={this.handleHeaderIconPress}
-                            /> 
-                        }
-                        centerComponent={
-                            <Text style={styles.headerText}>Tips</Text>
-                        }
-                        backgroundColor='#656565'
-                        containerStyle={{ borderBottomWidth: 0 }}
+                    <CustomHeader
+                        iconName="chevron-left"
+                        type="entypo"
+                        title="Tips"
+                        handlePress={this.handleHeaderIconPress}
+                        backgroundColor="#656565"
                     />
                 </View>
-                <View style={{paddingTop: 10}} />
+                <View style={{ paddingTop: 10 }} />
                 <View style={styles.container}>
                     <View stlye={styles.row}>
                         <View style={styles.textContainer}>
                             <Text style={styles.text}>Collect Tips</Text>
                         </View>
                         <View style={styles.switch}>
-                                <SwitchToggle
-                                    switchOn={this.state.collectTips}
-                                    onPress={() => this.handleSwitchPress("collectTips")}
-                                    circleColorOff="white"
-                                    circleColorOn="white"
-                                    backgroundColorOn="blue"
-                                />
+                            <SwitchToggle
+                                switchOn={this.state.collectTips}
+                                onPress={() => this.handleSwitchPress("collectTips")}
+                                circleColorOff="white"
+                                circleColorOn="white"
+                                backgroundColorOn="blue"
+                            />
                         </View>
                     </View>
                 </View>
@@ -192,13 +184,13 @@ export default class TipsScreen extends Component {
                             <Text style={styles.text}>Use Custom Tip Amounts</Text>
                         </View>
                         <View style={styles.switch}>
-                                <SwitchToggle
-                                    switchOn={this.state.useCustomPercentages}
-                                    onPress={() => this.handleSwitchPress("useCustomTips")}
-                                    circleColorOff="white"
-                                    circleColorOn="white"
-                                    backgroundColorOn="blue"
-                                />
+                            <SwitchToggle
+                                switchOn={this.state.useCustomPercentages}
+                                onPress={() => this.handleSwitchPress("useCustomTips")}
+                                circleColorOff="white"
+                                circleColorOn="white"
+                                backgroundColorOn="blue"
+                            />
                         </View>
                     </View>
                 </View>
@@ -212,14 +204,14 @@ export default class TipsScreen extends Component {
                         onPress={() => this.handleOverlay()}
                     />
                 </View>
-                <TipOverlay 
-                    visible={this.state.overlayVisible} 
-                    handleClose={this.handleOverlay} 
-                    customTips={this.customTips} 
+                <TipOverlay
+                    visible={this.state.overlayVisible}
+                    handleClose={this.handleOverlay}
+                    customTips={this.customTips}
                     applyChanges={this.applyCustomTipChanges}
                 />
             </View>
-            
+
         );
     }
 }
@@ -254,7 +246,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 18,
-        color: 'white', 
+        color: 'white',
         paddingRight: 10,
         marginLeft: 10,
         marginBottom: 20

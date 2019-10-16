@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Header, Button, Icon } from 'react-native-elements';
+import { Button, Icon } from 'react-native-elements';
 //Components
-import HeaderIcon from '../HeaderIcon';
+import CustomHeader from '../CustomHeader';
 
 export default class SettingScreen extends Component {
     constructor(props) {
@@ -57,20 +57,12 @@ export default class SettingScreen extends Component {
         return (
             <View style={styles.mainContainer}>
                 <View stlye={styles.header}>
-                    <Header 
-                        leftComponent={
-                            <HeaderIcon 
-                                name="chevron-left"
-                                type="entypo"
-                                size={50}
-                                handlePress={this.handleHeaderIconPress}
-                            /> 
-                        }
-                        centerComponent={
-                            <Text style={styles.headerText}>Settings</Text>
-                        }
-                        backgroundColor='#656565'
-                        containerStyle={{ borderBottomWidth: 0 }}
+                    <CustomHeader 
+                        iconName="chevron-left"
+                        type="entypo"
+                        title="Settings"
+                        handlePress={this.handleHeaderIconPress}
+                        backgroundColor="#656565"
                     />
                 </View>
                 <View style={styles.container}>
