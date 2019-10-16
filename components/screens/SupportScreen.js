@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { Icon, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import {name as app_name, version as app_version}  from '../../package.json';
 //Componets
 import CustomHeader from '../CustomHeader';
 import SupportTile from '../SupportTile';
 //Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet } from '../../helperMethods/localStorage';
 
 export default class SupportScreen extends Component {
     constructor(props) {

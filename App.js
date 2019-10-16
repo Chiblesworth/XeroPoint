@@ -106,7 +106,7 @@ const DrawerStack = createDrawerNavigator(
 						buttonStyle={styles.button}
 						titleStyle={styles.buttonTitle}
 					/>
-					<View style={{marginBottom: '60%'}} />
+					<View style={{marginBottom: '45%'}} />
 					<View style={styles.drawerLogo}>
 						<Image
 							source={require("./images/logo.png")}
