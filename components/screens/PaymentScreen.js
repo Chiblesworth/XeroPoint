@@ -13,7 +13,6 @@ import ApprovalOverlay from '../overlays/ApprovalOverlay';
 import { feeCalculations } from '../../helperMethods/feeCalculations';
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
 import { formatDate, formatTime } from '../../helperMethods/dateFormats';
-import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 /*
     This resets the component of the main screen 

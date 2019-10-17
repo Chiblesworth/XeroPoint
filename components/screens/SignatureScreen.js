@@ -10,7 +10,6 @@ import CustomTipOverlay from '../overlays/CustomTipOverlay';
 import { defaultTips } from '../../helperMethods/defaultTips';
 import { getCustomTipsArray } from '../../helperMethods/customTips';
 import { storageGet, removeItem } from '../../helperMethods/localStorage';
-import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 import { feeCalculations } from '../../helperMethods/feeCalculations';
 
 const resetAction = StackActions.reset({
@@ -45,9 +44,10 @@ export default class SignatureScreen extends Component {
     async componentWillMount() {
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
         let useCustomTips = await storageGet("useCustomTips");
-        let customTipsBool = await stringToBoolean(useCustomTips);
 
-        if(customTipsBool){
+        useCustomTips = JSON.parse(useCustomTips);
+
+        if(useCustomTips){
             let customTipArray = await getCustomTipsArray();
             customTipArray.push("Other");
             

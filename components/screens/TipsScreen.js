@@ -9,7 +9,6 @@ import TipOverlay from '../overlays/TipOverlay';
 //Helper Methods
 import { defaultTips } from '../../helperMethods/defaultTips';
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
-import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 
 export default class TipsScreen extends Component {
@@ -50,24 +49,20 @@ export default class TipsScreen extends Component {
         }
     }
 
-    async collectingTipsCheck() {
-        let useCustomTips = await storageGet("useCustomTips"); //Is the user collecting tips after payments?
-        let boolean; //Used because switches can only be bool values and Async only stores strings
-
-        if (!!useCustomTips) {
-            boolean = stringToBoolean(useCustomTips);
-            this.setState({ useCustomPercentages: boolean });
-        }
-    }
-
     async useCustomTipsCheck() {
-        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments
-        let boolean; //Used because switches can only be bool values and Async only stores strings
+        let useCustomTips = await storageGet("useCustomTips"); //Is the user collecting tips after payments?
+        
+        useCustomTips = JSON.parse(useCustomTips);
 
-        if (!!collectTips) {
-            boolean = stringToBoolean(collectTips);
-            this.setState({ collectTips: boolean });
-        }
+        this.setState({ useCustomPercentages: useCustomTips });
+    }
+    
+    async collectingTipsCheck() {
+        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments
+
+        collectTips = JSON.parse(collectTips);
+
+        this.setState({ collectTips: collectTips });
     }
 
     async selectedDefaultTipCheck() {
