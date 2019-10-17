@@ -5,7 +5,6 @@ import CustomHeader from '../CustomHeader';
 import FeeDisplay from '../FeeDisplay';
 //Helper Methods
 import { storageGet, storageSet } from '../../helperMethods/localStorage';
-import { stringToBoolean } from '../../helperMethods/stringToBoolean';
 
 export default class FeeScreen extends Component {
     constructor(props) {
@@ -30,8 +29,9 @@ export default class FeeScreen extends Component {
         let serviceFee = await storageGet("serviceFee");
         let taxFee = await storageGet("taxFee");
 
-        collectServiceFee = await stringToBoolean(collectServiceFee);
-        collectTaxFee = await stringToBoolean(collectTaxFee);
+
+        collectServiceFee = JSON.parse(collectServiceFee);
+        collectTaxFee = JSON.parse(collectTaxFee);
 
         this.setState({
             collectServiceFee: collectServiceFee,

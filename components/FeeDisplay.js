@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Button, Icon, Input } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 
-
 export default class FeeDisplay extends Component {
     constructor(props) {
         super(props);
@@ -28,7 +27,6 @@ export default class FeeDisplay extends Component {
 
     render() {
         let feeDisplay;
-
         if (this.state.beingEdited) {
             feeDisplay = <Input
                 placeholder={this.props.feeAmount}

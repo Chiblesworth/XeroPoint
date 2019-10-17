@@ -7,7 +7,8 @@ import Orientation from 'react-native-orientation';
 import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
 //Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet} from '../../helperMethods/localStorage';
+import { checkDefaultStorageValues } from '../../helperMethods/checkDefaultStorageValues';
 //Test
 //import base64 from 'react-native-base64';
 
@@ -34,23 +35,28 @@ export default class MainScreen extends Component {
         this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-    componentDidMount() {
+    async componentWillMount() {
+        await checkDefaultStorageValues();
         Orientation.lockToPortrait();
         this.getMerchantId();
-
-        // let encodedUser = base64.encode("procinc:processing2019");
-        // let headers = {
-        //     'Authorization': 'Basic ' + encodedUser,
-        //     'Content-Type': 'application/json; charset=utf-8'
-        // }
-
-        // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
-        //     method: "GET",
-        //     headers: headers,
-        // }).then((response) => {
-        //     console.log(response.json())
-        // })
     }
+    // componentDidMount() {
+    //     Orientation.lockToPortrait();
+    //     this.getMerchantId();
+
+    //     // let encodedUser = base64.encode("procinc:processing2019");
+    //     // let headers = {
+    //     //     'Authorization': 'Basic ' + encodedUser,
+    //     //     'Content-Type': 'application/json; charset=utf-8'
+    //     // }
+
+    //     // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
+    //     //     method: "GET",
+    //     //     headers: headers,
+    //     // }).then((response) => {
+    //     //     console.log(response.json())
+    //     // })
+    // }
 
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";

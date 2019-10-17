@@ -1,15 +1,17 @@
 export const stringToBoolean = (string) => {
     let boolean; 
-
-    if(string === "true"){
+    console.log("In stringtobool")
+    console.log(string)
+    if(string == "true" || "True"){
         boolean = true;
     }
-    else if(string === "false"){
+    else if(string == "false" || "False"){
         boolean = false;
     }
     else{
-        boolean = "Cannot be determined."
+        boolean = false; //test
     }
+    console.log(boolean)
 
     return boolean;
 }

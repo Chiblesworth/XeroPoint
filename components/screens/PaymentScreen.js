@@ -76,8 +76,8 @@ export default class PaymentScreen extends Component {
         let collectServiceFee = await storageGet("collectServiceFee");
         let collectTaxFee = await storageGet("collectTaxFee");
 
-        collectServiceFee = await stringToBoolean(collectServiceFee);
-        collectTaxFee = await stringToBoolean(collectTaxFee);
+        collectServiceFee = JSON.parse(collectServiceFee)
+        collectTaxFee = JSON.parse(collectTaxFee)
 
         console.log(this.props.navigation.state.params.refundSelected);
         //Don't want the service and tax fee to apply automatically for a refund
