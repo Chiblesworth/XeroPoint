@@ -30,7 +30,8 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new OrientationPackage(),
             new RSSignatureCapturePackage(),
-            new AsyncStoragePackage(),
+            new
+             AsyncStoragePackage(),
             new VectorIconsPackage(),
             new RNGestureHandlerPackage()
       );
@@ -51,6 +52,5 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
-
   }
 }
