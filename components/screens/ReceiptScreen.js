@@ -108,46 +108,41 @@ export default class ReceiptScreen extends Component {
     }
 
     async sendReceipt(input, fieldName) {
-        let url;
-        //let paymentId = this.props.navigation.state.params.sale.id;
-        //let encodedUser = await storageGet("encodedUser");
-        let encodedUser = base64.encode("procinc:processing2019");
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-        //Right now this is how I'm doing receipt sending. MX MErchant does have an endpoint set up for the sandbox environemnt
-        paymentId = 84002558;
-        fetch("https://api.mxmerchant.com/checkout/v3/payment", {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            console.log("Procinc payments")
-            console.log(response.json())
-        })
-        if (fieldName === "Email") {
-            url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
+        // let url;
+        // //let paymentId = this.props.navigation.state.params.sale.id;
+        // //let encodedUser = await storageGet("encodedUser");
+  
+        // paymentId = 84002558;
+        // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
+        //     method: "GET",
+        //     headers: headers
+        // }).then((response) => {
+        //     console.log("Procinc payments")
+        //     console.log(response.json())
+        // })
+        // if (fieldName === "Email") {
+        //     url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
 
-            fetch(url, {
-                method: "POST",
-                headers: headers,
-                //qs: {id: paymentId, contact: input}
-            }).then((response) => {
-                console.log(response);
-                console.log(response.json());
-            })
-        }
-        else {
-            url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
+        //     fetch(url, {
+        //         method: "POST",
+        //         headers: headers,
+        //         //qs: {id: paymentId, contact: input}
+        //     }).then((response) => {
+        //         console.log(response);
+        //         console.log(response.json());
+        //     })
+        // }
+        // else {
+        //     url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
 
-            fetch(url, {
-                method: "POST",
-                headers: headers
-            }).then((response) => {
-                console.log(response);
-                console.log(response.json());
-            })
-        }
+        //     fetch(url, {
+        //         method: "POST",
+        //         headers: headers
+        //     }).then((response) => {
+        //         console.log(response);
+        //         console.log(response.json());
+        //     })
+        // }
     }
 
     render() {
