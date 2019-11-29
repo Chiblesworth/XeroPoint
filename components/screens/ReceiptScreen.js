@@ -4,7 +4,7 @@ import { Button, Icon } from 'react-native-elements';
 //Overlays
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
-import { storageGet, removeItem, storageSet } from '../../helperMethods/localStorage';
+import { storageGet, removeItem, storageSet } from '../../helpers/localStorage';
 //TEST
 import base64 from 'react-native-base64';
 export default class ReceiptScreen extends Component {

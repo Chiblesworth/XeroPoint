@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
 import { Button } from 'react-native-elements';
 import { StackActions, NavigationActions } from 'react-navigation';
-import SignatureCapture from 'react-native-signature-capture';
+//import SignatureCapture from 'react-native-signature-capture';
 //Components
 import CollectTip from '../CollectTip';
 import CustomTipOverlay from '../overlays/CustomTipOverlay';
 //Helpers
-import { defaultTips } from '../../helperMethods/defaultTips';
-import { getCustomTipsArray } from '../../helperMethods/customTips';
-import { storageGet, removeItem } from '../../helperMethods/localStorage';
-import { feeCalculations } from '../../helperMethods/feeCalculations';
+import { defaultTips } from '../../helpers/defaultTips';
+import { getCustomTipsArray } from '../../helpers/customTips';
+import { storageGet, removeItem } from '../../helpers/localStorage';
+import { feeCalculations } from '../../helpers/feeCalculations';
 
 const resetAction = StackActions.reset({
     index: 0,
@@ -201,14 +201,14 @@ export default class SignatureScreen extends Component {
                     handleChange={this.handleSegmentedControlSwitch}
                 />
                 <View style={styles.signatureContainer}>
-                    <SignatureCapture
+                    {/* <SignatureCapture
                         style={styles.signature}
                         ref="sign"
                         saveImageFileInExtStorage={false}
                         showNativeButtons={false}
                         showTitleLabel={true}
                         viewMode={this.state.orientation}
-                    />
+                    /> */}
                 </View>
                 <View style={styles.textSection}>
                     <Text style={styles.text}>Please sign your signature above.</Text>

@@ -10,9 +10,9 @@ import KeyedPaymentForm from '../KeyedPaymentForm';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import ApprovalOverlay from '../overlays/ApprovalOverlay';
 //Helper Methods
-import { feeCalculations } from '../../helperMethods/feeCalculations';
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
-import { formatDate, formatTime } from '../../helperMethods/dateFormats';
+import { feeCalculations } from '../../helpers/feeCalculations';
+import { storageGet, storageSet } from '../../helpers/localStorage';
+import { formatDate, formatTime } from '../../helpers/dateFormats';
 
 /*
     This resets the component of the main screen 

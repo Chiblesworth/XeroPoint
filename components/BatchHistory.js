@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 //Helper Methods
-import { storageGet, storageSet } from '../helperMethods/localStorage';
-import { convertMilitaryToStandardTime } from '../helperMethods/dateFormats';
+import { storageGet, storageSet } from '../helpers/localStorage';
+import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
 
 export default class BatchHistory extends Component {
     constructor(props) {

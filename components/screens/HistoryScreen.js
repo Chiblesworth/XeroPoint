@@ -6,7 +6,7 @@ import CustomHeader from '../CustomHeader';
 import BatchHistory from '../BatchHistory';
 import DailyPaymentHistory from '../DailyPaymentHistory';
 //Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet } from '../../helpers/localStorage';
 
 export default class HistoryScreen extends Component {
     constructor(props) {

@@ -4,7 +4,7 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import CustomHeader from '../CustomHeader';
 import FeeDisplay from '../FeeDisplay';
 //Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet } from '../../helpers/localStorage';
 
 export default class FeeScreen extends Component {
     constructor(props) {

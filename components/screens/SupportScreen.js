@@ -6,7 +6,7 @@ import {name as app_name, version as app_version}  from '../../package.json';
 import CustomHeader from '../CustomHeader';
 import SupportTile from '../SupportTile';
 //Helper Methods
-import { storageGet } from '../../helperMethods/localStorage';
+import { storageGet } from '../../helpers/localStorage';
 
 export default class SupportScreen extends Component {
     constructor(props) {

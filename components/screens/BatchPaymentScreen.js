@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 //Components
 import CustomerHeader from '../CustomHeader';
 //Helper Methods
-import { convertMilitaryToStandardTime } from '../../helperMethods/dateFormats';
+import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
 
 export default class BatchPaymentScreen extends Component {

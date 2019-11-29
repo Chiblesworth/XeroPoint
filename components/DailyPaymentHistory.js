@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 //Helper Methods
-import { convertMilitaryToStandardTime } from '../helperMethods/dateFormats';
+import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
 
 export default class DailyPaymentHistory extends Component {
     constructor(props) {

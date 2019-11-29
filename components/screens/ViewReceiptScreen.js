@@ -8,7 +8,7 @@ import PaymentInfo from '../PaymentInfo';
 import TotalInfo from '../TotalInfo';
 import CustomerInfo from '../CustomerInfo';
 //Helper Methods
-import { convertMilitaryToStandardTime } from '../../helperMethods/dateFormats';
+import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
 
 export default class ViewReceiptScreen extends Component {

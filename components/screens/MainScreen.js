@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
-import { View, Text, Alert, StyleSheet } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { Header } from 'react-native-elements';
 import accounting from 'accounting';
 import Orientation from 'react-native-orientation';
-//Components
+// import RNAnyPay from 'react-native-any-pay'
+const RNAnyPay = require('react-native-any-pay');
+
 import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
-//Helper Methods
-import { storageGet, storageSet} from '../../helperMethods/localStorage';
-import { checkDefaultStorageValues } from '../../helperMethods/checkDefaultStorageValues';
-//Test
-//import base64 from 'react-native-base64';
 
+import { storageGet, storageSet} from '../../helpers/localStorage';
+import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
 
+import { styles } from '../styles/MainStyles';
 
+const AnyPay = RNAnyPay.AnyPay;
 export default class MainScreen extends Component {
     constructor(props) {
         super(props);
@@ -39,24 +40,20 @@ export default class MainScreen extends Component {
         await checkDefaultStorageValues();
         Orientation.lockToPortrait();
         this.getMerchantId();
+
+        //RNAnyPay Setup
+        if(AnyPay.verifyPermissions()){
+            AnyPay.requestPermissions();
+
+            await AnyPay.initializeSDK();
+
+            await AnyPay.intializeTerminal({
+                terminalID: '2994002',
+                terminalSecret: 'password',
+                gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
+            }).catch(err => console.log(err));
+        }
     }
-    // componentDidMount() {
-    //     Orientation.lockToPortrait();
-    //     this.getMerchantId();
-
-    //     // let encodedUser = base64.encode("procinc:processing2019");
-    //     // let headers = {
-    //     //     'Authorization': 'Basic ' + encodedUser,
-    //     //     'Content-Type': 'application/json; charset=utf-8'
-    //     // }
-
-    //     // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
-    //     //     method: "GET",
-    //     //     headers: headers,
-    //     // }).then((response) => {
-    //     //     console.log(response.json())
-    //     // })
-    // }
 
     handleNumberPadPress(valueGotBack) {
         let newNumbersPressed = "";
@@ -171,7 +168,7 @@ export default class MainScreen extends Component {
                             <HeaderIcon
                                 name="menu"
                                 type="entypo"
-                                size={70}
+                                size={50}
                                 handlePress={this.handleHeaderIconPress}
                             />
                         }
@@ -179,7 +176,7 @@ export default class MainScreen extends Component {
                             <HeaderIcon
                                 name="dollar"
                                 type="font-awesome"
-                                size={65}
+                                size={50}
                                 handlePress={this.handleHeaderIconPress}
                             />
                         }
@@ -203,33 +200,3 @@ export default class MainScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    mainContainer: {
-        height: '100%',
-        backgroundColor: '#454343'
-    },
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#454343'
-    },
-    header: {
-        width: '100%',
-        height: 70
-    },
-    mainScreenTextSection: {
-        marginBottom: 5
-    },
-    refundText: {
-        color: 'red',
-        fontSize: 15
-    },
-    icon: {
-        color: 'white'
-    },
-    numberPad: {
-        color: 'white'
-    }
-});

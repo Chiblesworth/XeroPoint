@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 //Helper Methods
-import { storageGet, storageSet } from '../helperMethods/localStorage';
+import { storageGet, storageSet } from '../helpers/localStorage';
 
 
 export default class KeyedPaymentForm extends Component {

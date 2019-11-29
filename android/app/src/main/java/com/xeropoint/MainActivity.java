@@ -1,7 +1,6 @@
 package com.xeropoint;
 
 import com.facebook.react.ReactActivity;
-import com.rssignaturecapture.RSSignatureCapturePackage; // <-- add this import 
 import android.content.Intent; // <--- import 
 import android.content.res.Configuration; // <--- import 
 import com.facebook.react.ReactActivityDelegate;

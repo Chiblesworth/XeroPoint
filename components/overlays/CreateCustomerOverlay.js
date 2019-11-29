@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, Alert,StyleSheet } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
 //Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { storageGet, storageSet } from '../../helpers/localStorage';
 
 export default class CreateCustomerOverlay extends Component {
     constructor(props) {

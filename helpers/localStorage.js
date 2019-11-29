@@ -14,6 +14,7 @@ const storageSet = async(key, value) => {
 }
 
 const storageGet = async(key) => {
+    //Move default check here??
     try{
         const result = await AsyncStorage.getItem(key);
         console.log("AsyncStorage helper method: " + key + " " + result);

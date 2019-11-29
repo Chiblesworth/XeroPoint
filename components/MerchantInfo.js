@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 //Helper Methods
-import { storageGet } from '../helperMethods/localStorage';
-import { formatPhoneNumber } from '../helperMethods/formatPhoneNumber';
+import { storageGet } from '../helpers/localStorage';
+import { formatPhoneNumber } from '../helpers/formatPhoneNumber';
 //Test
 import base64 from 'react-native-base64';
 

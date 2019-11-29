@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { View, Text, Linking, StyleSheet, Alert, Image} from "react-native";
+import { View, Text, Linking, Alert, Image} from "react-native";
 import { Input, Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation';
-//Helper Methods
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+
+import { storageGet, storageSet } from '../../helpers/localStorage';
+
+import { styles } from '../styles/LoginStyles';
 
 
 
@@ -24,7 +26,7 @@ export default class LoginScreen extends Component {
 		this.signIn = this.signIn.bind(this);
 	}
 
-	async componentDidMount() {
+	async componentWillMount() {
 		Orientation.lockToPortrait();
 		let stayLoggedIn = await storageGet("stayLoggedIn");
 		
@@ -38,20 +40,14 @@ export default class LoginScreen extends Component {
 	}
 
 	encodeString(text, inputField) {
-		let encodedText = base64.encode(text);
-
-		if(inputField === "Username"){
-			this.setState({encodedUsername: encodedText})
-		}
-		else{
-			this.setState({encodedPassword: encodedText})
-		}
+		(inputField === "Username") 
+		? this.setState({encodedUsername: base64.encode(text)})
+		: this.setState({encodedPassword: base64.encode(text)});
 	}
 
 	signIn() {
-		let decodedUsername = base64.decode(this.state.encodedUsername);
-		let decodedPassword = base64.decode(this.state.encodedPassword);
-		let encodedString = base64.encode(decodedUsername + ":" + decodedPassword);
+		let encodedString = base64.encode(base64.decode(this.state.encodedUsername) + 
+			":" + base64.decode(this.state.encodedPassword));
 
 		let headers = {
 			'Authorization' : 'Basic ' + encodedString,
@@ -71,7 +67,7 @@ export default class LoginScreen extends Component {
 				}
 
 				storageSet("encodedUser", encodedString);
-				storageSet("username", decodedUsername);
+				storageSet("username", base64.decode(this.state.encodedUsername));
 				this.props.navigation.navigate("Main");
 			}
 			else{
@@ -113,7 +109,7 @@ export default class LoginScreen extends Component {
 				</View>
 				<View style={styles.policyTextSection}>
 					<Text style={styles.policyText}>
-						By signing up you accept the Terms of {" "}
+						By signing up you accept the {" "}
 						<Text 
 							style={styles.policyLinks}
 							onPress={() => Linking.openURL('https://google.com')}
@@ -155,69 +151,3 @@ export default class LoginScreen extends Component {
 		)
 	}
 }
-
-//Styles see https://facebook.github.io/react-native/docs/style for ref
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#656565'
-	},
-	logo: {
-		marginTop: '-30%',
-		marginLeft: '5%'
-	},
-	loginFormSection: {
-		width: '90%',
-		marginTop: "-45%"
-	},
-	policyTextSection: {
-		marginLeft: 38,
-		marginRight: 15,
-		marginBottom: 25
-	},
-	policyText: {
-		color: 'white',
-		fontSize: 17
-	},
-	policyLinks: {
-		color: 'blue',
-		fontSize: 17
-	},
-	rememberMeSection: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginLeft: 50,
-		marginRight: 50,
-		marginBottom: 20
-	},
-	rememberMeText: {
-		flex: 1,
-		fontSize: 20,
-		color: 'white'
-	},
-	inputContainer: {
-		height: 60,
-		width: '100%',
-		borderColor: '#403D3D',
-		borderWidth: 2,
-		borderRadius: 10,
-		marginBottom: 10,
-		backgroundColor: '#403D3D'
-	},
-	input: {
-		color: 'white'
-	},
-	signInButton: {
-		width: '80%',
-		height: 60
-	},
-	buttonContainer: {
-		width: '100%',
-		height: 60
-	},
-	buttonTitle: {
-		fontSize: 20
-	}
-});

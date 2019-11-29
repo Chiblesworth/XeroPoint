@@ -7,8 +7,8 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 import CustomHeader from '../CustomHeader';
 import TipOverlay from '../overlays/TipOverlay';
 //Helper Methods
-import { defaultTips } from '../../helperMethods/defaultTips';
-import { storageGet, storageSet } from '../../helperMethods/localStorage';
+import { defaultTips } from '../../helpers/defaultTips';
+import { storageGet, storageSet } from '../../helpers/localStorage';
 
 
 export default class TipsScreen extends Component {

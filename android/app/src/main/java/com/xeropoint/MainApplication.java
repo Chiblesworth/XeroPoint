@@ -3,8 +3,8 @@ package com.xeropoint;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.processing.ReactNativeAnyPayPackage;
 import com.github.yamill.orientation.OrientationPackage;
-import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
@@ -28,8 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativeAnyPayPackage(),
             new OrientationPackage(),
-            new RSSignatureCapturePackage(),
             new AsyncStoragePackage(),
             new VectorIconsPackage(),
             new RNGestureHandlerPackage()
