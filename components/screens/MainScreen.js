@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Alert } from "react-native";
-import { Header } from 'react-native-elements';
+import { Header, Button } from 'react-native-elements';
 import accounting from 'accounting';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
@@ -8,10 +8,15 @@ import RNAnyPay from 'react-native-any-pay';
 import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
 
+import { apiRequest } from '../../api/apiRequest';
 import { storageGet, storageSet} from '../../helpers/localStorage';
 import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
+import { showAlert } from '../../helpers/showAlert';
 
 import { styles } from '../styles/MainStyles';
+
+const AnyPay = RNAnyPay.AnyPay;
+
 export default class MainScreen extends Component {
     constructor(props) {
         super(props);
@@ -28,15 +33,15 @@ export default class MainScreen extends Component {
         this.formatNumbersPressed = this.formatNumbersPressed.bind(this);
         this.handleRefundChange = this.handleRefundChange.bind(this);
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.showAlert = this.showAlert.bind(this);
         this.checkDefaults = this.checkDefaults.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-    async componentWillMount() {
-        await checkDefaultStorageValues();
+     componentWillMount() {
+       // await checkDefaultStorageValues();
         Orientation.lockToPortrait();
-        this.getMerchantId();        
+        this.getMerchantId();       
+        
     }
 
     async componentDidMount(){
@@ -54,7 +59,6 @@ export default class MainScreen extends Component {
         //     console.log(response.json());
         // });
         try{
-            const AnyPay = RNAnyPay.AnyPay;
             if(AnyPay.verifyPermissions()){
                 AnyPay.requestPermissions();
 
@@ -75,48 +79,41 @@ export default class MainScreen extends Component {
         }
     }
 
-    handleNumberPadPress(valueGotBack) {
+    handleNumberPadPress(value) {
         let newNumbersPressed = "";
 
-        if (Number(valueGotBack) >= 0) {
-            this.state.numbersPressed += valueGotBack;
-
+        if (Number(value) >= 0) {
+            this.state.numbersPressed += value;
             this.formatNumbersPressed();
         }
-        else if (valueGotBack === "delete") {
-            //Chops last character off of string.
-            newNumbersPressed = this.state.numbersPressed.substr(0, this.state.numbersPressed.length - 1);
-
+        else if (value === "delete") {
+            newNumbersPressed = this.state.numbersPressed.substr(0, this.state.numbersPressed.length - 1); //Chops last character off of string.
             this.setState({ numbersPressed: newNumbersPressed }, () => {
                 this.formatNumbersPressed();
-            })
+            });
         }
-        else if (valueGotBack === "refund") {
+        else if (value === "refund") {
             this.handleRefundChange();
         }
     }
 
     formatNumbersPressed() {
         let numsPressed = Number(this.state.numbersPressed);
-
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
 
         this.setState({ amount: numsPressed });
     }
 
     handleRefundChange() {
-        if (this.state.refundSelected) {
-            this.setState({ refundSelected: false, amountFontColor: "white" });
-        }
-        else {
-            this.setState({ refundSelected: true, amountFontColor: "red" });
-        }
+        (this.state.refundSelected)
+            ? this.setState({ refundSelected: false, amountFontColor: "white" })
+            : this.setState({ refundSelected: true, amountFontColor: "red" });
     }
 
     handleHeaderIconPress(iconPushed) {
         if (iconPushed === "dollar") {
             if (Number(this.state.amount) === 0 || this.state.amount === "$0.00") {
-                this.showAlert();
+                showAlert("Warning", "Please enter an amount before proceeding.");
             }
             else {
                 this.checkDefaults();
@@ -132,13 +129,6 @@ export default class MainScreen extends Component {
         else {
             this.props.navigation.toggleDrawer()
         }
-    }
-
-    showAlert() {
-        Alert.alert(
-            "Warning",
-            "Please enter an amount before proceeding."
-        );
     }
 
     async checkDefaults() {

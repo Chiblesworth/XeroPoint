@@ -3,6 +3,8 @@ import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-nati
 import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import SwitchToggle from 'react-native-switch-toggle';
+import RNAnyPay from 'react-native-any-pay';
+
 import { StackActions, NavigationActions } from 'react-navigation';
 //Components/Overlays
 import HeaderIcon from '../HeaderIcon';
@@ -14,6 +16,7 @@ import { feeCalculations } from '../../helpers/feeCalculations';
 import { storageGet, storageSet } from '../../helpers/localStorage';
 import { formatDate, formatTime } from '../../helpers/dateFormats';
 
+const AnyPay = RNAnyPay.AnyPay;
 /*
     This resets the component of the main screen 
     Making the amount charged not carry over from screen to screen.
@@ -69,6 +72,7 @@ export default class PaymentScreen extends Component {
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
+        this.connectCardReader = this.connectCardReader.bind(this);
     }
 
     async componentWillMount() {
@@ -109,6 +113,10 @@ export default class PaymentScreen extends Component {
             this.amountWithBoth = feeCalculations(this.amountWithTax, serviceFee);
         })
 
+    }
+
+    connectCardReader() {
+        AnyPay.connectBluetoothReader();
     }
 
     async getMerchantId() {
@@ -361,6 +369,7 @@ export default class PaymentScreen extends Component {
                         containerStyle={styles.buttonContainer}
                         buttonStyle={styles.button}
                         titleStyle={styles.buttonTitle}
+                        onPress={() => this.connectCardReader()}
                     />
                     {/* Had to make a TextInput here because react
                     native elements doesn't support a textarea  */}
