@@ -3,8 +3,7 @@ import { View, Text, Alert } from "react-native";
 import { Header } from 'react-native-elements';
 import accounting from 'accounting';
 import Orientation from 'react-native-orientation';
-// import RNAnyPay from 'react-native-any-pay'
-const RNAnyPay = require('react-native-any-pay');
+import RNAnyPay from 'react-native-any-pay';
 
 import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
@@ -13,8 +12,6 @@ import { storageGet, storageSet} from '../../helpers/localStorage';
 import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
 
 import { styles } from '../styles/MainStyles';
-
-const AnyPay = RNAnyPay.AnyPay;
 export default class MainScreen extends Component {
     constructor(props) {
         super(props);
@@ -39,19 +36,42 @@ export default class MainScreen extends Component {
     async componentWillMount() {
         await checkDefaultStorageValues();
         Orientation.lockToPortrait();
-        this.getMerchantId();
+        this.getMerchantId();        
+    }
 
-        //RNAnyPay Setup
-        if(AnyPay.verifyPermissions()){
-            AnyPay.requestPermissions();
+    async componentDidMount(){
+        // let merchantId = await storageGet("merchantId");
+        // let encodedUser = await storageGet("encodedUser");
 
-            await AnyPay.initializeSDK();
+        // let headers = {
+        //     'Authorization': 'Basic ' + encodedUser,
+        //     'Content-Type': 'application/json; charset=utf-8'
+        // }
+        // fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${merchantId}/merchantSet`, {
+        //     method: "GET",
+        //     headers: headers
+        // }).then((response) => {
+        //     console.log(response.json());
+        // });
+        try{
+            const AnyPay = RNAnyPay.AnyPay;
+            if(AnyPay.verifyPermissions()){
+                AnyPay.requestPermissions();
 
-            await AnyPay.intializeTerminal({
-                terminalID: '2994002',
-                terminalSecret: 'password',
-                gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
-            }).catch(err => console.log(err));
+                await AnyPay.initializeSDK();
+                console.log("HERE")
+                var sdkVersion = await AnyPay.getSDKVersion();
+                console.log("sdkVersion is")
+                console.log(sdkVersion)
+                await AnyPay.intializeTerminal({
+                    terminalID: '2994002',
+                    terminalSecret: 'password',
+                    gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
+                }).catch(err => console.log(err));
+                console.log("HERE 2")
+            }
+        }catch(e){
+            console.log(e)
         }
     }
 
