@@ -1,22 +1,37 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, ScrollView, Alert, NativeEventEmitter } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import SwitchToggle from 'react-native-switch-toggle';
 import RNAnyPay from 'react-native-any-pay';
-
 import { StackActions, NavigationActions } from 'react-navigation';
-//Components/Overlays
+
 import HeaderIcon from '../HeaderIcon';
 import KeyedPaymentForm from '../KeyedPaymentForm';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import ApprovalOverlay from '../overlays/ApprovalOverlay';
-//Helper Methods
+
 import { feeCalculations } from '../../helpers/feeCalculations';
+import { getRequestHeader } from '../../helpers/getRequestHeader';
 import { storageGet, storageSet } from '../../helpers/localStorage';
 import { formatDate, formatTime } from '../../helpers/dateFormats';
+import { showAlert } from '../../helpers/showAlert';
+
+import { styles } from '../styles/PaymentStyles';
 
 const AnyPay = RNAnyPay.AnyPay;
+var transaction = null;
+const eventEmitter = new NativeEventEmitter(RNAnyPay.AnyPay);
+
+eventEmitter.addListener('CardReaderError', (event) => {
+    console.log(event); // "someValue"
+});
+eventEmitter.addListener('CardReaderEvent', (event) => {
+    console.log(event); // "someValue"
+});
+eventEmitter.addListener('CardReaderConnected', (event) => {
+    console.log(event); // "someValue"
+})
 /*
     This resets the component of the main screen 
     Making the amount charged not carry over from screen to screen.
@@ -48,155 +63,138 @@ export default class PaymentScreen extends Component {
             customOverlayVisible: false,
         }
 
-        //These values will be set when the component mounts and will render based on switches
-        this.amountWithTax = 0;
-        this.amountWithService = 0;
-        this.amountWithBoth = 0;
-
-        /*
-            These will be used as form logging how much taxes and fees the user
-            collected in the day if we go that route. Waiting on Mr. Hess
-            This will also be used for a combined total if both switches are true
-        */
-        this.taxDollarAmount = 0;
-        this.serviceDollarAmount = 0;
-
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.handleSwitchPress = this.handleSwitchPress.bind(this);
-        this.toggleTaxSwitch = this.toggleTaxSwitch.bind(this);
-        this.toggleServiceSwitch = this.toggleServiceSwitch.bind(this);
+        this.toggleSwitch = this.toggleSwitch.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.getMerchantId = this.getMerchantId.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
-        this.showAlert = this.showAlert.bind(this);
+        this.determineAlert = this.determineAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
         this.connectCardReader = this.connectCardReader.bind(this);
+        this.startEmv = this.startEmv.bind(this);
+        this.getApiKeys = this.getApiKeys.bind(this);
     }
 
     async componentWillMount() {
         let collectServiceFee = await storageGet("collectServiceFee");
         let collectTaxFee = await storageGet("collectTaxFee");
 
-        collectServiceFee = JSON.parse(collectServiceFee)
-        collectTaxFee = JSON.parse(collectTaxFee)
+        collectServiceFee = JSON.parse(collectServiceFee);
+        collectTaxFee = JSON.parse(collectTaxFee);
 
-        console.log(this.props.navigation.state.params.refundSelected);
-        //Don't want the service and tax fee to apply automatically for a refund
-        if (this.props.navigation.state.params.refundSelected) {
-            this.setState({
-                serviceFeeSwitchValue: false,
-                taxSwitchValue: false
-            })
-        }
-        else {
-            this.setState({
-                serviceFeeSwitchValue: collectServiceFee,
-                taxSwitchValue: collectTaxFee
-            });
-        }
+        (this.props.navigation.state.params.refundSelected)
+            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false})
+            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee});
     }
 
     async componentDidMount() {
         Orientation.lockToPortrait();
         let taxFee = await storageGet("taxFee");
         let serviceFee = await storageGet("serviceFee");
-        let amountCharged = this.state.amountCharged;
-        amountCharged = Number(amountCharged); //Makes sure it is a number being sent
 
         this.getMerchantId();
+        this.getApiKeys();
 
-        this.setState({ tax: taxFee, serviceFee: serviceFee }, () => {
-            this.amountWithTax = feeCalculations(amountCharged, taxFee);
-            this.amountWithService = feeCalculations(amountCharged, serviceFee);
-            this.amountWithBoth = feeCalculations(this.amountWithTax, serviceFee);
-        })
-
+        this.setState({ tax: taxFee, serviceFee: serviceFee });
     }
 
-    connectCardReader() {
+    async connectCardReader() {
         AnyPay.connectBluetoothReader();
+        let connected = await AnyPay.isReaderConnected();
+
+        console.log("Connected: " + connected);
+        if(connected){
+            this.startEmv();
+        }
+    }
+
+    async startEmv(){
+        try{
+            var emvObj = {
+                transactionType: 'Sale',
+                address:'123 Main Street',
+                postalCode: '30004',
+                totalAmount: '10.47',
+                currency: 'USD'
+              }
+            console.log(emvObj)
+            transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e))
+            console.log(transaction);
+        }
+        catch(e){
+            console.log(e);
+        }
+        // var keyedObj = {
+        //     type: 'SALE',
+        //     cardExpiryMonth: '10',
+        //     cardExpiryYear: '20',
+        //     address: '123 Main Street',
+        //     postalCode: '30004',
+        //     CVV2: '999',
+        //     cardholderName: 'Jane Doe',
+        //     cardNumber: '4012888888881881',
+        //     totalAmount: '10.47',
+        //     currency:'USD'
+        // }
+        // transaction = await AnyPay.startKeyedTransaction(keyedObj).catch(e => console.log(e));
+        // console.log(transaction)
     }
 
     async getMerchantId() {
         let merchantId = await storageGet("merchantId");
-
         this.setState({ merchantId: merchantId });
     }
 
     handleHeaderIconPress() {
         this.props.navigation.dispatch(resetAction);
-        //this.props.navigation.pop();
     }
 
-    async handleSwitchPress(switchHit) { //Using async here so values are being read as switched at the right times
-        if (switchHit === "tax") {
-            await this.toggleTaxSwitch();
-        }
-        else {
-            await this.toggleServiceSwitch();
-        }
-    }
-
-    toggleTaxSwitch() {
-        this.setState({ taxSwitchValue: !this.state.taxSwitchValue });
-    }
-
-    toggleServiceSwitch() {
-        this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
+    toggleSwitch(switchHit) {
+        (switchHit === "tax")
+            ? this.setState({ taxSwitchValue: !this.state.taxSwitchValue })
+            : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
     }
 
     validateForm(stateOfForm) {
         //Use number becasue cardAccount.number has spaces in it.
         //Don't know if MX Merchant has something on their backend to take care of that.
         if (stateOfForm.numberWithoutSpaces === "" || stateOfForm.cardAccount.expiryMonth === "" || stateOfForm.cardAccount.expiryYear === "") {
-            this.showAlert("validation");
+            this.determineAlert("validation");
         }
         else if (stateOfForm.streetOn === true && stateOfForm.cardAccount.avsStreet === "") {
-            this.showAlert("validation");
+            this.determineAlert("validation");
         }
         else if (stateOfForm.zipOn === true && stateOfForm.cardAccount.avsZip === "") {
-            this.showAlert("validation");
+            this.determineAlert("validation");
         }
         else if (stateOfForm.cvvOn === true && stateOfForm.cardAccount.cvv === "") {
-            this.showAlert("validation");
+            this.determineAlert("validation");
         }
         else {
             this.authorizePayment(stateOfForm);
         }
     }
 
-    showAlert(typeOfAlert) {
+    determineAlert(typeOfAlert) {
         if (typeOfAlert === "validation") {
-            Alert.alert(
-                "Incomplete Fields",
-                'Please fill out all fields above the "Charge" button to continue.'
-            );
+            showAlert("Incomplete Fields", 'Please fill out all fields above the "Charge" button to continue.');
         }
         else if (typeOfAlert === "approval") {
             if (this.state.approvalVisible) {
                 this.setState({ approvalVisible: !this.state.approvalVisible });
 
-                if (this.props.navigation.state.params.refundSelected) {
-                    this.props.navigation.dispatch(resetAction);
-                }
-                else {
-                    this.props.navigation.navigate(
-                        "Signature",
-                        { tipAdjustmentData: this.state.tipAdjustmentData }
-                    );
-                }
+                (this.props.navigation.state.params.refundSelected)
+                    ? this.props.navigation.dispatch(resetAction)
+                    : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
             }
             else {
                 let approvalTitle;
 
-                if (this.props.navigation.state.params.refundSelected) {
-                    approvalTitle = "Refund Approved!";
-                }
-                else {
-                    approvalTitle = "Approved!";
-                }
+                (this.props.navigation.state.params.refundSelected)
+                    ? (approvalTitle = "Refund Approved!")
+                    : approvalTitle = "Approved!";
 
                 this.setState({
                     approvalVisible: !this.state.approvalVisible,
@@ -211,25 +209,18 @@ export default class PaymentScreen extends Component {
     }
 
     async authorizePayment(stateOfForm) {
-        let encodedUser = await storageGet("encodedUser");
+        let headers = await getRequestHeader();
         let selectedCustomerId = await storageGet("selectedCustomerId");
-        let amount = this.determineAmount();
+        let amount;
 
-        if (!!selectedCustomerId) {
-            selectedCustomerId = Number(selectedCustomerId);
-        }
-        else {
-            selectedCustomerId = "";
-        }
+        (!!selectedCustomerId)
+            ? selectedCustomerId = Number(selectedCustomerId)
+            : selectedCustomerId = "";
 
-        if (this.props.navigation.state.params.refundSelected) {
-            amount = -Math.abs(amount);
-        }
 
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
+        (this.props.navigation.state.params.refundSelected)
+            ? amount = -Math.abs(amount)
+            : amount = this.determineAmount();
 
         let data = {
             merchantId: stateOfForm.merchantId,
@@ -282,30 +273,28 @@ export default class PaymentScreen extends Component {
                     tipAdjustmentData: tipAdjustmentData
                 });
 
-                this.showAlert("approval");
+                this.determineAlert("approval");
             })
         });
     }
 
     determineAmount() {
-        //Determines total amount charged based on if service and tax fee are pressed.
         let amount = 0;
 
         if (this.state.taxSwitchValue && this.state.serviceFeeSwitchValue) {
-            amount = this.amountWithBoth;
+            amount = feeCalculations(feeCalculations(Number(this.state.amountCharged), this.state.tax), this.state.serviceFee); //Tax fee is applied first.
         }
         else if (this.state.taxSwitchValue && !this.state.serviceFeeSwitchValue) {
-            amount = this.amountWithTax;
+            amount = feeCalculations(Number(this.state.amountCharged), this.state.tax);
         }
         else if (!this.state.taxSwitchValue && this.state.serviceFeeSwitchValue) {
-            amount = this.amountWithService;
+            amount = feeCalculations(Number(this.state.amountCharged), this.state.serviceFee)
         }
         else {
-            amount = this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, "");
+            amount = this.state.amountCharged;
         }
 
         amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
-
         return amount;
     }
 
@@ -313,31 +302,33 @@ export default class PaymentScreen extends Component {
         this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
     }
 
+    async getApiKeys(){
+        let headers = await getRequestHeader();
+
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${this.state.merchantId}`, {
+            method: "GET",
+            headers: headers
+        }).then((response) => {
+            console.log(response.json());
+        })
+    }
+
     render() {
         let serviceFee;
         let tax;
         let text;
 
-        if (this.state.taxSwitchValue) {
-            tax = <Text style={styles.feeText}>{this.state.tax}</Text>;
-        }
-        else {
-            tax = <Text style={styles.feeText}>0</Text>;
-        }
+        (this.state.taxSwitchValue)
+            ? tax = this.state.tax
+            : tax = 0;
 
-        if (this.state.serviceFeeSwitchValue) {
-            serviceFee = <Text style={styles.feeText}>{this.state.serviceFee}</Text>;
-        }
-        else {
-            serviceFee = <Text style={styles.feeText}>0</Text>;
-        }
-
-        if (this.props.navigation.state.params.refundSelected) {
-            text = "REFUND";
-        }
-        else {
-            text = "CHARGED";
-        }
+        (this.state.serviceFeeSwitchValue)
+            ? serviceFee = this.state.serviceFee
+            : serviceFee = 0;
+        
+        (this.props.navigation.state.params.refundSelected)
+            ? text = "REFUND"
+            : text = "CHARGED";
 
         return (
             <View style={styles.content}>
@@ -382,7 +373,7 @@ export default class PaymentScreen extends Component {
                         placeholderTextColor="grey"
                         onChangeText={(text) => this.setState({ memo: text })}
                     />
-                    <View style={styles.spacer2} />
+                    <View style={styles.spacer} />
                     <Input
                         placeholder="Invoice"
                         placeholderTextColor="grey"
@@ -390,7 +381,7 @@ export default class PaymentScreen extends Component {
                         inputStyle={styles.input}
                         onChangeText={(text) => this.setState({ invoice: text })}
                     />
-                    <View style={styles.spacer2} />
+                    <View style={styles.spacer} />
                     <View style={styles.row}>
                         <Button
                             type="solid"
@@ -408,7 +399,7 @@ export default class PaymentScreen extends Component {
                             onPress={() => this.handleCustomerOverlay()}
                         />
                     </View>
-                    <View style={styles.spacer2} />
+                    <View style={styles.spacer} />
                     <View style={styles.switchRow}>
                         <Text style={{ fontSize: 20, color: 'white', paddingRight: 10 }}>
                             Tax Fee
@@ -416,16 +407,15 @@ export default class PaymentScreen extends Component {
                         <View style={[styles.smallRowDivider, { marginLeft: 53 }]} />
                         <SwitchToggle
                             switchOn={this.state.taxSwitchValue}
-                            onPress={() => this.handleSwitchPress("tax")}
+                            onPress={() => this.toggleSwitch("tax")}
                             circleColorOff="white"
                             circleColorOn="white"
                             backgroundColorOn="blue"
                         />
                         <View style={styles.rowDivider} />
-                        {tax}
-                        <Text style={styles.feeText}>%</Text>
+                        <Text style={styles.feeText}>{tax}%</Text>
                     </View>
-                    <View style={styles.spacer2} />
+                    <View style={styles.spacer} />
                     <View style={styles.switchRow}>
                         <Text style={{ fontSize: 20, color: 'white', paddingRight: 10 }}>
                             Service Fee
@@ -433,20 +423,19 @@ export default class PaymentScreen extends Component {
                         <View style={styles.smallRowDivider} />
                         <SwitchToggle
                             switchOn={this.state.serviceFeeSwitchValue}
-                            onPress={() => this.handleSwitchPress("service")}
+                            onPress={() => this.toggleSwitch("service")}
                             circleColorOff="white"
                             circleColorOn="white"
                             backgroundColorOn="blue"
                         />
                         <View style={styles.rowDivider} />
-                        {serviceFee}
-                        <Text style={styles.feeText}>%</Text>
+                        <Text style={styles.feeText}>{serviceFee}%</Text>
                     </View>
                 </ScrollView>
                 <ApprovalOverlay
                     visible={this.state.approvalVisible}
                     title={this.state.approvalTitle}
-                    handleClose={this.showAlert}
+                    handleClose={this.determineAlert}
                     determineAmount={this.determineAmount}
                     formatedDate={this.state.formatedDate}
                     formatedTime={this.state.formatedTime}
@@ -461,85 +450,3 @@ export default class PaymentScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    content: {
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#454343'
-    },
-    header: {
-        height: '10%',
-        width: '100%'
-    },
-    spacer: {
-        marginBottom: '4%'
-    },
-    spacer2: {
-        marginBottom: '4%'
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        width: '100%',
-    },
-    switchRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        width: '100%'
-    },
-    rowDivider: {
-        marginLeft: '10%'
-    },
-    smallRowDivider: {
-        marginLeft: '4%'
-    },
-    chargedContainer: {
-        alignItems: 'center',
-        marginBottom: 10
-    },
-    text: {
-        fontSize: 30,
-        color: 'white'
-    },
-    feeText: {
-        fontSize: 18,
-        color: 'white',
-        marginTop: 5
-    },
-    amountText: {
-        fontSize: 70,
-        color: 'white'
-    },
-    scrollView: {
-        width: '100%',
-        alignItems: 'center'
-    },
-    buttonContainer: {
-        width: '80%',
-        height: '5%'
-    },
-    button: {
-        backgroundColor: '#C8C8C8'
-    },
-    buttonTitle: {
-        fontSize: 16
-    },
-    textarea: {
-        width: '80%',
-        borderRadius: 15,
-        backgroundColor: 'white',
-        fontSize: 16
-    },
-    inputContainer: {
-        width: '84%',
-        marginLeft: '8%',
-        borderRadius: 15,
-        backgroundColor: 'white'
-    },
-    input: {
-        fontSize: 16,
-        paddingLeft: 20
-    },
-});

@@ -32,10 +32,10 @@
     "defaultCardReaderEditable": "true",
     "enableFirmwareUpdate": "false",
     "enforceFirmwareCompliance": "false",
-    "minimumFirmwareCompliantVersions": [ {} ], // Enforced Per reader
-    "specificFirmwareCompliantVersions": [ {} ], // Enforced Per reader
+    "minimumFirmwareCompliantVersions": [ {} ],
+    "specificFirmwareCompliantVersions": [ {} ],
 
-    "supportedEntryModes": "SWIPE INSERT TAP PINPAD", // Minimum
+    "supportedEntryModes": "SWIPE INSERT TAP PINPAD",
     "enabledEntryModes": "SWIPE INSERT TAP PINPAD",
     "enabledEntryModesEditable": "false",
 
@@ -58,7 +58,6 @@
 
     "allowPartialAuthorizations": "true",
 
-    // Card transactions
     "requireCardPresentRefunds": "false",
     "requireCardPresentSales": "false",
     "verifyCardPresentForKeyedTransactions": "false",

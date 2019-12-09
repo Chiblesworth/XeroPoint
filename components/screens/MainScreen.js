@@ -8,10 +8,10 @@ import RNAnyPay from 'react-native-any-pay';
 import NumberPad from '../NumberPad';
 import HeaderIcon from '../HeaderIcon';
 
-import { apiRequest } from '../../api/apiRequest';
 import { storageGet, storageSet} from '../../helpers/localStorage';
 import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
 import { showAlert } from '../../helpers/showAlert';
+import { getRequestHeader } from '../../helpers/getRequestHeader';
 
 import { styles } from '../styles/MainStyles';
 
@@ -37,46 +37,79 @@ export default class MainScreen extends Component {
         this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-     componentWillMount() {
-       // await checkDefaultStorageValues();
+    async componentWillMount() {
+        await checkDefaultStorageValues();
         Orientation.lockToPortrait();
         this.getMerchantId();       
         
     }
 
     async componentDidMount(){
-        // let merchantId = await storageGet("merchantId");
-        // let encodedUser = await storageGet("encodedUser");
+        let merchantId = await storageGet("merchantId");
+        // let consumerKey;
+        // let secret;
+        let headers = await getRequestHeader();
 
-        // let headers = {
-        //     'Authorization': 'Basic ' + encodedUser,
-        //     'Content-Type': 'application/json; charset=utf-8'
-        // }
-        // fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${merchantId}/merchantSet`, {
-        //     method: "GET",
-        //     headers: headers
-        // }).then((response) => {
-        //     console.log(response.json());
-        // });
-        try{
-            if(AnyPay.verifyPermissions()){
-                AnyPay.requestPermissions();
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}`, {
+            method: "GET",
+            headers: headers
+        }).then((response) => {
+            return response.json();
+        }).then(async (json) => {
+            let consumerKey = json.records[0].apiKey;
+            let secret = json.records[0].apiSecret;
 
-                await AnyPay.initializeSDK();
-                console.log("HERE")
-                var sdkVersion = await AnyPay.getSDKVersion();
-                console.log("sdkVersion is")
-                console.log(sdkVersion)
-                await AnyPay.intializeTerminal({
-                    terminalID: '2994002',
-                    terminalSecret: 'password',
-                    gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
-                }).catch(err => console.log(err));
-                console.log("HERE 2")
+            try{
+                if(AnyPay.verifyPermissions()){
+                    AnyPay.requestPermissions();
+
+                    await AnyPay.initializeSDK();
+                    var sdkVersion = await AnyPay.getSDKVersion();
+                    console.log(sdkVersion);
+                    console.log(consumerKey)
+                    console.log(secret)
+                    console.log(merchantId)
+
+                    // await AnyPay.intializeTerminal(AnyPay.TERMINAL_TYPE_PRIORITYPAYMENTS, {
+                    //     consumerKey: consumerKey,
+                    //     secret: secret,
+                    //     merchantId: merchantId,
+                    //     url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
+                    // });
+                    await AnyPay.intializeTerminal({
+                        consumerKey: consumerKey,
+                        secret: secret,
+                        merchantId: merchantId,
+                        url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
+
+                    }).catch(err => console.log(err));
+                    console.log("HERE0101");
+                }
             }
-        }catch(e){
-            console.log(e)
-        }
+            catch(e){
+                console.log(e);
+            }
+        });
+
+        // try{
+        //     if(AnyPay.verifyPermissions()){
+        //         AnyPay.requestPermissions();
+
+        //         await AnyPay.initializeSDK();
+        //         console.log("HERE")
+        //         var sdkVersion = await AnyPay.getSDKVersion();
+        //         console.log("sdkVersion is")
+        //         console.log(sdkVersion)
+        //         await AnyPay.intializeTerminal({
+        //             terminalID: '2994002',
+        //             terminalSecret: 'password',
+        //             gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
+        //         }).catch(err => console.log(err));
+        //         console.log("HERE 2")
+        //     }
+        // }catch(e){
+        //     console.log(e)
+        // }
     }
 
     handleNumberPadPress(value) {
