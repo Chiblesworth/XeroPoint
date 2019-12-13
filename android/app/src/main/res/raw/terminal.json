@@ -4,8 +4,8 @@
       "gatewayUrl": "https://sandbox.api.mxmerchant.com/checkout/v3/",
       "provider": "pps",
       "serverDateFormat": "dd-MM-yyyy HH:mm:ss:SSS",
-      "username": "processingsol",
-      "password": "processing*2019",
+      "username": "",
+      "password": "",
       "enableJsonPassthru": true
     },
     "allowAnonymousUsers": true,

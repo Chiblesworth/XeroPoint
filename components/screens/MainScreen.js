@@ -53,7 +53,7 @@ export default class MainScreen extends Component {
         // let secret;
         //let headers = await getRequestHeader();
 
-      
+        let encoded  = base64.encode("processingsol:processing*2019");
         console.log(encoded);
         let headers = {
             'Authorization': 'Basic ' + encoded,
@@ -61,7 +61,7 @@ export default class MainScreen extends Component {
         }
 
         //https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}
-        fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=`, {
+        fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=418399799`, {
             method: "GET",
             headers: headers
         }).then((response) => {
@@ -89,9 +89,9 @@ export default class MainScreen extends Component {
                     //     url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
                     // });
                     // await AnyPay.intializeTerminal({
-                    //     consumerKey: '',
-                    //     secret: '
-                    //     merchantId: '',
+                    //     consumerKey: 'hYjlgm8Y5ZNzv3KvRtlIEwnr',
+                    //     secret: 'eYWCPgEtGpWyYz5QjeDLtazbkGc',
+                    //     merchantId: '418399799',
                     //     url: 'https://api.mxmerchant.com/checkout/v3/'
 
                     // }).catch(err => console.log(err));
