@@ -1,12 +1,7 @@
 {
   "configuration": {
     "endpoint": {
-      "gatewayUrl": "https://sandbox.api.mxmerchant.com/checkout/v3/",
-      "provider": "pps",
-      "serverDateFormat": "dd-MM-yyyy HH:mm:ss:SSS",
-      "username": "processingsol",
-      "password": "processing*2019",
-      "enableJsonPassthru": true
+      "provider": "pps"
     },
     "allowAnonymousUsers": true,
     "allowClearTransactions": true,
@@ -166,11 +161,11 @@
     "tipOptionsEditable": true,
     "transactionReportingMode": "ALL_USERS",
     "transactionReportingModeEditable": true,
-    "type": "com.anywherecommerce.android.sdk.endpoints.worldnet.WorldnetTerminalConfiguration",
+    "type": "com.anywherecommerce.android.sdk.endpoints.prioritypayments.PriorityPaymentsEndpoint",
     "unreferencedRefundLimit": 99999.0,
     "userAuthenticationMode": "DEFER_UNTIL_REQUIRED",
     "verifyCardPresentForKeyedTransactions": false,
     "version": "default",
-    "CLASS_META_KEY": "com.anywherecommerce.android.sdk.endpoints.worldnet.WorldnetTerminalConfiguration"
+    "CLASS_META_KEY": "com.anywherecommerce.android.sdk.endpoints.prioritypayments.PriorityPaymentsEndpoint"
   }
 }

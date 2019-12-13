@@ -101,22 +101,21 @@ export default class PaymentScreen extends Component {
     }
 
     async connectCardReader() {
-        AnyPay.connectBluetoothReader();
         let connected = await AnyPay.isReaderConnected();
-
         console.log("Connected: " + connected);
-        if(connected){
-            this.startEmv();
-        }
+        
+        (connected)
+            ? this.startEmv()
+            : AnyPay.connectBluetoothReader();
     }
 
     async startEmv(){
         try{
             var emvObj = {
-                transactionType: 'Sale',
+                type: 'SALE',
                 address:'123 Main Street',
                 postalCode: '30004',
-                totalAmount: '10.47',
+                totalAmount: this.state.amountCharged,
                 currency: 'USD'
               }
             console.log(emvObj)

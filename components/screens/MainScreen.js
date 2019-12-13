@@ -15,6 +15,9 @@ import { getRequestHeader } from '../../helpers/getRequestHeader';
 
 import { styles } from '../styles/MainStyles';
 
+import base64 from 'react-native-base64';
+
+
 const AnyPay = RNAnyPay.AnyPay;
 
 export default class MainScreen extends Component {
@@ -48,12 +51,21 @@ export default class MainScreen extends Component {
         let merchantId = await storageGet("merchantId");
         // let consumerKey;
         // let secret;
-        let headers = await getRequestHeader();
+        //let headers = await getRequestHeader();
 
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}`, {
+      
+        console.log(encoded);
+        let headers = {
+            'Authorization': 'Basic ' + encoded,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+
+        //https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}
+        fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=`, {
             method: "GET",
             headers: headers
         }).then((response) => {
+            console.log(response)
             return response.json();
         }).then(async (json) => {
             let consumerKey = json.records[0].apiKey;
@@ -76,11 +88,18 @@ export default class MainScreen extends Component {
                     //     merchantId: merchantId,
                     //     url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
                     // });
+                    // await AnyPay.intializeTerminal({
+                    //     consumerKey: '',
+                    //     secret: '
+                    //     merchantId: '',
+                    //     url: 'https://api.mxmerchant.com/checkout/v3/'
+
+                    // }).catch(err => console.log(err));
                     await AnyPay.intializeTerminal({
                         consumerKey: consumerKey,
                         secret: secret,
-                        merchantId: merchantId,
-                        url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
+                        merchantId: '418399799',
+                        url: 'https://api.mxmerchant.com/checkout/v3/'
 
                     }).catch(err => console.log(err));
                     console.log("HERE0101");
