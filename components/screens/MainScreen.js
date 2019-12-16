@@ -53,7 +53,6 @@ export default class MainScreen extends Component {
         // let secret;
         //let headers = await getRequestHeader();
 
-        let encoded  = base64.encode("processingsol:processing*2019");
         console.log(encoded);
         let headers = {
             'Authorization': 'Basic ' + encoded,
@@ -81,20 +80,6 @@ export default class MainScreen extends Component {
                     console.log(consumerKey)
                     console.log(secret)
                     console.log(merchantId)
-
-                    // await AnyPay.intializeTerminal(AnyPay.TERMINAL_TYPE_PRIORITYPAYMENTS, {
-                    //     consumerKey: consumerKey,
-                    //     secret: secret,
-                    //     merchantId: merchantId,
-                    //     url: 'https://sandbox.api.mxmerchant.com/checkout/v3/'
-                    // });
-                    // await AnyPay.intializeTerminal({
-                    //     consumerKey: 'hYjlgm8Y5ZNzv3KvRtlIEwnr',
-                    //     secret: 'eYWCPgEtGpWyYz5QjeDLtazbkGc',
-                    //     merchantId: '418399799',
-                    //     url: 'https://api.mxmerchant.com/checkout/v3/'
-
-                    // }).catch(err => console.log(err));
                     await AnyPay.intializeTerminal({
                         consumerKey: consumerKey,
                         secret: secret,
@@ -109,26 +94,6 @@ export default class MainScreen extends Component {
                 console.log(e);
             }
         });
-
-        // try{
-        //     if(AnyPay.verifyPermissions()){
-        //         AnyPay.requestPermissions();
-
-        //         await AnyPay.initializeSDK();
-        //         console.log("HERE")
-        //         var sdkVersion = await AnyPay.getSDKVersion();
-        //         console.log("sdkVersion is")
-        //         console.log(sdkVersion)
-        //         await AnyPay.intializeTerminal({
-        //             terminalID: '2994002',
-        //             terminalSecret: 'password',
-        //             gatewayUrl: 'https://testpayments.anywherecommerce.com/merchant'
-        //         }).catch(err => console.log(err));
-        //         console.log("HERE 2")
-        //     }
-        // }catch(e){
-        //     console.log(e)
-        // }
     }
 
     handleNumberPadPress(value) {

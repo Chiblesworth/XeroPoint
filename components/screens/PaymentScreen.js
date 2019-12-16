@@ -8,30 +8,25 @@ import { StackActions, NavigationActions } from 'react-navigation';
 
 import HeaderIcon from '../HeaderIcon';
 import KeyedPaymentForm from '../KeyedPaymentForm';
+import FeeSwitch from '../FeeSwitch';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import ApprovalOverlay from '../overlays/ApprovalOverlay';
 
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
-import { storageGet, storageSet } from '../../helpers/localStorage';
+import { storageGet } from '../../helpers/localStorage';
 import { formatDate, formatTime } from '../../helpers/dateFormats';
 import { showAlert } from '../../helpers/showAlert';
 
 import { styles } from '../styles/PaymentStyles';
 
 const AnyPay = RNAnyPay.AnyPay;
-var transaction = null;
 const eventEmitter = new NativeEventEmitter(RNAnyPay.AnyPay);
+var transaction = null;
 
 eventEmitter.addListener('CardReaderError', (event) => {
     console.log(event); // "someValue"
 });
-eventEmitter.addListener('CardReaderEvent', (event) => {
-    console.log(event); // "someValue"
-});
-eventEmitter.addListener('CardReaderConnected', (event) => {
-    console.log(event); // "someValue"
-})
 /*
     This resets the component of the main screen 
     Making the amount charged not carry over from screen to screen.
@@ -48,6 +43,8 @@ export default class PaymentScreen extends Component {
 
         this.state = {
             amountCharged: this.props.navigation.state.params.amountCharged.replace(/[^0-9]/, ""),
+            cardReaderConnected: false,
+            cardReaderEventText: "",
             taxSwitchValue: false,
             serviceFeeSwitchValue: false,
             invoice: null,
@@ -66,27 +63,28 @@ export default class PaymentScreen extends Component {
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.validateForm = this.validateForm.bind(this);
-        this.getMerchantId = this.getMerchantId.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
         this.determineAlert = this.determineAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
-        this.connectCardReader = this.connectCardReader.bind(this);
+        this.handleConnectReaderPress = this.handleConnectReaderPress.bind(this);
         this.startEmv = this.startEmv.bind(this);
-        this.getApiKeys = this.getApiKeys.bind(this);
+        this.startPaymentProcess = this.startPaymentProcess.bind(this);
     }
 
     async componentWillMount() {
         let collectServiceFee = await storageGet("collectServiceFee");
         let collectTaxFee = await storageGet("collectTaxFee");
+        let connected =  await AnyPay.isReaderConnected();
+        console.log("connected ", connected)
 
         collectServiceFee = JSON.parse(collectServiceFee);
         collectTaxFee = JSON.parse(collectTaxFee);
 
         (this.props.navigation.state.params.refundSelected)
-            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false})
-            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee});
+            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected})
+            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected});
     }
 
     async componentDidMount() {
@@ -94,18 +92,36 @@ export default class PaymentScreen extends Component {
         let taxFee = await storageGet("taxFee");
         let serviceFee = await storageGet("serviceFee");
 
-        this.getMerchantId();
-        this.getApiKeys();
+        eventEmitter.addListener('CardReaderEvent', this.handleCardReaderEvent.bind(this));
+        eventEmitter.addListener('CardReaderConnected', this.handleCardReaderConnect.bind(this));
+        eventEmitter.addListener('CardReaderDisconnected', this.handleCardReaderDisconnect.bind(this));
 
-        this.setState({ tax: taxFee, serviceFee: serviceFee });
+        this.setState({ tax: taxFee, serviceFee: serviceFee});
     }
 
-    async connectCardReader() {
-        let connected = await AnyPay.isReaderConnected();
-        console.log("Connected: " + connected);
-        
-        (connected)
-            ? this.startEmv()
+    handleCardReaderEvent = (event) => {
+        console.log(event);
+        this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail});
+    }
+
+    handleCardReaderConnect = (event) => {
+        console.log(event);
+        AnyPay.isReaderConnected().then((connected) => {
+            this.setState({cardReaderConnected: connected});
+        });
+    }
+
+    handleCardReaderDisconnect = (event) => {
+        console.log(event);
+        AnyPay.isReaderConnected().then((connected) => {
+            this.setState({cardReaderConnected: connected});
+        });
+    }
+
+    async handleConnectReaderPress() {    
+        console.log("handleConnectReaderPress ", this.state.cardReaderConnected);
+        (this.state.cardReaderConnected)
+            ? AnyPay.disconnectReader()
             : AnyPay.connectBluetoothReader();
     }
 
@@ -113,8 +129,6 @@ export default class PaymentScreen extends Component {
         try{
             var emvObj = {
                 type: 'SALE',
-                address:'123 Main Street',
-                postalCode: '30004',
                 totalAmount: this.state.amountCharged,
                 currency: 'USD'
               }
@@ -125,25 +139,6 @@ export default class PaymentScreen extends Component {
         catch(e){
             console.log(e);
         }
-        // var keyedObj = {
-        //     type: 'SALE',
-        //     cardExpiryMonth: '10',
-        //     cardExpiryYear: '20',
-        //     address: '123 Main Street',
-        //     postalCode: '30004',
-        //     CVV2: '999',
-        //     cardholderName: 'Jane Doe',
-        //     cardNumber: '4012888888881881',
-        //     totalAmount: '10.47',
-        //     currency:'USD'
-        // }
-        // transaction = await AnyPay.startKeyedTransaction(keyedObj).catch(e => console.log(e));
-        // console.log(transaction)
-    }
-
-    async getMerchantId() {
-        let merchantId = await storageGet("merchantId");
-        this.setState({ merchantId: merchantId });
     }
 
     handleHeaderIconPress() {
@@ -151,28 +146,39 @@ export default class PaymentScreen extends Component {
     }
 
     toggleSwitch(switchHit) {
-        (switchHit === "tax")
+        (switchHit === "Tax Fee")
             ? this.setState({ taxSwitchValue: !this.state.taxSwitchValue })
             : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
     }
 
-    validateForm(stateOfForm) {
-        //Use number becasue cardAccount.number has spaces in it.
-        //Don't know if MX Merchant has something on their backend to take care of that.
-        if (stateOfForm.numberWithoutSpaces === "" || stateOfForm.cardAccount.expiryMonth === "" || stateOfForm.cardAccount.expiryYear === "") {
+    startPaymentProcess(formState) {
+        (this.state.cardReaderConnected)
+            ? this.startEmv()
+            : this.validateForm(formState);
+    }
+
+    validateForm(formState) {
+        console.log(formState)
+        if (formState.number === "" || formState.cardAccount.expiryMonth === "" || formState.cardAccount.expiryYear === "") {
+            this.determineAlert("validation");
+            /*
+            number contains only numbers
+            16 numbers only
+            month must be number and 2 digits
+            year must be number and 2 digits
+            */
+        }
+        else if (formState.streetOn === true && formState.cardAccount.avsStreet === "") {
             this.determineAlert("validation");
         }
-        else if (stateOfForm.streetOn === true && stateOfForm.cardAccount.avsStreet === "") {
-            this.determineAlert("validation");
+        else if (formState.zipOn === true && formState.cardAccount.avsZip === "") {
+            this.determineAlert("validation"); //Check for 5 digits and only numbers
         }
-        else if (stateOfForm.zipOn === true && stateOfForm.cardAccount.avsZip === "") {
-            this.determineAlert("validation");
-        }
-        else if (stateOfForm.cvvOn === true && stateOfForm.cardAccount.cvv === "") {
-            this.determineAlert("validation");
+        else if (formState.cvvOn === true && formState.cardAccount.cvv === "") {
+            this.determineAlert("validation"); //cvv can only b3 3-4 numbers long
         }
         else {
-            this.authorizePayment(stateOfForm);
+            this.authorizePayment(formState);
         }
     }
 
@@ -208,6 +214,7 @@ export default class PaymentScreen extends Component {
     }
 
     async authorizePayment(stateOfForm) {
+        let merchantId = await storageGet("merchantId");
         let headers = await getRequestHeader();
         let selectedCustomerId = await storageGet("selectedCustomerId");
         let amount;
@@ -222,13 +229,16 @@ export default class PaymentScreen extends Component {
             : amount = this.determineAmount();
 
         let data = {
-            merchantId: stateOfForm.merchantId,
+            merchantId: merchantId,
             tenderType: "Card",
             amount: amount,
             cardAccount: {
-                number: stateOfForm.cardAccount.number,
-                expiryMonth: stateOfForm.cardAccount.expiryMonth,
-                expiryYear: stateOfForm.cardAccount.expiryYear,
+                // number: stateOfForm.cardAccount.number,
+                // expiryMonth: stateOfForm.cardAccount.expiryMonth,
+                // expiryYear: stateOfForm.cardAccount.expiryYear,
+                number: "4242 4242 4242 4242",
+                expiryMonth: "12",
+                expiryYear: "21",
                 cvv: stateOfForm.cardAccount.cvv,
                 avsZip: stateOfForm.cardAccount.avsZip,
                 avsStreet: stateOfForm.cardAccount.avsStreet,
@@ -241,39 +251,32 @@ export default class PaymentScreen extends Component {
             
         }
 
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment", {
+        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
             method: "POST",
             headers: headers,
             body: JSON.stringify(data),
             dataType: "json"
         }).then((response) => {
-            fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?limit=1", {
-                method: "GET",
-                headers: headers
-            }).then((response) => {
-                return response.json();
-            }).then((responseJson) => {
-                let authorizedPaymentMade = responseJson.records[0];
-                console.log(responseJson)
-                let formatedDate = formatDate();
-                let formatedTime = formatTime();
+            return response.json();
+        }).then((createdPayment) => {
+            let formattedDate = formatDate();
+            let formattedTime = formatTime();
 
-                let tipAdjustmentData = {
-                    id: authorizedPaymentMade.id,
-                    merchantId: authorizedPaymentMade.merchantId,
-                    amount: authorizedPaymentMade.amount,
-                    paymentToken: authorizedPaymentMade.paymentToken
-                }
+            let tipAdjustmentData = {
+                id: createdPayment.id,
+                merchantId: createdPayment.merchantId,
+                amount: createdPayment.amount,
+                paymentToken: createdPayment.paymentToken
+            }
+            //change formated to formatted
+            this.setState({
+                formatedDate: formattedDate,
+                formatedTime: formattedTime,
+                authCode: createdPayment.authCode,
+                tipAdjustmentData: tipAdjustmentData
+            });
 
-                this.setState({
-                    formatedDate: formatedDate,
-                    formatedTime: formatedTime,
-                    authCode: authorizedPaymentMade.authCode,
-                    tipAdjustmentData: tipAdjustmentData
-                });
-
-                this.determineAlert("approval");
-            })
+            this.determineAlert("approval");
         });
     }
 
@@ -299,17 +302,6 @@ export default class PaymentScreen extends Component {
 
     handleCustomerOverlay() {
         this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
-    }
-
-    async getApiKeys(){
-        let headers = await getRequestHeader();
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${this.state.merchantId}`, {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            console.log(response.json());
-        })
     }
 
     render() {
@@ -349,17 +341,22 @@ export default class PaymentScreen extends Component {
                     <Text style={styles.amountText}>
                         ${this.determineAmount()}
                     </Text>
+                    <Text style={styles.text}>{this.state.cardReaderConnected.toString()}</Text>
+                    <Text style={styles.text}>{this.state.cardReaderEventText}</Text>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
-                    <KeyedPaymentForm charge={this.validateForm} />
+                    <KeyedPaymentForm 
+                        charge={this.startPaymentProcess}
+                        connected={this.state.cardReaderConnected}
+                    />
                     <View style={styles.spacer} />
                     <Button
                         type="solid"
-                        title="Connect Card Reader"
+                        title={(this.state.cardReaderConnected) ? "Disconnect Card Reader" : "Connect Card Reader"} 
                         containerStyle={styles.buttonContainer}
                         buttonStyle={styles.button}
                         titleStyle={styles.buttonTitle}
-                        onPress={() => this.connectCardReader()}
+                        onPress={() => this.handleConnectReaderPress()}
                     />
                     {/* Had to make a TextInput here because react
                     native elements doesn't support a textarea  */}
@@ -399,37 +396,21 @@ export default class PaymentScreen extends Component {
                         />
                     </View>
                     <View style={styles.spacer} />
-                    <View style={styles.switchRow}>
-                        <Text style={{ fontSize: 20, color: 'white', paddingRight: 10 }}>
-                            Tax Fee
-                        </Text>
-                        <View style={[styles.smallRowDivider, { marginLeft: 53 }]} />
-                        <SwitchToggle
-                            switchOn={this.state.taxSwitchValue}
-                            onPress={() => this.toggleSwitch("tax")}
-                            circleColorOff="white"
-                            circleColorOn="white"
-                            backgroundColorOn="blue"
-                        />
-                        <View style={styles.rowDivider} />
-                        <Text style={styles.feeText}>{tax}%</Text>
-                    </View>
+                    <FeeSwitch 
+                        toggle={this.toggleSwitch}
+                        swtichTitle="Tax Fee"
+                        switchOn={this.state.taxSwitchValue}
+                        fee={tax}
+                        marginLeftValue={53}
+                    />
                     <View style={styles.spacer} />
-                    <View style={styles.switchRow}>
-                        <Text style={{ fontSize: 20, color: 'white', paddingRight: 10 }}>
-                            Service Fee
-                        </Text>
-                        <View style={styles.smallRowDivider} />
-                        <SwitchToggle
-                            switchOn={this.state.serviceFeeSwitchValue}
-                            onPress={() => this.toggleSwitch("service")}
-                            circleColorOff="white"
-                            circleColorOn="white"
-                            backgroundColorOn="blue"
-                        />
-                        <View style={styles.rowDivider} />
-                        <Text style={styles.feeText}>{serviceFee}%</Text>
-                    </View>
+                    <FeeSwitch
+                        toggle={this.toggleSwitch}
+                        swtichTitle="Service Fee"
+                        switchOn={this.state.serviceFeeSwitchValue}
+                        fee={serviceFee}
+                        marginLeftValue={15}
+                    />
                 </ScrollView>
                 <ApprovalOverlay
                     visible={this.state.approvalVisible}

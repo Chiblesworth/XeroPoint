@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-//Helper Methods
-import { storageGet, storageSet } from '../helpers/localStorage';
+
+import { storageGet } from '../helpers/localStorage';
+import { getRequestHeader } from '../helpers/getRequestHeader';
+
+import { styles } from './styles/KeyedPaymentFormStyles';
 
 
 export default class KeyedPaymentForm extends Component {
@@ -10,16 +13,17 @@ export default class KeyedPaymentForm extends Component {
         super(props);
 
         this.state = {
-            merchantId: 0,
             cardAccount: {
-                number: "4242 4242 4242 4242",
-                expiryMonth: "12",
-                expiryYear: "21",
+                // number: "4242 4242 4242 4242",
+                // expiryMonth: "12",
+                // expiryYear: "21",
+                number: null,
+                expiryMonth: null,
+                expiryYear: null,
                 avsStreet: "",
                 avsZip: "",
                 cvv: ""
             },
-            numberWithoutSpaces: "",
             streetOn: false,
             zipOn: false,
             cvvOn: false
@@ -28,7 +32,6 @@ export default class KeyedPaymentForm extends Component {
         this.getMerchantSettings = this.getMerchantSettings.bind(this);
         this.checkStreetAndZipValue = this.checkStreetAndZipValue.bind(this);
         this.handleCardInputChange = this.handleCardInputChange.bind(this);
-        this.printCardAccount = this.printCardAccount.bind(this);
     }
 
     componentDidMount() {
@@ -36,34 +39,25 @@ export default class KeyedPaymentForm extends Component {
     }
 
     async getMerchantSettings() { //FIX API CALL MADE WITH NEW HELPER METHODS
-        let encodedUser = await storageGet("encodedUser");
         let merchantId = await storageGet("merchantId");
+        let headers = await getRequestHeader();
 
-        this.setState({ merchantId: merchantId });
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${this.state.merchantId}/setting`, {
+        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${merchantId}/setting`, {
+            method: "GET",
             headers: headers
         }).then((response) => {
             return response.json();
         }).then((Json) => {
-            let isStreetOn = Json.lossPrevention.keyedAvsAddress;
-            let isZipOn = Json.lossPrevention.keyedAvsZip;
-            let isCvvOn = Json.lossPrevention.keyedCvv;
-
             this.setState({
-                streetOn: isStreetOn,
-                zipOn: isZipOn,
-                cvvOn: isCvvOn
+                streetOn: Json.lossPrevention.keyedAvsAddress,
+                zipOn: Json.lossPrevention.keyedAvsZip,
+                cvvOn: Json.lossPrevention.keyedCvv
             });
         });
     }
 
     checkStreetAndZipValue() {
+        let container;
         let streetInput = <Input
             placeholder="Street Number"
             placeholderTextColor="grey"
@@ -94,70 +88,58 @@ export default class KeyedPaymentForm extends Component {
         />
 
         if (this.state.streetOn && this.state.zipOn) {
-            return (
-                <View style={styles.row}>
-                    <View style={{ flex: 1 }}>
-                        {streetInput}
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        {zipInput}
-                    </View>
+            container = <View style={styles.row}>
+                <View style={{ flex: 1 }}>
+                    {streetInput}
                 </View>
-            );
+                <View style={{ flex: 1 }}>
+                    {zipInput}
+                </View>
+            </View>;
         }
         else if (!this.state.streetOn && !this.state.zipOn) {
-            return null;
+            container = null;
         }
         else {
-            //Really ugly work around for keep the form looking decent when either street or zip are not required
-            if (this.state.streetOn) {
-                streetInput = <Input
-                    placeholder="Street Number"
-                    placeholderTextColor="grey"
-                    inputContainerStyle={styles.zipAddressRowContainersOneUsed}
-                    inputStyle={styles.rowInputs}
-                    keyboardType="numeric"
-                    maxLength={20}
-                    onChangeText={(text) => this.setState(prevState => ({
-                        cardAccount: {
-                            ...prevState.cardAccount,
-                            avsStreet: text
-                        }
-                    }))}
-                />
-                return (
-                    <View>
-                        {streetInput}
-                    </View>
-                );
-            }
-            else {
-                zipInput = <Input
-                    placeholder="ZIP Code"
-                    placeholderTextColor="grey"
-                    inputContainerStyle={styles.zipAddressRowContainersOneUsed}
-                    inputStyle={styles.rowInputs}
-                    keyboardType="numeric"
-                    maxLength={5}
-                    onChangeText={(text) => this.setState(prevState => ({
-                        cardAccount: {
-                            ...prevState.cardAccount,
-                            avsZip: text
-                        }
-                    }))}
-                />
-                return (
-                    <View>
-                        {zipInput}
-                    </View>
-                );
-            }
+            (this.state.streetOn) 
+                ? container = <View>
+                    <Input
+                        placeholder="Street Number"
+                        placeholderTextColor="grey"
+                        inputContainerStyle={styles.zipAddressRowContainersOneUsed}
+                        inputStyle={styles.rowInputs}
+                        keyboardType="numeric"
+                        maxLength={20}
+                        onChangeText={(text) => this.setState(prevState => ({
+                            cardAccount: {
+                                ...prevState.cardAccount,
+                                avsStreet: text
+                            }
+                        }))}
+                    />
+                </View>
+                : container = <View>
+                    <Input
+                        placeholder="ZIP Code"
+                        placeholderTextColor="grey"
+                        inputContainerStyle={styles.zipAddressRowContainersOneUsed}
+                        inputStyle={styles.rowInputs}
+                        keyboardType="numeric"
+                        maxLength={5}
+                        onChangeText={(text) => this.setState(prevState => ({
+                            cardAccount: {
+                                ...prevState.cardAccount,
+                                avsZip: text
+                            }
+                        }))}
+                    />
+                </View>;            
         }
+
+        return container;
     }
 
     handleCardInputChange(number) {
-        //https://stackoverflow.com/questions/40237150/react-native-how-to-format-payment-in-mm-yy-and-spaced-16-digit-card-number-in
-        //Adds a space after every four numbers. Displays better for the user.
         this.setState(prevState => ({
             cardAccount: {
                 ...prevState.cardAccount,
@@ -166,20 +148,14 @@ export default class KeyedPaymentForm extends Component {
         }));
     }
 
-    printCardAccount(number) {
-        //Remove spaces from card number
-        number = number.replace(/ /g, "");
-
-        this.setState({ numberWithoutSpaces: number }, () => {
-            this.props.charge(this.state);
-        })
-    }
-
     render() {
+        console.log("keyed connected ", this.props.connected)
         return (
             <View style={styles.form}>
                 <Input
-                    placeholder="1234 5678 9012 3..."
+                    disabled={(this.props.connected) ? true : false}
+                    editable={true}
+                    placeholder={(this.props.connected) ? "Card Reader Connected" : "1234 5678 9012 3..."}
                     placeholderTextColor="grey"
                     leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: 'gray' }}
                     inputContainerStyle={styles.inputContainer}
@@ -188,11 +164,13 @@ export default class KeyedPaymentForm extends Component {
                     maxLength={20}
                     onChangeText={(text) => this.handleCardInputChange(text)}
                     value={this.state.cardAccount.number}
+                    
                 />
                 <View style={styles.spacer} />
                 <View style={styles.row}>
                     <View style={{ flex: 1 }}>
                         <Input
+                            disabled={true}
                             placeholder="Month EXP"
                             placeholderTextColor="grey"
                             inputContainerStyle={styles.rowInputContainer}
@@ -209,6 +187,7 @@ export default class KeyedPaymentForm extends Component {
                     </View>
                     <View style={{ flex: 1 }}>
                         <Input
+                            disabled={true}
                             placeholder="Year EXP"
                             placeholderTextColor="grey"
                             inputContainerStyle={styles.rowInputContainer}
@@ -251,70 +230,9 @@ export default class KeyedPaymentForm extends Component {
                     title="Charge"
                     containerStyle={styles.buttonContainer}
                     titleStyle={styles.buttonTitle}
-                    onPress={() => this.printCardAccount(this.state.cardAccount.number)}
+                    onPress={() => this.props.charge(this.state)}
                 />
             </View>
         );
     }
 }
-//Styles
-const styles = StyleSheet.create({
-    form: {
-        width: '100%',
-        alignItems: 'center'
-    },
-    spacer: {
-        marginBottom: '4%'
-    },
-    row: {
-        flexDirection: 'row',
-        width: '100%'
-    },
-    inputContainer: {
-        width: '84%',
-        borderRadius: 15,
-        backgroundColor: 'white',
-        marginLeft: '8%',
-    },
-    input: {
-        paddingLeft: 20,
-        fontSize: 14
-    },
-    rowInputContainer: {
-        width: '64%',
-        marginLeft: '17%',
-        borderRadius: 15,
-        backgroundColor: 'white'
-    },
-    zipAddressRowContainers: {
-        width: "64%",
-        marginLeft: '17%',
-        borderRadius: 15,
-        backgroundColor: 'white'
-    },
-    zipAddressRowContainersOneUsed: {
-        width: "84%",
-        borderRadius: 15,
-        backgroundColor: 'white'
-    },
-    rowInputs: {
-        paddingLeft: 10,
-        fontSize: 16
-    },
-    cvvContainer: {
-        borderRadius: 15,
-        backgroundColor: 'white',
-        width: '25%',
-        marginLeft: '35%'
-    },
-    cvvInput: {
-        paddingLeft: 30,
-        fontSize: 14
-    },
-    buttonContainer: {
-        width: '80%',
-    },
-    buttonTitle: {
-        fontSize: 16
-    }
-});

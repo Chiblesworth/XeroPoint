@@ -18,16 +18,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '100%',
     },
-    switchRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        width: '100%'
-    },
     rowDivider: {
         marginLeft: '10%'
-    },
-    smallRowDivider: {
-        marginLeft: '4%'
     },
     chargedContainer: {
         alignItems: 'center',
@@ -36,11 +28,6 @@ export const styles = StyleSheet.create({
     text: {
         fontSize: 30,
         color: 'white'
-    },
-    feeText: {
-        fontSize: 18,
-        color: 'white',
-        marginTop: 5
     },
     amountText: {
         fontSize: 70,
