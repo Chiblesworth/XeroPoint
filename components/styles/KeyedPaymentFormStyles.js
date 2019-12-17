@@ -15,8 +15,7 @@ export const styles = StyleSheet.create({
     inputContainer: {
         width: '84%',
         borderRadius: 15,
-        backgroundColor: 'white',
-        marginLeft: '8%',
+        backgroundColor: '#fff'
     },
     input: {
         paddingLeft: 20,
@@ -26,18 +25,18 @@ export const styles = StyleSheet.create({
         width: '64%',
         marginLeft: '17%',
         borderRadius: 15,
-        backgroundColor: 'white'
+        backgroundColor: '#fff'
     },
     zipAddressRowContainers: {
         width: "64%",
         marginLeft: '17%',
         borderRadius: 15,
-        backgroundColor: 'white'
+        backgroundColor: '#fff'
     },
     zipAddressRowContainersOneUsed: {
         width: "84%",
         borderRadius: 15,
-        backgroundColor: 'white'
+        backgroundColor: '#fff'
     },
     rowInputs: {
         paddingLeft: 10,
@@ -45,9 +44,9 @@ export const styles = StyleSheet.create({
     },
     cvvContainer: {
         borderRadius: 15,
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
         width: '25%',
-        marginLeft: '35%'
+        marginLeft: '5%'
     },
     cvvInput: {
         paddingLeft: 30,
@@ -58,5 +57,9 @@ export const styles = StyleSheet.create({
     },
     buttonTitle: {
         fontSize: 16
+    },
+    errorText:{
+       color: '#F00',
+       marginLeft: '5%'
     }
 });

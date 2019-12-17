@@ -52,7 +52,6 @@ export default class MainScreen extends Component {
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
-
         console.log(encoded);
         let headers = {
             'Authorization': 'Basic ' + encoded,

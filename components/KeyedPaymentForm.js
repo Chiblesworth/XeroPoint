@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 
 import { storageGet } from '../helpers/localStorage';
@@ -7,7 +7,7 @@ import { getRequestHeader } from '../helpers/getRequestHeader';
 
 import { styles } from './styles/KeyedPaymentFormStyles';
 
-
+//TODO: Move validation in based on connected 
 export default class KeyedPaymentForm extends Component {
     constructor(props) {
         super(props);
@@ -20,18 +20,28 @@ export default class KeyedPaymentForm extends Component {
                 number: null,
                 expiryMonth: null,
                 expiryYear: null,
-                avsStreet: "",
-                avsZip: "",
-                cvv: ""
+                avsStreet: null,
+                avsZip: null,
+                cvv: null
             },
             streetOn: false,
             zipOn: false,
-            cvvOn: false
+            cvvOn: false,
+            cardNumberError: null,
+            monthError: null,
+            yearError: null,
+            zipError: null,
+            cvvError: null
         }
 
         this.getMerchantSettings = this.getMerchantSettings.bind(this);
         this.checkStreetAndZipValue = this.checkStreetAndZipValue.bind(this);
         this.handleCardInputChange = this.handleCardInputChange.bind(this);
+        this.validateMonthOrYear = this.validateMonthOrYear.bind(this);
+        this.validateZip = this.validateZip.bind(this);
+        this.validateCvv = this.validateCvv.bind(this);
+        this.validateForm = this.validateForm.bind(this);
+        this.handleChargePress = this.handleChargePress.bind(this);
     }
 
     componentDidMount() {
@@ -72,20 +82,18 @@ export default class KeyedPaymentForm extends Component {
                 }
             }))}
         />
-        let zipInput = <Input
-            placeholder="ZIP Code"
-            placeholderTextColor="grey"
-            inputContainerStyle={styles.zipAddressRowContainers}
-            inputStyle={styles.rowInputs}
-            keyboardType="numeric"
-            maxLength={5}
-            onChangeText={(text) => this.setState(prevState => ({
-                cardAccount: {
-                    ...prevState.cardAccount,
-                    avsZip: text
-                }
-            }))}
-        />
+        let zipInput = <View>
+            <Input
+                placeholder="ZIP Code"
+                placeholderTextColor="grey"
+                inputContainerStyle={styles.zipAddressRowContainers}
+                inputStyle={styles.rowInputs}
+                keyboardType="numeric"
+                maxLength={5}
+                onChangeText={(text) => this.validateZip(text)}
+            />
+            <Text style={[styles.errorText, {marginLeft: '20%'}]}>{this.state.zipError}</Text>
+        </View>
 
         if (this.state.streetOn && this.state.zipOn) {
             container = <View style={styles.row}>
@@ -126,13 +134,9 @@ export default class KeyedPaymentForm extends Component {
                         inputStyle={styles.rowInputs}
                         keyboardType="numeric"
                         maxLength={5}
-                        onChangeText={(text) => this.setState(prevState => ({
-                            cardAccount: {
-                                ...prevState.cardAccount,
-                                avsZip: text
-                            }
-                        }))}
+                        onChangeText={(text) => this.validateZip(text)}
                     />
+                    <Text style={[styles.errorText, {marginLeft: '20%'}]}>{this.state.zipError}</Text>
                 </View>;            
         }
 
@@ -140,32 +144,163 @@ export default class KeyedPaymentForm extends Component {
     }
 
     handleCardInputChange(number) {
+        let regex = /[0-9- ]{19}/g;
+        let message;
+        (regex.test(number))
+            ? message = null
+            : message = "16 numbers required";
+
+        console.log("message is " , message)
         this.setState(prevState => ({
             cardAccount: {
                 ...prevState.cardAccount,
                 number: number.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim()
-            }
+            },
+            cardNumberError: message
         }));
+    }
+
+    validateMonthOrYear(text, field) {
+        let regex = /^[0-9]{2}/g;
+        let message;
+        (regex.test(text))
+            ? message = null
+            : message = "2 numbers required";
+        
+        (field === "month")
+            ? this.setState(prevState => ({
+                cardAccount: {
+                    ...prevState.cardAccount,
+                    expiryMonth: text
+                },
+                monthError: message
+            }))
+            : this.setState(prevState => ({
+                cardAccount: {
+                    ...prevState.cardAccount,
+                    expiryMonth: text
+                },
+                yearError: message
+            }))
+
+        this.setState(prevState => ({
+            cardAccount: {
+                ...prevState.cardAccount,
+                expiryMonth: text
+            },
+            monthError: message
+        }))
+    }
+
+    validateZip(text) {
+        let regex = /^[0-9]{5}/g;
+        let message;
+        (regex.test(text))
+            ? message = null
+            : message = "5 numbers required";
+
+        this.setState(prevState => ({
+            cardAccount: {
+                ...prevState.cardAccount,
+                expiryMonth: text
+            },
+            zipError: message
+        }));
+    }
+
+    validateCvv(text) {
+        let regex = /^[0-9]{2}/g;
+        let message;
+        (regex.test(text))
+            ? message = null
+            : message = "3-4 numbers required";
+        
+        this.setState(prevState => ({
+            cardAccount: {
+                ...prevState.cardAccount,
+                expiryMonth: text
+            },
+            cvvError: message
+        }));
+    }
+
+    validateForm(cardAccount) {
+        let validated = true;
+        let unfilledFieldError = false;
+        let validationErrorTitle = "Validation Error";
+        let validationErrorMessage;
+        console.log('here')
+        if(this.state.cardNumberError != null){
+            validationErrorMessage = "Errors exist within the form, check card number.";
+            validated = false;
+            console.log('here 2')
+        }
+        
+        if(this.state.monthError != null){
+            validationErrorMessage = "Errors exist within the form, check the month expiration.";
+            validated = false;
+        }
+
+        if(this.state.yearError != null){
+            validationErrorMessage = "Errors exist within the form, check the year expiration.";
+            validated = false;
+        }
+        
+        if(this.state.streetOn){
+            if(cardAccount.avsStreet === null){
+                validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
+                validated = false;
+            }
+        }
+
+        if(this.state.zipOn){
+            if(this.state.zipError != null){
+                validationErrorMessage = "Errors exist within the form, check the ZIP code.";
+                validated = false;
+            }
+        }
+
+        if(this.state.cvvOn){
+            if(this.state.cvvError != null){
+                validationErrorMessage = "Errors exist within the form, check the CVV number.";
+                validated = false;
+            }
+        }
+
+        if(validated){
+            console.log("validated")
+        }
+        else{
+            console.log("not val")
+        }
+    }
+
+    handleChargePress() {
+        (this.props.connected)
+            ? this.props.charge(this.state)
+            : this.validateForm(this.state.cardAccount);
     }
 
     render() {
         console.log("keyed connected ", this.props.connected)
         return (
             <View style={styles.form}>
-                <Input
-                    disabled={(this.props.connected) ? true : false}
-                    editable={true}
-                    placeholder={(this.props.connected) ? "Card Reader Connected" : "1234 5678 9012 3..."}
-                    placeholderTextColor="grey"
-                    leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: 'gray' }}
-                    inputContainerStyle={styles.inputContainer}
-                    inputStyle={styles.input}
-                    keyboardType="numeric"
-                    maxLength={20}
-                    onChangeText={(text) => this.handleCardInputChange(text)}
-                    value={this.state.cardAccount.number}
-                    
-                />
+                <View>
+                    <Input
+                        disabled={(this.props.connected) ? true : false}
+                        placeholder={(this.props.connected) ? "Card Reader Connected" : "1234 5678 9012 3..."}
+                        placeholderTextColor="grey"
+                        leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: 'gray' }}
+                        inputContainerStyle={styles.inputContainer}
+                        inputStyle={styles.input}
+                        keyboardType="numeric"
+                        maxLength={20}
+                        onChangeText={(text) => this.handleCardInputChange(text)}
+                        value={this.state.cardAccount.number}
+                        
+                    />
+                    <Text style={styles.errorText}>{this.state.cardNumberError}</Text>
+                </View>
                 <View style={styles.spacer} />
                 <View style={styles.row}>
                     <View style={{ flex: 1 }}>
@@ -177,13 +312,9 @@ export default class KeyedPaymentForm extends Component {
                             inputStyle={styles.rowInputs}
                             keyboardType="numeric"
                             maxLength={2}
-                            onChangeText={(text) => this.setState(prevState => ({
-                                cardAccount: {
-                                    ...prevState.cardAccount,
-                                    expiryMonth: text
-                                }
-                            }))}
+                            onChangeText={(text) => this.validateMonthOrYear(text, "month")}
                         />
+                        <Text style={[styles.errorText, {marginLeft: '20%'}]}>{this.state.monthError}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                         <Input
@@ -194,13 +325,10 @@ export default class KeyedPaymentForm extends Component {
                             inputStyle={styles.rowInputs}
                             keyboardType="numeric"
                             maxLength={2}
-                            onChangeText={(text) => this.setState(prevState => ({
-                                cardAccount: {
-                                    ...prevState.cardAccount,
-                                    expiryYear: text
-                                }
-                            }))}
+                            onChangeText={(text) => this.validateMonthOrYear(text, "year")}
                         />
+                        <Text style={[styles.errorText, {marginLeft: '20%'}]}>{this.state.yearError}</Text>
+
                     </View>
                 </View>
                 <View style={styles.spacer} />
@@ -208,29 +336,26 @@ export default class KeyedPaymentForm extends Component {
                 <View style={styles.spacer} />
                 {this.state.cvvOn
                     ? (
-                        <Input
-                            placeholder="CVV"
-                            placeholderTextColor="grey"
-                            inputContainerStyle={styles.cvvContainer}
-                            inputStyle={styles.cvvInput}
-                            keyboardType="numeric"
-                            maxLength={4}
-                            onChangeText={(text) => this.setState(prevState => ({
-                                cardAccount: {
-                                    ...prevState.cardAccount,
-                                    cvv: text
-                                }
-                            }))}
-                        />
+                        <View>
+                            <Input
+                                placeholder="CVV"
+                                placeholderTextColor="grey"
+                                inputContainerStyle={styles.cvvContainer}
+                                inputStyle={styles.cvvInput}
+                                keyboardType="numeric"
+                                maxLength={4}
+                                onChangeText={(text) => this.validateCvv(text)}
+                            />
+                            <Text style={[styles.errorText, {}]}>{this.state.cvvError}</Text>
+                        </View>
                     ) : (null)
                 }
-                <View style={styles.spacer} />
                 <Button
                     type="solid"
                     title="Charge"
                     containerStyle={styles.buttonContainer}
                     titleStyle={styles.buttonTitle}
-                    onPress={() => this.props.charge(this.state)}
+                    onPress={() => this.handleChargePress()}
                 />
             </View>
         );
