@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-//Components
+import { View, ScrollView } from 'react-native';
+
 import CustomHeader from '../CustomHeader';
 import FeeDisplay from '../FeeDisplay';
-//Helper Methods
+
 import { storageGet, storageSet } from '../../helpers/localStorage';
+
+import { styles } from '../styles/FeeStyles';
 
 export default class FeeScreen extends Component {
     constructor(props) {
@@ -107,28 +109,3 @@ export default class FeeScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    mainContainer: {
-        height: '100%',
-        backgroundColor: '#454343'
-    },
-    header: {
-        width: '100%',
-        height: 70
-    },
-    headerText: {
-        fontSize: 30,
-        color: 'white',
-        paddingBottom: 30
-    },
-    divider: {
-        marginTop: 20,
-        borderBottomColor: 'white',
-        borderBottomWidth: 4
-    },
-    extraPadding: {
-        marginTop: 20
-    }
-});

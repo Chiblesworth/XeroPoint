@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 
+import { styles } from './styles/SupportTileStyles';
+ 
 const SupportTile = (props) => {
     return (
         <View style={styles.supportContainer}>
@@ -20,21 +22,3 @@ const SupportTile = (props) => {
 }
 
 export default SupportTile;
-
-//Styles
-const styles = StyleSheet.create({
-    supportContainer: {
-        alignItems: 'center',
-        backgroundColor: '#656565',
-        height: '100%',
-        width: '45%',
-        marginTop: 20,
-        marginRight: 4,
-        marginLeft: 15,
-        borderRadius: 10,
-    },
-    text: {
-        color: '#fff',
-        fontSize: 15
-    }
-});

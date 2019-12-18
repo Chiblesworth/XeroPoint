@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-//Components
+
 import CustomHeader from '../CustomHeader';
 import MerchantInfo from '../MerchantInfo';
 import PaymentInfo from '../PaymentInfo';
 import TotalInfo from '../TotalInfo';
 import CustomerInfo from '../CustomerInfo';
-//Helper Methods
+
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
+
+import { styles } from '../styles/ViewReceiptStyles';
 
 
 export default class ViewReceiptScreen extends Component {
@@ -87,22 +89,3 @@ export default class ViewReceiptScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 25,
-        color: 'white',
-        paddingBottom: 30
-    },
-    receiptContainer: {
-        backgroundColor: '#fff',
-        height: '100%',
-        margin: 20,
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderColor: 'black',
-        width: '90%',
-    }
-});

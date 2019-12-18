@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import {name as app_name, version as app_version}  from '../../package.json';
-//Componets
+
 import CustomHeader from '../CustomHeader';
 import SupportTile from '../SupportTile';
-//Helper Methods
+
 import { storageGet } from '../../helpers/localStorage';
+
+import { styles } from '../styles/SupportStyles';
+import { getMerchantDetails } from '../../api_requests/getMerchantDetails';
 
 export default class SupportScreen extends Component {
     constructor(props) {
@@ -23,25 +26,13 @@ export default class SupportScreen extends Component {
 
     async componentWillMount(){
         let merchantId = await storageGet("merchantId");
-        let encodedUser = await storageGet("encodedUser");
         let user = await storageGet("username");
+        let data = await getMerchantDetails(merchantId);
 
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-        
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${merchantId}`, {
-            method: "GET",
-            headers: headers    
-        }).then((response) => {
-            return response.json()
-        }).then((Json) => {
-            this.setState({
-                merchantId: merchantId,
-                merchantName: Json.dba,
-                user: user
-            });
+        this.setState({
+            merchantId: merchantId,
+            merchantName: data.dba,
+            user: user
         });
     }
 
@@ -112,31 +103,3 @@ export default class SupportScreen extends Component {
         )
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    content: {
-        backgroundColor: '#454343',
-        height: '100%'
-    },
-    row: {
-        flexDirection: 'row',
-    },
-    buttonContainer: {
-        height: '10%',
-        margin: 15,
-        backgroundColor: '#656565'
-    },
-    button: {
-        height: '100%',
-        backgroundColor: '#656565'
-    },
-    diagnosticInfo: {
-        height: '100%',
-    },
-    text: {
-        color: '#fff',
-        fontSize: 16,
-        paddingTop: 7
-    }
-});

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
-//Helper Methods
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
+
 import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
+
+import { styles } from  './styles/DailyPaymentHistoryStyles';
 
 export default class DailyPaymentHistory extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-        };
 
         this.checkProps = this.checkProps.bind(this);
         this.calculateDailyNetTotal = this.calculateDailyNetTotal.bind(this);
@@ -25,7 +25,6 @@ export default class DailyPaymentHistory extends Component {
         for (let i = 0; i < payments.length; i++) {
             netTotal += Number(payments[i].amount);
         }
-
         return "$" + parseFloat(Math.round(netTotal * 100) / 100).toFixed(2);
     }
 
@@ -53,13 +52,13 @@ export default class DailyPaymentHistory extends Component {
 
                                 let backgroundCol;
                                 if (payment.status === "Settled") {
-                                    backgroundCol = "green";
+                                    backgroundCol = '#287C28';
                                 }
                                 else if (payment.status === "Declined") {
-                                    backgroundCol = "red";
+                                    backgroundCol = '#E50F0F';
                                 }
                                 else if (payment.status === "Voided") {
-                                    backgroundCol = "orange";
+                                    backgroundCol = '#F3A41C';
                                 }
 
                                 let dateOfPayment = new Date(payment.created);
@@ -119,26 +118,3 @@ export default class DailyPaymentHistory extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'grey',
-        width: '100%',
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    text: {
-        padding: 10,
-        fontSize: 16,
-        color: '#000'
-    },
-    statusContainer: {
-        alignItems: 'center',
-        height: 25,
-        borderRadius: 5
-    }
-});

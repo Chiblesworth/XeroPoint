@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, Alert } from "react-native";
-import { Header, Button } from 'react-native-elements';
+import { View, Text } from "react-native";
+import { Header } from 'react-native-elements';
 import accounting from 'accounting';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
@@ -12,6 +12,8 @@ import { storageGet, storageSet} from '../../helpers/localStorage';
 import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
 import { showAlert } from '../../helpers/showAlert';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
+
+import { getMerchants } from '../../api_requests/getMerchants';
 
 import { styles } from '../styles/MainStyles';
 
@@ -28,7 +30,7 @@ export default class MainScreen extends Component {
             buttonPressed: false,
             numbersPressed: "", //Holds string of numbers pressed for manipulation in formatNumbersPressed()
             amount: "0.00",
-            amountFontColor: "white", //Color depends if refund is selected.
+            amountFontColor: "#fff", //Color depends if refund is selected.
             refundSelected: false //Will need to pass this as prop to the payment screen if checked as true
         }
 
@@ -52,7 +54,7 @@ export default class MainScreen extends Component {
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
-        console.log(encoded);
+        //console.log(encoded);
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
@@ -63,7 +65,7 @@ export default class MainScreen extends Component {
             method: "GET",
             headers: headers
         }).then((response) => {
-            console.log(response)
+            //console.log(response)
             return response.json();
         }).then(async (json) => {
             let consumerKey = json.records[0].apiKey;
@@ -76,9 +78,9 @@ export default class MainScreen extends Component {
                     await AnyPay.initializeSDK();
                     var sdkVersion = await AnyPay.getSDKVersion();
                     console.log(sdkVersion);
-                    console.log(consumerKey)
-                    console.log(secret)
-                    console.log(merchantId)
+                   // console.log(consumerKey)
+                   // console.log(secret)
+                    //console.log(merchantId)
                     await AnyPay.intializeTerminal({
                         consumerKey: consumerKey,
                         secret: secret,
@@ -86,7 +88,7 @@ export default class MainScreen extends Component {
                         url: 'https://api.mxmerchant.com/checkout/v3/'
 
                     }).catch(err => console.log(err));
-                    console.log("HERE0101");
+                  //  console.log("HERE0101");
                 }
             }
             catch(e){
@@ -164,24 +166,8 @@ export default class MainScreen extends Component {
     }
 
     async getMerchantId() {
-        let encodedUser = await storageGet("encodedUser");
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/merchant", {
-            method: 'get',
-            headers: headers
-        }).then((response) => {
-            return response.json(); //Get response into JSON format
-        }).then((Json) => {
-            let merchantId = Json.records[0].id.toString();
-
-            storageSet("merchantId", merchantId)
-        });
-
+        let data = await getMerchants();
+        storageSet(data.records[0].id.toString());
     }
 
     render() {

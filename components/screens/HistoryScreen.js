@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
-//Components
+
 import CustomHeader from '../CustomHeader';
 import BatchHistory from '../BatchHistory';
 import DailyPaymentHistory from '../DailyPaymentHistory';
-//Helper Methods
-import { storageGet, storageSet } from '../../helpers/localStorage';
+
+import { getBatches } from '../../api_requests/getBatches';
+import { getDailyPayments } from '../../api_requests/getDailyPayments';
+
+import { storageGet } from '../../helpers/localStorage';
+
+import { styles } from '../styles/HistoryStyles';
 
 export default class HistoryScreen extends Component {
     constructor(props) {
@@ -24,50 +29,24 @@ export default class HistoryScreen extends Component {
     }
 
     async componentWillMount() {
-        let encodedUser = await storageGet("encodedUser");
         let merchantId = await storageGet("merchantId");
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        };
-        
-        let endDate = new Date();
-        endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
         let startDate = new Date();
+        let endDate = new Date();
+
+        //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
         startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
+        endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
 
         console.log(endDate.toLocaleDateString())
         console.log(startDate.toLocaleDateString())
+        
         //Get batches 
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batch?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`, {
-            method: "GET",
-            headers: headers,
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            this.setState({ batches: Json.records });
-        });
-
-        //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
-        // let endDate = new Date();
-        // endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
-        // let startDate = new Date();
-        // startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
-
-        // console.log(endDate.toLocaleDateString())
-        // console.log(startDate.toLocaleDateString())
+        let batches = await getBatches(merchantId, startDate, endDate);
+        this.setState({batches: batches.records});
 
         //Get payments in past 3 months
-        //`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`, {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            this.parsePaymentsByDay(Json.records);
-        })
+        let dailyPayments = await getDailyPayments(merchantId, startDate, endDate);
+        this.parsePaymentsByDay(dailyPayments.records);
     }
 
     handleHeaderIconPress() {
@@ -145,36 +124,3 @@ export default class HistoryScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 25,
-        color: 'white',
-        paddingBottom: 30
-    },
-    segmentedControlContainer: {
-        alignItems: 'center',
-        backgroundColor: '#454343',
-        width: '100%',
-        paddingBottom: 10
-    },
-    tabsContainerStyle: {
-        width: '50%',
-        borderColor: '#454343'
-    },
-    tabStyle: {
-        backgroundColor: '#454343',
-        borderColor: 'black'
-    },
-    tabTextStyle: {
-        fontSize: 18,
-        color: 'white'
-    },
-    activeTabStyle: {
-        backgroundColor: 'white'
-    },
-    activeTabTextStyle: {
-        color: 'black'
-    },
-});

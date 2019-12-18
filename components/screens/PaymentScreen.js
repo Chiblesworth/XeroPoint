@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, Text, TextInput, ScrollView, Alert, NativeEventEmitter } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
-import SwitchToggle from 'react-native-switch-toggle';
 import RNAnyPay from 'react-native-any-pay';
 import { StackActions, NavigationActions } from 'react-navigation';
 
@@ -11,6 +10,7 @@ import KeyedPaymentForm from '../KeyedPaymentForm';
 import FeeSwitch from '../FeeSwitch';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import ApprovalOverlay from '../overlays/ApprovalOverlay';
+import EmvProcessOverlay from '../overlays/EmvProcessOverlay';
 
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
@@ -58,45 +58,42 @@ export default class PaymentScreen extends Component {
             authCode: "",
             tipAdjustmentData: null,
             customOverlayVisible: false,
+            emvOverlayVisible: false
         }
 
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
         this.toggleSwitch = this.toggleSwitch.bind(this);
-        this.validateForm = this.validateForm.bind(this);
         this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
-        this.determineAlert = this.determineAlert.bind(this);
         this.authorizePayment = this.authorizePayment.bind(this);
         this.determineAmount = this.determineAmount.bind(this);
         this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
+        this.handleEmvOverlay = this.handleEmvOverlay.bind(this);
         this.handleConnectReaderPress = this.handleConnectReaderPress.bind(this);
         this.startEmv = this.startEmv.bind(this);
         this.startPaymentProcess = this.startPaymentProcess.bind(this);
-    }
-
-    async componentWillMount() {
-        let collectServiceFee = await storageGet("collectServiceFee");
-        let collectTaxFee = await storageGet("collectTaxFee");
-        let connected =  await AnyPay.isReaderConnected();
-        console.log("connected ", connected)
-
-        collectServiceFee = JSON.parse(collectServiceFee);
-        collectTaxFee = JSON.parse(collectTaxFee);
-
-        (this.props.navigation.state.params.refundSelected)
-            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected})
-            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected});
+        this.handleAuthorizationOverlay = this.handleAuthorizationOverlay.bind(this);
     }
 
     async componentDidMount() {
         Orientation.lockToPortrait();
         let taxFee = await storageGet("taxFee");
         let serviceFee = await storageGet("serviceFee");
+        let collectServiceFee = await storageGet("collectServiceFee");
+        let collectTaxFee = await storageGet("collectTaxFee");
+        let connected =  await AnyPay.isReaderConnected();
+
+        console.log("connected ", connected)
+
+        collectServiceFee = JSON.parse(collectServiceFee);
+        collectTaxFee = JSON.parse(collectTaxFee);
 
         eventEmitter.addListener('CardReaderEvent', this.handleCardReaderEvent.bind(this));
         eventEmitter.addListener('CardReaderConnected', this.handleCardReaderConnect.bind(this));
         eventEmitter.addListener('CardReaderDisconnected', this.handleCardReaderDisconnect.bind(this));
 
-        this.setState({ tax: taxFee, serviceFee: serviceFee});
+        (this.props.navigation.state.params.refundSelected)
+            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee})
+            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee});
     }
 
     handleCardReaderEvent = (event) => {
@@ -133,8 +130,16 @@ export default class PaymentScreen extends Component {
                 currency: 'USD'
               }
             console.log(emvObj)
+            //this.handleEmvOverlay();
+            console.log("here 2")
             transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e))
             console.log(transaction);
+            console.log(transaction.gatewayResponse);
+            console.log(transaction.gatewayResponse.responseJson);
+            console.log(transaction.gatewayResponse.responseJson.status);
+            this.setState({cardReaderEventText: transaction.gatewayResponse.responseJson.status});
+
+
         }
         catch(e){
             console.log(e);
@@ -151,61 +156,31 @@ export default class PaymentScreen extends Component {
             : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
     }
 
-    startPaymentProcess(formState) {
+    startPaymentProcess(cardAccount) {
         (this.state.cardReaderConnected)
             ? this.startEmv()
-            : this.validateForm(formState);
+            : this.authorizePayment(cardAccount);
     }
 
-    validateForm(formState) {
-        console.log(formState)
-        if (formState.number === "" || formState.cardAccount.expiryMonth === "" || formState.cardAccount.expiryYear === "") {
-            this.determineAlert("validation");
-            /*
-            number contains only numbers
-            16 numbers only
-            month must be number and 2 digits
-            year must be number and 2 digits
-            */
+    handleAuthorizationOverlay() {
+        if(this.state.approvalVisible){
+            this.setState({approvalVisible: !this.state.approvalVisible});
+            
+            (this.props.navigation.state.params.refundSelected)
+                ? this.props.navigation.dispatch(resetAction)
+                : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
         }
-        else if (formState.streetOn === true && formState.cardAccount.avsStreet === "") {
-            this.determineAlert("validation");
-        }
-        else if (formState.zipOn === true && formState.cardAccount.avsZip === "") {
-            this.determineAlert("validation"); //Check for 5 digits and only numbers
-        }
-        else if (formState.cvvOn === true && formState.cardAccount.cvv === "") {
-            this.determineAlert("validation"); //cvv can only b3 3-4 numbers long
-        }
-        else {
-            this.authorizePayment(formState);
-        }
-    }
+        else{
+            let approvalTitle;
 
-    determineAlert(typeOfAlert) {
-        if (typeOfAlert === "validation") {
-            showAlert("Incomplete Fields", 'Please fill out all fields above the "Charge" button to continue.');
-        }
-        else if (typeOfAlert === "approval") {
-            if (this.state.approvalVisible) {
-                this.setState({ approvalVisible: !this.state.approvalVisible });
+            (this.props.navigation.state.params.refundSelected)
+                ? (approvalTitle = "Refund Approved!")
+                : approvalTitle = "Approved!";
 
-                (this.props.navigation.state.params.refundSelected)
-                    ? this.props.navigation.dispatch(resetAction)
-                    : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
-            }
-            else {
-                let approvalTitle;
-
-                (this.props.navigation.state.params.refundSelected)
-                    ? (approvalTitle = "Refund Approved!")
-                    : approvalTitle = "Approved!";
-
-                this.setState({
-                    approvalVisible: !this.state.approvalVisible,
-                    approvalTitle: approvalTitle
-                });
-            }
+            this.setState({
+                approvalVisible: !this.state.approvalVisible,
+                approvalTitle: approvalTitle
+            });
         }
     }
 
@@ -213,7 +188,7 @@ export default class PaymentScreen extends Component {
         this.props.navigation.navigate("SearchCustomer");
     }
 
-    async authorizePayment(stateOfForm) {
+    async authorizePayment(cardAccount) {
         let merchantId = await storageGet("merchantId");
         let headers = await getRequestHeader();
         let selectedCustomerId = await storageGet("selectedCustomerId");
@@ -233,15 +208,15 @@ export default class PaymentScreen extends Component {
             tenderType: "Card",
             amount: amount,
             cardAccount: {
-                // number: stateOfForm.cardAccount.number,
-                // expiryMonth: stateOfForm.cardAccount.expiryMonth,
-                // expiryYear: stateOfForm.cardAccount.expiryYear,
+                // number: cardAccount.number,
+                // expiryMonth: cardAccount.expiryMonth,
+                // expiryYear: cardAccount.expiryYear,
                 number: "4242 4242 4242 4242",
                 expiryMonth: "12",
                 expiryYear: "21",
-                cvv: stateOfForm.cardAccount.cvv,
-                avsZip: stateOfForm.cardAccount.avsZip,
-                avsStreet: stateOfForm.cardAccount.avsStreet,
+                cvv: cardAccount.cvv,
+                avsZip: cardAccount.avsZip,
+                avsStreet: cardAccount.avsStreet,
             },
             customer: {
                 id: selectedCustomerId,
@@ -276,7 +251,7 @@ export default class PaymentScreen extends Component {
                 tipAdjustmentData: tipAdjustmentData
             });
 
-            this.determineAlert("approval");
+            this.handleAuthorizationOverlay();
         });
     }
 
@@ -301,7 +276,11 @@ export default class PaymentScreen extends Component {
     }
 
     handleCustomerOverlay() {
-        this.setState({ customOverlayVisible: !this.state.customOverlayVisible })
+        this.setState({customOverlayVisible: !this.state.customOverlayVisible});
+    }
+
+    handleEmvOverlay(){
+        this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
     }
 
     render() {
@@ -348,6 +327,11 @@ export default class PaymentScreen extends Component {
                     <KeyedPaymentForm 
                         charge={this.startPaymentProcess}
                         connected={this.state.cardReaderConnected}
+                    />
+                    <Button
+                        type="solid"
+                        title="test overlay"
+                        onPress={() => this.handleEmvOverlay()}
                     />
                     <View style={styles.spacer} />
                     <Button
@@ -415,7 +399,7 @@ export default class PaymentScreen extends Component {
                 <ApprovalOverlay
                     visible={this.state.approvalVisible}
                     title={this.state.approvalTitle}
-                    handleClose={this.determineAlert}
+                    handleClose={this.handleAuthorizationOverlay}
                     determineAmount={this.determineAmount}
                     formatedDate={this.state.formatedDate}
                     formatedTime={this.state.formatedTime}
@@ -425,6 +409,11 @@ export default class PaymentScreen extends Component {
                     isVisible={this.state.customOverlayVisible}
                     closeOverlay={this.handleCustomerOverlay}
                     createCustomer={this.createCustomer}
+                />
+                <EmvProcessOverlay
+                    isVisible={this.state.emvOverlayVisible}
+                    handleClose={this.handleEmvOverlay}
+                    message={this.state.cardReaderEventText}
                 />
             </View>
         );

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, Linking, Alert, Image} from "react-native";
+import { View, Text, Linking, Image} from "react-native";
 import { Input, Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation';
 
 import { storageGet, storageSet } from '../../helpers/localStorage';
+import { showAlert } from '../../helpers/showAlert';
+
+import { authenticate } from '../../api_requests/authenticate';
 
 import { styles } from '../styles/LoginStyles';
 
@@ -45,7 +48,7 @@ export default class LoginScreen extends Component {
 		: this.setState({encodedPassword: base64.encode(text)});
 	}
 
-	signIn() {
+	async signIn() {
 		let encodedString = base64.encode(base64.decode(this.state.encodedUsername) + 
 			":" + base64.decode(this.state.encodedPassword));
 
@@ -54,29 +57,19 @@ export default class LoginScreen extends Component {
 			'Content-Type' : 'application/json; charset=utf-8'
 		}
 
-		//Production https://api.mxmerchant.com/checkout/v3/payment?echo=true
-		//Sandbox https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true
-		fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
-			headers: headers
-		})
-		.then((response) => {
-			console.log(response);
-			if(response.status === 200){
-				if(this.state.switchValue){
-					storageSet("stayLoggedIn", "True");
-				}
+		let data = await authenticate(headers);
 
-				storageSet("encodedUser", encodedString);
-				storageSet("username", base64.decode(this.state.encodedUsername));
-				this.props.navigation.navigate("Main");
+		if(data === 200){
+			if(this.state.switchValue){
+				storageSet("stayLoggedIn", "True");
 			}
-			else{
-				Alert.alert(
-					"Validation Error",
-					"There was an error in your request. Please try again."
-				)
-			}
-		});
+			storageSet("encodedUser", encodedString);
+			storageSet("username", base64.decode(this.state.encodedUsername));
+			this.props.navigation.navigate("Main")
+		}
+		else{
+			showAlert("Validation Error", "There was an error in your request. Please try again.");
+		}
 	}
 
 	render() {

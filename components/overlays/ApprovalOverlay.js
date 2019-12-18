@@ -48,7 +48,7 @@ export default class ApprovalOverlay extends Component {
                         buttonStyle={styles.buttonStyle}
                         titleStyle={styles.buttonTitle}
                     />
-                </View>
+                </View> 
             </Overlay>
         );
     }

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-//Helper Methods
+import { View, Text } from 'react-native';
+
 import { storageGet } from '../helpers/localStorage';
 import { formatPhoneNumber } from '../helpers/formatPhoneNumber';
+
+import { styles } from './styles/MerchantInfoStyles';
 //Test
 import base64 from 'react-native-base64';
 
@@ -23,7 +25,6 @@ export default class MerchantInfo extends Component {
     }
 
     async componentWillMount() {
-        let encodedUser = base64.encode("procinc:processing2019");
         //let merchantId = await storageGet("merchantId");
 
         let headers = {
@@ -36,6 +37,7 @@ export default class MerchantInfo extends Component {
         }).then((response) => {
             return response.json();
         }).then((Json) => {
+            console.log(Json)
             console.log(Json.receipt)
             let receipt = Json.receipt;
 
@@ -67,24 +69,3 @@ export default class MerchantInfo extends Component {
         );
     }
 }
-
-//Styles 
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        padding: 15
-        
-    },
-    merchantName: {
-        fontWeight: '500',
-        color: 'black',
-        fontSize: 15,
-        paddingBottom: 10,
-        letterSpacing: 0.5
-    },
-    text: {
-        letterSpacing: 0.5,
-        fontSize: 14,
-        color: 'black'
-    }
-});

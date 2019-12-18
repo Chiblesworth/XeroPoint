@@ -4,19 +4,16 @@ import { Input, Button } from 'react-native-elements';
 
 import { storageGet } from '../helpers/localStorage';
 import { getRequestHeader } from '../helpers/getRequestHeader';
+import { showAlert } from '../helpers/showAlert';
 
 import { styles } from './styles/KeyedPaymentFormStyles';
 
-//TODO: Move validation in based on connected 
 export default class KeyedPaymentForm extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             cardAccount: {
-                // number: "4242 4242 4242 4242",
-                // expiryMonth: "12",
-                // expiryYear: "21",
                 number: null,
                 expiryMonth: null,
                 expiryYear: null,
@@ -35,13 +32,13 @@ export default class KeyedPaymentForm extends Component {
         }
 
         this.getMerchantSettings = this.getMerchantSettings.bind(this);
+        this.handleChargePress = this.handleChargePress.bind(this);
         this.checkStreetAndZipValue = this.checkStreetAndZipValue.bind(this);
         this.handleCardInputChange = this.handleCardInputChange.bind(this);
         this.validateMonthOrYear = this.validateMonthOrYear.bind(this);
         this.validateZip = this.validateZip.bind(this);
         this.validateCvv = this.validateCvv.bind(this);
         this.validateForm = this.validateForm.bind(this);
-        this.handleChargePress = this.handleChargePress.bind(this);
     }
 
     componentDidMount() {
@@ -64,6 +61,12 @@ export default class KeyedPaymentForm extends Component {
                 cvvOn: Json.lossPrevention.keyedCvv
             });
         });
+    }
+
+    handleChargePress() {
+        (this.props.connected)
+            ? this.props.charge(this.state)
+            : this.validateForm(this.state.cardAccount);
     }
 
     checkStreetAndZipValue() {
@@ -150,7 +153,6 @@ export default class KeyedPaymentForm extends Component {
             ? message = null
             : message = "16 numbers required";
 
-        console.log("message is " , message)
         this.setState(prevState => ({
             cardAccount: {
                 ...prevState.cardAccount,
@@ -178,18 +180,10 @@ export default class KeyedPaymentForm extends Component {
             : this.setState(prevState => ({
                 cardAccount: {
                     ...prevState.cardAccount,
-                    expiryMonth: text
+                    expiryYear: text
                 },
                 yearError: message
-            }))
-
-        this.setState(prevState => ({
-            cardAccount: {
-                ...prevState.cardAccount,
-                expiryMonth: text
-            },
-            monthError: message
-        }))
+            }));
     }
 
     validateZip(text) {
@@ -202,7 +196,7 @@ export default class KeyedPaymentForm extends Component {
         this.setState(prevState => ({
             cardAccount: {
                 ...prevState.cardAccount,
-                expiryMonth: text
+                avsZip: text
             },
             zipError: message
         }));
@@ -218,7 +212,7 @@ export default class KeyedPaymentForm extends Component {
         this.setState(prevState => ({
             cardAccount: {
                 ...prevState.cardAccount,
-                expiryMonth: text
+                cvv: text
             },
             cvvError: message
         }));
@@ -226,18 +220,24 @@ export default class KeyedPaymentForm extends Component {
 
     validateForm(cardAccount) {
         let validated = true;
-        let unfilledFieldError = false;
         let validationErrorTitle = "Validation Error";
         let validationErrorMessage;
-        console.log('here')
+ 
         if(this.state.cardNumberError != null){
             validationErrorMessage = "Errors exist within the form, check card number.";
             validated = false;
-            console.log('here 2')
+        }
+        else if(cardAccount.number === null || cardAccount.number === ""){
+            validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
+            validated = false;
         }
         
         if(this.state.monthError != null){
             validationErrorMessage = "Errors exist within the form, check the month expiration.";
+            validated = false;
+        }
+        else if(cardAccount.expiryMonth === null || cardAccount.expiryMonth === ""){
+            validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
             validated = false;
         }
 
@@ -245,9 +245,13 @@ export default class KeyedPaymentForm extends Component {
             validationErrorMessage = "Errors exist within the form, check the year expiration.";
             validated = false;
         }
+        else if(cardAccount.expiryYear === null || cardAccount.expiryYear === ""){
+            validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
+            validated = false;
+        }
         
         if(this.state.streetOn){
-            if(cardAccount.avsStreet === null){
+            if(cardAccount.avsStreet === null || cardAccount.avsStreet === ""){
                 validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
                 validated = false;
             }
@@ -258,6 +262,10 @@ export default class KeyedPaymentForm extends Component {
                 validationErrorMessage = "Errors exist within the form, check the ZIP code.";
                 validated = false;
             }
+            else if(cardAccount.avsZip === null || cardAccount.avsZip === ""){
+                validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
+                validated = false;
+            }
         }
 
         if(this.state.cvvOn){
@@ -265,24 +273,18 @@ export default class KeyedPaymentForm extends Component {
                 validationErrorMessage = "Errors exist within the form, check the CVV number.";
                 validated = false;
             }
+            else if(cardAccount.cvv === null || cardAccount.cvv === ""){
+                validationErrorMessage = "Errors exist within the form, cannot leave anything above 'Charge' button empty";
+                validated = false;
+            }
         }
-
-        if(validated){
-            console.log("validated")
-        }
-        else{
-            console.log("not val")
-        }
-    }
-
-    handleChargePress() {
-        (this.props.connected)
-            ? this.props.charge(this.state)
-            : this.validateForm(this.state.cardAccount);
+        
+        (!validated)
+            ? showAlert(validationErrorTitle, validationErrorMessage)
+            : this.props.charge(this.state.cardAccount);
     }
 
     render() {
-        console.log("keyed connected ", this.props.connected)
         return (
             <View style={styles.form}>
                 <View>
