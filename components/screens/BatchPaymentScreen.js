@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
-//Components
+
 import CustomerHeader from '../CustomHeader';
-//Helper Methods
+
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
+
+import { styles } from '../styles/BatchPaymentStyles';
 
 
 export default class BatchPaymentScreen extends Component {
@@ -14,9 +16,6 @@ export default class BatchPaymentScreen extends Component {
         this.state = {
             batchPayments: this.props.navigation.state.params.batchPayments
         };
-
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.handlePaymentPress = this.handlePaymentPress.bind(this);
     }
 
     componentDidMount() {
@@ -24,11 +23,11 @@ export default class BatchPaymentScreen extends Component {
         console.log(this.state.batchPayments)
     }
 
-    handleHeaderIconPress() {
+    handleHeaderIconPress = () => {
         this.props.navigation.pop();
     }
 
-    handlePaymentPress(payment) {
+    handlePaymentPress = (payment) => {
         this.props.navigation.push("ViewReceipt", { payment: payment });
     }
 
@@ -50,13 +49,13 @@ export default class BatchPaymentScreen extends Component {
 
                         let backgroundCol;
                         if (payment.status === "Settled") {
-                            backgroundCol = "green";
+                            backgroundCol = '#287C28';
                         }
                         else if (payment.status === "Declined") {
-                            backgroundCol = "red";
+                            backgroundCol = '#E50F0F';
                         }
                         else if (payment.status === "Voided") {
-                            backgroundCol = "orange";
+                            backgroundCol = '#F3A41C';
                         }
                         let dateOfPayment = new Date(payment.created);
                         let timeOfPayment = dateOfPayment.toTimeString();
@@ -113,29 +112,3 @@ export default class BatchPaymentScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 25,
-        color: 'white',
-        paddingBottom: 30
-    },
-    payment: {
-        borderWidth: 1,
-        borderColor: 'black',
-    },
-    row: {
-        padding: 10,
-        width: '100%',
-        flexDirection: 'row',
-    },
-    paymentText: {
-        fontSize: 18
-    },
-    statusContainer: {
-        alignItems: 'center',
-        height: 25,
-        borderRadius: 5
-    }
-})

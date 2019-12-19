@@ -36,7 +36,7 @@ export default class SupportScreen extends Component {
         });
     }
 
-    handleHeaderIconPress() {
+    handleHeaderIconPress = () => {
         this.props.navigation.navigate("Main");
     }
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import CustomHeader from '../CustomHeader';
@@ -12,22 +12,19 @@ import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
 import { styles } from '../styles/ViewReceiptStyles';
 
-
 export default class ViewReceiptScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             payment: this.props.navigation.state.params.payment
         };
-
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
     }
 
     componentWillMount() {
         console.log(this.state.payment)
     }
 
-    handleHeaderIconPress() {
+    handleHeaderIconPress = () => {
         this.props.navigation.pop();
     }
 

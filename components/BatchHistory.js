@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-//Helper Methods
-import { storageGet, storageSet } from '../helpers/localStorage';
+import { View, Text, TouchableOpacity } from 'react-native';
+
+import { getBatchPayments } from '../api_requests/getBatchPayments';
+
 import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
+
+import { styles } from './styles/BatchHistoryStyles';
 
 export default class BatchHistory extends Component {
     constructor(props) {
@@ -10,39 +13,14 @@ export default class BatchHistory extends Component {
         this.state = {
             batchPayments: []
         };
-
-        this.handleBatchPress = this.handleBatchPress.bind(this);
-        this.getBatchTransactions = this.getBatchTransactions.bind(this);
     }
 
-    handleBatchPress(batchId) {
-        console.log("Batch was tapped id is = " + batchId);
-        this.getBatchTransactions(batchId);
-    }
-
-    async getBatchTransactions(batchId) {
-        let encodedUser = await storageGet("encodedUser");
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        };
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/batchpayment?id=${batchId}`, {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            this.setState({ batchPayments: Json.records }, () => {
-                console.log(this.state.batchPayments);
-                this.props.navigation.navigate("BatchPayments",
-                    {
-                        batchPayments: this.state.batchPayments
-                    }
-                ); //This navigation is passed as a prop
-            })
-        })
+    handleBatchPress = async (batchId) => {
+        let data = await getBatchPayments(batchId);
+        this.setState({batchPayments: data.records}, () => {
+            console.log(this.state.batchPayments);
+            this.props.navigation.navigate("BatchPayments", {batchPayments: this.state.batchPayments});
+        });
     }
 
     render() {
@@ -76,15 +54,13 @@ export default class BatchHistory extends Component {
                                 </View>
                                 <View style={[styles.row, { padding: 20 }]}>
                                     <View style={styles.batchInfoContainer}>
-                                        <View style={
-                                            {
-                                                backgroundColor: '#2E2B2B',
-                                                borderTopLeftRadius: 17,
-                                                borderTopRightRadius: 17,
-                                                width: '100%',
-                                                alignItems: 'center'
-                                            }
-                                        }>
+                                        <View style={{
+                                            backgroundColor: '#2E2B2B',
+                                            borderTopLeftRadius: 17,
+                                            borderTopRightRadius: 17,
+                                            width: '100%',
+                                            alignItems: 'center'
+                                        }}>
                                             <Text style={[styles.infoText, { color: '#fff' }]}>
                                                 {batch.status.toUpperCase()}
                                             </Text>
@@ -92,15 +68,13 @@ export default class BatchHistory extends Component {
                                         <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#000' }}>
                                             {batch.netCount}
                                         </Text>
-                                        <View style={
-                                            {
-                                                backgroundColor: '#DCDCDC',
-                                                borderBottomLeftRadius: 20,
-                                                borderBottomRightRadius: 20,
-                                                width: '100%',
-                                                alignItems: 'center'
-                                            }
-                                        }>
+                                        <View style={{
+                                            backgroundColor: '#DCDCDC',
+                                            borderBottomLeftRadius: 20,
+                                            borderBottomRightRadius: 20,
+                                            width: '100%',
+                                            alignItems: 'center'
+                                        }}>
                                             <Text style={[styles.infoText, { color: '#000' }]}>
                                                 ${parseFloat(Math.round(batch.netAmount * 100) / 100).toFixed(2)}
                                             </Text>
@@ -133,34 +107,3 @@ export default class BatchHistory extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    batchContainer: {
-        borderColor: "#696969",
-        borderWidth: 1,
-        height: '100%'
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    text: {
-        padding: 10,
-        fontSize: 16,
-        color: "#000"
-    },
-    batchInfoContainer: {
-        borderRadius: 20,
-        borderWidth: 2,
-        borderColor: "#2E2B2B",
-        width: '25%',
-        height: 115,
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-    },
-    infoText: {
-        padding: 10,
-        borderRadius: 20
-    },
-});

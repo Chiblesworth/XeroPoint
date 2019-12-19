@@ -20,13 +20,9 @@ export default class LoginScreen extends Component {
 
 		this.state = {
 			switchValue: false,
-			encodedUsername: "",
-			encodedPassword: ""
+			encodedUsername: null,
+			encodedPassword: null
 		};
-
-		this.toggleSwitch = this.toggleSwitch.bind(this);
-		this.encodeString = this.encodeString.bind(this);
-		this.signIn = this.signIn.bind(this);
 	}
 
 	async componentWillMount() {
@@ -38,17 +34,17 @@ export default class LoginScreen extends Component {
 		}
 	}
 
-	toggleSwitch() {
+	toggleSwitch = () => {
 		this.setState({switchValue: !this.state.switchValue});
 	}
 
-	encodeString(text, inputField) {
+	encodeString = (text, inputField) => {
 		(inputField === "Username") 
 		? this.setState({encodedUsername: base64.encode(text)})
 		: this.setState({encodedPassword: base64.encode(text)});
 	}
 
-	async signIn() {
+	signIn = async () => {
 		let encodedString = base64.encode(base64.decode(this.state.encodedUsername) + 
 			":" + base64.decode(this.state.encodedPassword));
 

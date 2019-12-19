@@ -22,10 +22,6 @@ export default class HistoryScreen extends Component {
             lastThreeMonthsPayments: [],
             paymentsSplitByDay: []
         };
-
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.handleTabChange = this.handleTabChange.bind(this);
-        this.parsePaymentsByDay = this.parsePaymentsByDay.bind(this);
     }
 
     async componentWillMount() {
@@ -49,15 +45,15 @@ export default class HistoryScreen extends Component {
         this.parsePaymentsByDay(dailyPayments.records);
     }
 
-    handleHeaderIconPress() {
+    handleHeaderIconPress = () => {
         this.props.navigation.navigate("Main");
     }
 
-    handleTabChange(index) {
+    handleTabChange = (index) => {
         this.setState({ selectedIndex: index });
     }
 
-    parsePaymentsByDay(payments){
+    parsePaymentsByDay = (payments) => {
         console.log(payments)
         console.log(payments.length);
 

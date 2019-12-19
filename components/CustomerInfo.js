@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
+
+import { styles } from './styles/CustomerInfoStyles';
 
 export default class CustomerInfo extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-        };
     }
 
     render() {
@@ -19,15 +19,3 @@ export default class CustomerInfo extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        margin: 15
-    },
-    text: {
-        fontSize: 14,
-        color: 'black',
-        letterSpacing: 0.5
-    }
-});

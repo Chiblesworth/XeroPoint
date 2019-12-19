@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import { Overlay, Button, Icon } from 'react-native-elements';
+import { Overlay } from 'react-native-elements';
 
 import { styles } from '../styles/EmvProcessOverlayStyles';
 

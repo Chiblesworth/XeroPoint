@@ -1,32 +1,30 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
+
+import { styles } from './styles/PaymentInfoStyles';
 
 export default class PaymentInfo extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-        };
     }
 
     render() {
-        console.log("here in payment Info " + this.props.status)
         let backgroundCol;
+
         if (this.props.status === "Settled") {
-            backgroundCol = 'green';
+            backgroundCol = '#287C28';
         }
         else if(this.props.status === "Declined") {
-            backgroundCol = 'red';
+            backgroundCol = '#E50F0F';
         }
         else if(this.props.status === "Voided"){
-            backgroundCol = 'orange';
+            backgroundCol = '#F3A41C';
         }
         else if(this.props.status === "Approved"){
             //This was originally in the settled condition, but it kept causing voided to be green rather than orange
-            backgroundCol = "green";
+            backgroundCol = '#287C28';
         }
-
-        console.log(backgroundCol)
 
         return (
             <View style={styles.container}>
@@ -59,32 +57,3 @@ export default class PaymentInfo extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        margin: 15,
-    },
-    row: {
-        flexDirection: 'row',
-        marginLeft: 10
-    },
-    text: {
-        color: 'black',
-        fontSize: 14,
-        letterSpacing: 0.5
-    },
-    statusContainer: {
-        marginTop: 55,
-        marginBottom: 55,
-        width: '30%',
-        height: 35,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    statusText: {
-        color: '#fff',
-        fontSize: 16
-    }
-});

@@ -18,14 +18,9 @@ export default class FeeScreen extends Component {
             collectServiceFee: false,
             collectTaxFee: false
         };
-
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.handleServiceFeeChange = this.handleServiceFeeChange.bind(this);
-        this.handleTaxFeeChange = this.handleTaxFeeChange.bind(this);
-        this.handleSwitchPress = this.handleSwitchPress.bind(this);
     }
 
-    async componentWillMount() {
+    async componentDidMount() {
         let collectServiceFee = await storageGet("collectServiceFee");
         let collectTaxFee = await storageGet("collectTaxFee");
         let serviceFee = await storageGet("serviceFee");
@@ -43,45 +38,42 @@ export default class FeeScreen extends Component {
         });
     }
 
-    handleHeaderIconPress() {
-        this.props.navigation.navigate("Settings");
+    handleHeaderIconPress = () => {
+        this.props.navigation.pop();
     }
 
-    handleServiceFeeChange(newFee) {
-        storageSet("serviceFee", newFee);
-        this.setState({ serviceFee: newFee });
+    handleServiceFeeChange = (newFee) => {
+        this.setState({ serviceFee: newFee }, () => {
+            storageSet("serviceFee", newFee);
+        });
     }
 
-    handleTaxFeeChange(newFee) {
-        storageSet("taxFee", newFee);
-        this.setState({ tax: newFee });
+    handleTaxFeeChange = (newFee) => {
+        this.setState({ tax: newFee }, () => {
+            storageSet("taxFee", newFee);
+        });
     }
 
-    handleSwitchPress(switchHit) {
-        if (switchHit === "Service Fee") {
-            this.setState({ collectServiceFee: !this.state.collectServiceFee }, () => {
+    handleSwitchPress = (switchHit) => {
+        (switchHit === "Service Fee")
+            ? this.setState({ collectServiceFee: !this.state.collectServiceFee }, () => {
                 storageSet("collectServiceFee", this.state.collectServiceFee.toString());
-            });
-        }
-        else {
-            this.setState({ collectTaxFee: !this.state.collectTaxFee }, () => {
+            })
+            : this.setState({ collectTaxFee: !this.state.collectTaxFee }, () => {
                 storageSet("collectTaxFee", this.state.collectTaxFee.toString());
             });
-        }
     }
 
     render() {
         return (
             <View style={styles.mainContainer}>
-                <View stlye={styles.header}>
-                    <CustomHeader
-                        iconName="chevron-left"
-                        type="entypo"
-                        title="Additional Fees"
-                        handlePress={this.handleHeaderIconPress}
-                        backgroundColor="#656565"
-                    />
-                </View>
+                <CustomHeader
+                    iconName="chevron-left"
+                    type="entypo"
+                    title="Additional Fees"
+                    handlePress={this.handleHeaderIconPress}
+                    backgroundColor="#656565"
+                />
                 <View style={{ paddingTop: 10 }} />
                 {/* Wrapped this a ScrollView so the keyboard doesn't cover input areas. */}
                 <ScrollView>

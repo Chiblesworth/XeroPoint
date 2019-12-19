@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, ScrollView, Alert, NativeEventEmitter } from 'react-native';
+import { View, Text, TextInput, ScrollView, NativeEventEmitter } from 'react-native';
 import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
@@ -9,14 +9,13 @@ import HeaderIcon from '../HeaderIcon';
 import KeyedPaymentForm from '../KeyedPaymentForm';
 import FeeSwitch from '../FeeSwitch';
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
-import ApprovalOverlay from '../overlays/ApprovalOverlay';
+import AuthorizationOverlay from '../overlays/AuthorizationOverlay';
 import EmvProcessOverlay from '../overlays/EmvProcessOverlay';
 
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
 import { storageGet } from '../../helpers/localStorage';
-import { formatDate, formatTime } from '../../helpers/dateFormats';
-import { showAlert } from '../../helpers/showAlert';
+import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
 import { styles } from '../styles/PaymentStyles';
 
@@ -51,27 +50,15 @@ export default class PaymentScreen extends Component {
             meno: null,
             tax: 0,
             serviceFee: 0,
-            approvalVisible: false,
-            approvalTitle: "",
+            authorizationVisible: false,
+            authorizationTitle: "",
             formatedDate: "",
             formatedTime: "",
-            authCode: "",
+            authCode: null,
             tipAdjustmentData: null,
             customOverlayVisible: false,
             emvOverlayVisible: false
         }
-
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.toggleSwitch = this.toggleSwitch.bind(this);
-        this.handleSearchCustomerButton = this.handleSearchCustomerButton.bind(this);
-        this.authorizePayment = this.authorizePayment.bind(this);
-        this.determineAmount = this.determineAmount.bind(this);
-        this.handleCustomerOverlay = this.handleCustomerOverlay.bind(this);
-        this.handleEmvOverlay = this.handleEmvOverlay.bind(this);
-        this.handleConnectReaderPress = this.handleConnectReaderPress.bind(this);
-        this.startEmv = this.startEmv.bind(this);
-        this.startPaymentProcess = this.startPaymentProcess.bind(this);
-        this.handleAuthorizationOverlay = this.handleAuthorizationOverlay.bind(this);
     }
 
     async componentDidMount() {
@@ -98,7 +85,9 @@ export default class PaymentScreen extends Component {
 
     handleCardReaderEvent = (event) => {
         console.log(event);
-        this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail});
+        if(event.detail != "Approved"){
+            this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail});
+        }
     }
 
     handleCardReaderConnect = (event) => {
@@ -115,14 +104,99 @@ export default class PaymentScreen extends Component {
         });
     }
 
-    async handleConnectReaderPress() {    
+    handleHeaderIconPress = () => {
+        this.props.navigation.dispatch(resetAction);
+    }
+
+    handleSearchCustomerButton = () => {
+        this.props.navigation.navigate("SearchCustomer");
+    }
+
+    handleConnectReaderPress = async () => {    
         console.log("handleConnectReaderPress ", this.state.cardReaderConnected);
         (this.state.cardReaderConnected)
             ? AnyPay.disconnectReader()
             : AnyPay.connectBluetoothReader();
     }
 
-    async startEmv(){
+    handleCustomerOverlay = () => {
+        this.setState({customOverlayVisible: !this.state.customOverlayVisible});
+    }
+
+    handleEmvOverlay =() => {
+        this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
+    }
+
+    handleCreatedPayment = (createdPayment) => {
+        console.log(createdPayment);
+        let createdDate = new Date(createdPayment.created);
+        let dateCreated = createdDate.toDateString();
+        let timeCreated = createdDate.toTimeString();
+        let authCode, tipAdjustmentData;
+
+        timeCreated = timeCreated.split(" ");
+        timeCreated = convertMilitaryToStandardTime(timeCreated[0], true);
+
+        if(createdPayment.status === "Approved"){
+            tipAdjustmentData = {
+                id: createdPayment.id,
+                merchantId: createdPayment.merchantId,
+                amount: createdPayment.amount,
+                paymentToken: createdPayment.paymentToken
+            }
+        }
+
+        (createdPayment.authCode === undefined) 
+            ? authCode = null 
+            : authCode = createdPayment.authCode;
+
+        this.setState({
+            formatedDate: dateCreated,
+            formatedTime: timeCreated,
+            authCode: authCode,
+            tipAdjustmentData: tipAdjustmentData
+        });
+
+        this.handleAuthorizationOverlay(createdPayment.status);
+    }
+
+    handleAuthorizationOverlay = (status) => {
+        if(this.state.emvOverlayVisible){
+            //Removes EMV overlay so not visible when this overlay appears.
+            this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
+        }
+
+        if(this.state.authorizationVisible){
+            this.setState({authorizationVisible: !this.state.authorizationVisible});
+            console.log("HERE in handleAuthOVerlay");
+            console.log(status);
+            if(status === "Approved"){
+                (this.props.navigation.state.params.refundSelected)
+                ? this.props.navigation.dispatch(resetAction)
+                : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
+            }
+        }
+        else{
+            this.setState({
+                authorizationVisible: !this.state.authorizationVisible,
+                authorizationTitle: status
+            });
+        }
+    }
+
+    toggleSwitch = (switchHit) => {
+        (switchHit === "Tax Fee")
+            ? this.setState({ taxSwitchValue: !this.state.taxSwitchValue })
+            : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
+    }
+
+    startPaymentProcess = (cardAccount) => {
+        (this.state.cardReaderConnected)
+            ? this.startEmv()
+            : this.authorizePayment(cardAccount);
+    }
+
+    startEmv = async () =>{
         try{
             var emvObj = {
                 type: 'SALE',
@@ -130,65 +204,18 @@ export default class PaymentScreen extends Component {
                 currency: 'USD'
               }
             console.log(emvObj)
-            //this.handleEmvOverlay();
-            console.log("here 2")
-            transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e))
-            console.log(transaction);
-            console.log(transaction.gatewayResponse);
-            console.log(transaction.gatewayResponse.responseJson);
-            console.log(transaction.gatewayResponse.responseJson.status);
-            this.setState({cardReaderEventText: transaction.gatewayResponse.responseJson.status});
 
+            this.handleEmvOverlay();
 
+            transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e));
+            this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
         }
         catch(e){
             console.log(e);
         }
     }
 
-    handleHeaderIconPress() {
-        this.props.navigation.dispatch(resetAction);
-    }
-
-    toggleSwitch(switchHit) {
-        (switchHit === "Tax Fee")
-            ? this.setState({ taxSwitchValue: !this.state.taxSwitchValue })
-            : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
-    }
-
-    startPaymentProcess(cardAccount) {
-        (this.state.cardReaderConnected)
-            ? this.startEmv()
-            : this.authorizePayment(cardAccount);
-    }
-
-    handleAuthorizationOverlay() {
-        if(this.state.approvalVisible){
-            this.setState({approvalVisible: !this.state.approvalVisible});
-            
-            (this.props.navigation.state.params.refundSelected)
-                ? this.props.navigation.dispatch(resetAction)
-                : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
-        }
-        else{
-            let approvalTitle;
-
-            (this.props.navigation.state.params.refundSelected)
-                ? (approvalTitle = "Refund Approved!")
-                : approvalTitle = "Approved!";
-
-            this.setState({
-                approvalVisible: !this.state.approvalVisible,
-                approvalTitle: approvalTitle
-            });
-        }
-    }
-
-    handleSearchCustomerButton() {
-        this.props.navigation.navigate("SearchCustomer");
-    }
-
-    async authorizePayment(cardAccount) {
+    authorizePayment = async (cardAccount) => {
         let merchantId = await storageGet("merchantId");
         let headers = await getRequestHeader();
         let selectedCustomerId = await storageGet("selectedCustomerId");
@@ -234,28 +261,11 @@ export default class PaymentScreen extends Component {
         }).then((response) => {
             return response.json();
         }).then((createdPayment) => {
-            let formattedDate = formatDate();
-            let formattedTime = formatTime();
-
-            let tipAdjustmentData = {
-                id: createdPayment.id,
-                merchantId: createdPayment.merchantId,
-                amount: createdPayment.amount,
-                paymentToken: createdPayment.paymentToken
-            }
-            //change formated to formatted
-            this.setState({
-                formatedDate: formattedDate,
-                formatedTime: formattedTime,
-                authCode: createdPayment.authCode,
-                tipAdjustmentData: tipAdjustmentData
-            });
-
-            this.handleAuthorizationOverlay();
+            this.handleCreatedPayment(createdPayment);
         });
     }
 
-    determineAmount() {
+    determineAmount = () => {
         let amount = 0;
 
         if (this.state.taxSwitchValue && this.state.serviceFeeSwitchValue) {
@@ -273,14 +283,6 @@ export default class PaymentScreen extends Component {
 
         amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
         return amount;
-    }
-
-    handleCustomerOverlay() {
-        this.setState({customOverlayVisible: !this.state.customOverlayVisible});
-    }
-
-    handleEmvOverlay(){
-        this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
     }
 
     render() {
@@ -327,11 +329,6 @@ export default class PaymentScreen extends Component {
                     <KeyedPaymentForm 
                         charge={this.startPaymentProcess}
                         connected={this.state.cardReaderConnected}
-                    />
-                    <Button
-                        type="solid"
-                        title="test overlay"
-                        onPress={() => this.handleEmvOverlay()}
                     />
                     <View style={styles.spacer} />
                     <Button
@@ -396,14 +393,15 @@ export default class PaymentScreen extends Component {
                         marginLeftValue={15}
                     />
                 </ScrollView>
-                <ApprovalOverlay
-                    visible={this.state.approvalVisible}
-                    title={this.state.approvalTitle}
+                <AuthorizationOverlay
+                    visible={this.state.authorizationVisible}
+                    title={this.state.authorizationTitle}
                     handleClose={this.handleAuthorizationOverlay}
                     determineAmount={this.determineAmount}
                     formatedDate={this.state.formatedDate}
                     formatedTime={this.state.formatedTime}
                     authCode={this.state.authCode}
+
                 />
                 <CreateCustomerOverlay
                     isVisible={this.state.customOverlayVisible}

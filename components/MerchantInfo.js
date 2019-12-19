@@ -24,9 +24,8 @@ export default class MerchantInfo extends Component {
         };
     }
 
-    async componentWillMount() {
+    async componentDidMount() {
         //let merchantId = await storageGet("merchantId");
-
         let headers = {
             'Authorization': 'Basic ' + encodedUser,
             'Content-Type': 'application/json; charset=utf-8'
@@ -52,6 +51,17 @@ export default class MerchantInfo extends Component {
                 phone: receipt.phone
             })
         });
+
+        // let data = await getMerchantSettings(merchantId);
+        // this.setState({
+        //     name: data.receipt.name,
+        //     address: {
+        //         street: data.receipt.address.address1,
+        //         city: data.receipt.address.city,
+        //         state: data.receipt.address.state,
+        //         zip: data.receipt.address.zip
+        //     }
+        // });
     }
 
     render() {

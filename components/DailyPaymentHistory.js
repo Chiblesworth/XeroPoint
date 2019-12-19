@@ -9,18 +9,14 @@ import { styles } from  './styles/DailyPaymentHistoryStyles';
 export default class DailyPaymentHistory extends Component {
     constructor(props) {
         super(props);
-
-        this.checkProps = this.checkProps.bind(this);
-        this.calculateDailyNetTotal = this.calculateDailyNetTotal.bind(this);
-        this.handlePaymentPress = this.handlePaymentPress.bind(this);
     }
 
-    checkProps() {
+    checkProps = () => {
         console.log('checkProps here')
         console.log(this.props.paymentsSplitByDay);
     }
 
-    calculateDailyNetTotal(payments) {
+    calculateDailyNetTotal = (payments) => {
         let netTotal = 0;
         for (let i = 0; i < payments.length; i++) {
             netTotal += Number(payments[i].amount);
@@ -28,7 +24,7 @@ export default class DailyPaymentHistory extends Component {
         return "$" + parseFloat(Math.round(netTotal * 100) / 100).toFixed(2);
     }
 
-    handlePaymentPress(payment) {
+    handlePaymentPress = (payment) => {
         this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 

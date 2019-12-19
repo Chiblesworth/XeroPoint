@@ -14,4 +14,6 @@ export const months = [
     "December"
 ];
 
+//DELETE LATER
+
 export default months;

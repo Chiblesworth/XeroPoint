@@ -22,9 +22,9 @@ export const styles = StyleSheet.create({
         fontSize: 15
     },
     icon: {
-        color: 'white'
+        color: '#fff'
     },
     numberPad: {
-        color: 'white'
+        color: '#fff'
     }
 });

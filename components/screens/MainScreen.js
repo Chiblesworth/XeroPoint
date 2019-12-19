@@ -33,24 +33,17 @@ export default class MainScreen extends Component {
             amountFontColor: "#fff", //Color depends if refund is selected.
             refundSelected: false //Will need to pass this as prop to the payment screen if checked as true
         }
-
-        this.handleNumberPadPress = this.handleNumberPadPress.bind(this);
-        this.formatNumbersPressed = this.formatNumbersPressed.bind(this);
-        this.handleRefundChange = this.handleRefundChange.bind(this);
-        this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
-        this.checkDefaults = this.checkDefaults.bind(this);
-        this.getMerchantId = this.getMerchantId.bind(this);
     }
 
-    async componentWillMount() {
-        await checkDefaultStorageValues();
-        Orientation.lockToPortrait();
-        this.getMerchantId();       
-        
+    componentWillMount() {
+        Orientation.lockToPortrait();      
     }
 
     async componentDidMount(){
+        //TODO: Refactor this later
         let merchantId = await storageGet("merchantId");
+        await checkDefaultStorageValues();
+        this.getMerchantId();       
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
@@ -97,7 +90,7 @@ export default class MainScreen extends Component {
         });
     }
 
-    handleNumberPadPress(value) {
+    handleNumberPadPress = (value) => {
         let newNumbersPressed = "";
 
         if (Number(value) >= 0) {
@@ -115,20 +108,20 @@ export default class MainScreen extends Component {
         }
     }
 
-    formatNumbersPressed() {
+    formatNumbersPressed = () => {
         let numsPressed = Number(this.state.numbersPressed);
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
 
         this.setState({ amount: numsPressed });
     }
 
-    handleRefundChange() {
+    handleRefundChange = () => {
         (this.state.refundSelected)
             ? this.setState({ refundSelected: false, amountFontColor: "white" })
             : this.setState({ refundSelected: true, amountFontColor: "red" });
     }
 
-    handleHeaderIconPress(iconPushed) {
+    handleHeaderIconPress = (iconPushed) => {
         if (iconPushed === "dollar") {
             if (Number(this.state.amount) === 0 || this.state.amount === "$0.00") {
                 showAlert("Warning", "Please enter an amount before proceeding.");
@@ -149,7 +142,7 @@ export default class MainScreen extends Component {
         }
     }
 
-    async checkDefaults() {
+    checkDefaults = async () => {
         //This is used to check if default fee values exist, else it sets defaults.
         let key;
         let serviceFee = await storageGet("serviceFee");
@@ -165,7 +158,7 @@ export default class MainScreen extends Component {
         }
     }
 
-    async getMerchantId() {
+    getMerchantId = async () => {
         let data = await getMerchants();
         storageSet(data.records[0].id.toString());
     }

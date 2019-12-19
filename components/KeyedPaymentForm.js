@@ -30,22 +30,13 @@ export default class KeyedPaymentForm extends Component {
             zipError: null,
             cvvError: null
         }
-
-        this.getMerchantSettings = this.getMerchantSettings.bind(this);
-        this.handleChargePress = this.handleChargePress.bind(this);
-        this.checkStreetAndZipValue = this.checkStreetAndZipValue.bind(this);
-        this.handleCardInputChange = this.handleCardInputChange.bind(this);
-        this.validateMonthOrYear = this.validateMonthOrYear.bind(this);
-        this.validateZip = this.validateZip.bind(this);
-        this.validateCvv = this.validateCvv.bind(this);
-        this.validateForm = this.validateForm.bind(this);
     }
 
     componentDidMount() {
         this.getMerchantSettings();
     }
 
-    async getMerchantSettings() { //FIX API CALL MADE WITH NEW HELPER METHODS
+    getMerchantSettings = async () => { //FIX API CALL MADE WITH NEW HELPER METHODS
         let merchantId = await storageGet("merchantId");
         let headers = await getRequestHeader();
 
@@ -63,13 +54,13 @@ export default class KeyedPaymentForm extends Component {
         });
     }
 
-    handleChargePress() {
+    handleChargePress = () => {
         (this.props.connected)
             ? this.props.charge(this.state)
             : this.validateForm(this.state.cardAccount);
     }
 
-    checkStreetAndZipValue() {
+    checkStreetAndZipValue = () => {
         let container;
         let streetInput = <Input
             placeholder="Street Number"
@@ -146,7 +137,7 @@ export default class KeyedPaymentForm extends Component {
         return container;
     }
 
-    handleCardInputChange(number) {
+    handleCardInputChange = (number) => {
         let regex = /[0-9- ]{19}/g;
         let message;
         (regex.test(number))
@@ -162,7 +153,7 @@ export default class KeyedPaymentForm extends Component {
         }));
     }
 
-    validateMonthOrYear(text, field) {
+    validateMonthOrYear = (text, field) => {
         let regex = /^[0-9]{2}/g;
         let message;
         (regex.test(text))
@@ -186,7 +177,7 @@ export default class KeyedPaymentForm extends Component {
             }));
     }
 
-    validateZip(text) {
+    validateZip = (text) => {
         let regex = /^[0-9]{5}/g;
         let message;
         (regex.test(text))
@@ -202,7 +193,7 @@ export default class KeyedPaymentForm extends Component {
         }));
     }
 
-    validateCvv(text) {
+    validateCvv = (text) => {
         let regex = /^[0-9]{2}/g;
         let message;
         (regex.test(text))
@@ -218,7 +209,7 @@ export default class KeyedPaymentForm extends Component {
         }));
     }
 
-    validateForm(cardAccount) {
+    validateForm = (cardAccount) => {
         let validated = true;
         let validationErrorTitle = "Validation Error";
         let validationErrorMessage;

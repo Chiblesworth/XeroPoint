@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import RefundIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeleteIcon from 'react-native-vector-icons/AntDesign';
+
+import { styles } from './styles/NumberPadRowStyles';
 
 export default class NumberPadRow extends Component {
     constructor(props) {
@@ -22,20 +24,17 @@ export default class NumberPadRow extends Component {
                 that sends the value of the button pressed back to the parent component.
             */
             if((value === "refund") || (value === "delete")){
-                if(value === "refund"){
-                    columns.push(
+                (value === "refund")
+                    ? columns.push(
                         <TouchableOpacity style={styles.padButton} key={index} onPress={() => this.props.handlePress(value)}>
                             {refundIcon}
                         </TouchableOpacity>
-                    );
-                }
-                else{
-                    columns.push(
+                    )
+                    :  columns.push(
                         <TouchableOpacity style={styles.padButton} key={index} onPress={() => this.props.handlePress(value)}>
                             {deleteIcon}
                         </TouchableOpacity>
                     );
-                }
             }
             else{
                 columns.push(
@@ -54,23 +53,3 @@ export default class NumberPadRow extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        marginLeft: 50,
-        marginRight: 50
-    },
-    padButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 115,
-        height: 110,
-        color: 'white'
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 50
-    }
-});
