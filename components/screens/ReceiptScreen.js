@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
+import { StackActions, NavigationActions } from 'react-navigation';
 //Overlays
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 //Helpers
 import { storageGet, removeItem, storageSet } from '../../helpers/localStorage';
 //TEST
 import base64 from 'react-native-base64';
+
+const resetAction = StackActions.reset({
+    index: 0,
+    actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
+}); //Reset stack back to Main screen
+
 export default class ReceiptScreen extends Component {
     constructor(props) {
         super(props);
@@ -15,13 +22,6 @@ export default class ReceiptScreen extends Component {
             textReceiptOverlay: false,
             isDisabled: false
         };
-
-        this.handleReceiptOverlay = this.handleReceiptOverlay.bind(this);
-        this.handleReceiptButtonPress = this.handleReceiptButtonPress.bind(this);
-        this.createReceiptButton = this.createReceiptButton.bind(this);
-        this.finalizeSale = this.finalizeSale.bind(this);
-        this.handleSendButtonPress = this.handleSendButtonPress.bind(this);
-        this.sendReceipt = this.sendReceipt.bind(this);
     }
 
     async componentWillMount() {
@@ -37,7 +37,7 @@ export default class ReceiptScreen extends Component {
         }
     }
 
-    handleReceiptOverlay(buttonPressed) {
+    handleReceiptOverlay = (buttonPressed) => {
         if (buttonPressed === "Email") {
             this.setState({ emailReceiptOverlayVisible: !this.state.emailReceiptOverlayVisible });
         }
@@ -46,11 +46,11 @@ export default class ReceiptScreen extends Component {
         }
     }
 
-    handleReceiptButtonPress(text) {
+    handleReceiptButtonPress = (text) => {
         this.handleReceiptOverlay(text);
     }
 
-    createReceiptButton(title, iconName, iconType, text) {
+    createReceiptButton = (title, iconName, iconType, text) => {
         return (
             <Button
                 title={title}
@@ -62,7 +62,7 @@ export default class ReceiptScreen extends Component {
                     <Icon
                         name={iconName}
                         type={iconType}
-                        color="white"
+                        color="#fff"
                         size={50}
                     />
                 }
@@ -70,44 +70,13 @@ export default class ReceiptScreen extends Component {
         );
     }
 
-    async finalizeSale() {
-        let encodedUser = await storageGet("encodedUser");
-        let selectedCustomerId = await storageGet("selectedCustomerId");
-        let paymentId = this.props.navigation.state.params.sale.id;
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
-        let data = {
-            merchantId: this.props.navigation.state.params.sale.merchantId,
-            paymentToken: this.props.navigation.state.params.sale.paymentToken,
-            tenderType: this.props.navigation.state.params.sale.tenderType,
-            amount: this.props.navigation.state.params.sale.amount,
-            tip: this.props.navigation.state.params.sale.tip,
-            customer: {
-                id: selectedCustomerId
-            }
-        }
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment/${paymentId}`, {
-            method: "PUT",
-            headers: headers,
-            body: JSON.stringify(data)
-        }).then((response) => {
-            console.log(response)
-            removeItem("selectedCustomerId");
-        })
-    }
-
-    handleSendButtonPress(input, fieldName) {
+    handleSendButtonPress = (input, fieldName) => {
         this.finalizeSale();
 
         this.sendReceipt(input, fieldName);
     }
 
-    async sendReceipt(input, fieldName) {
+    sendReceipt = async (input, fieldName) => {
         // let url;
         // //let paymentId = this.props.navigation.state.params.sale.id;
         // //let encodedUser = await storageGet("encodedUser");
@@ -157,7 +126,7 @@ export default class ReceiptScreen extends Component {
                 <View style={styles.divider} />
                 <Button
                     title="No Receipt"
-                    onPress={() => this.finalizeSale()}
+                    onPress={() => this.props.navigation.dispatch(resetAction)}
                     containerStyle={styles.horizontalButtonContainer}
                     buttonStyle={styles.horizontalButtonStyle}
                     titleStyle={styles.titleStyle}

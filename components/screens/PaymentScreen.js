@@ -8,7 +8,9 @@ import { StackActions, NavigationActions } from 'react-navigation';
 import HeaderIcon from '../HeaderIcon';
 import KeyedPaymentForm from '../KeyedPaymentForm';
 import FeeSwitch from '../FeeSwitch';
+
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
+import SearchCustomerOverlay from '../overlays/SearchCustomerOverlay';
 import AuthorizationOverlay from '../overlays/AuthorizationOverlay';
 import EmvProcessOverlay from '../overlays/EmvProcessOverlay';
 
@@ -56,8 +58,9 @@ export default class PaymentScreen extends Component {
             formatedTime: "",
             authCode: null,
             tipAdjustmentData: null,
-            customOverlayVisible: false,
-            emvOverlayVisible: false
+            createCustomerOverlayVisible: false,
+            emvOverlayVisible: false,
+            searchCustomerOverlayVisible: false
         }
     }
 
@@ -119,8 +122,12 @@ export default class PaymentScreen extends Component {
             : AnyPay.connectBluetoothReader();
     }
 
-    handleCustomerOverlay = () => {
-        this.setState({customOverlayVisible: !this.state.customOverlayVisible});
+    handleCreateCustomerOverlay = () => {
+        this.setState({createCustomerOverlayVisible: !this.state.createCustomerOverlayVisible});
+    }
+
+    handleSearchCustomerOverlay = () => {
+        this.setState({searchCustomerOverlayVisible: !this.state.searchCustomerOverlayVisible});
     }
 
     handleEmvOverlay =() => {
@@ -365,7 +372,7 @@ export default class PaymentScreen extends Component {
                             title="Search Customer"
                             buttonStyle={styles.button}
                             titleStyle={styles.buttonTitle}
-                            onPress={() => this.handleSearchCustomerButton()}
+                            onPress={() => this.handleSearchCustomerOverlay()}
                         />
                         <View style={styles.rowDivider} />
                         <Button
@@ -373,7 +380,7 @@ export default class PaymentScreen extends Component {
                             title="Create Customer"
                             buttonStyle={styles.button}
                             titleStyle={styles.buttonTitle}
-                            onPress={() => this.handleCustomerOverlay()}
+                            onPress={() => this.handleCreateCustomerOverlay()}
                         />
                     </View>
                     <View style={styles.spacer} />
@@ -404,14 +411,18 @@ export default class PaymentScreen extends Component {
 
                 />
                 <CreateCustomerOverlay
-                    isVisible={this.state.customOverlayVisible}
-                    closeOverlay={this.handleCustomerOverlay}
+                    isVisible={this.state.createCustomerOverlayVisible}
+                    closeOverlay={this.handleCreateCustomerOverlay}
                     createCustomer={this.createCustomer}
                 />
                 <EmvProcessOverlay
                     isVisible={this.state.emvOverlayVisible}
                     handleClose={this.handleEmvOverlay}
                     message={this.state.cardReaderEventText}
+                />
+                <SearchCustomerOverlay
+                    isVisible={this.state.searchCustomerOverlayVisible}
+                    handleClose={this.handleSearchCustomerOverlay}
                 />
             </View>
         );

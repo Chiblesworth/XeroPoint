@@ -1,6 +1,6 @@
 import { storageGet } from './localStorage';
 
-const getCustomTipsArray = async() => {
+const getCustomTipsArray = async () => {
     let customTips = await storageGet("customTips"); //Expecting an array printed as a string ex "[10%,20%,30%]""
     let customTipArray = ["No Tip"];
 

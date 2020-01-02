@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
-import { View, Text, Alert,StyleSheet } from 'react-native';
+import { View, Text, Alert, StyleSheet } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
-//Helper Methods
+
+import { postCustomer } from '../../api_requests/postCustomer';
+
 import { storageGet, storageSet } from '../../helpers/localStorage';
+import { showAlert } from '../../helpers/showAlert';
+
+import { styles } from '../styles/CreateCustomerOverlayStyles';
 
 export default class CreateCustomerOverlay extends Component {
     constructor(props) {
@@ -12,28 +17,22 @@ export default class CreateCustomerOverlay extends Component {
             customerNumber: "",
             isDisabled: true
         };
-
-        this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleNumberChange = this.handleNumberChange.bind(this);
-        this.isButtonDisabled = this.isButtonDisabled.bind(this);
-        this.createCustomer = this.createCustomer.bind(this);
-        this.getCreatedCustomerId = this.getCreatedCustomerId.bind(this);
     }
 
-    handleNameChange(text) {
+    handleNameChange = (text) => {
         this.setState({customerName: text}, () => {
             this.isButtonDisabled();
         });
     }
 
-    handleNumberChange(text) {
+    handleNumberChange = (text) => {
         this.setState({customerNumber: text}, () => {
             this.isButtonDisabled();
         });
     }
 
-    isButtonDisabled() {
-        if((this.state.customerName !== "") && (this.state.customerNumber !== "")){
+    isButtonDisabled = () => {
+        if((this.state.customerName != "") && (this.state.customerNumber != "")){
             this.setState({isDisabled: false});
         }
         else{
@@ -41,54 +40,25 @@ export default class CreateCustomerOverlay extends Component {
         }
     }
 
-    async createCustomer(customerName, customerNumber) {
-        //POST a customer
+    createCustomer = async (customerName, customerNumber) => {
         let merchantId = await storageGet("merchantId");
-        let encodedUser = await storageGet("encodedUser");
-
-        let headers = {
-            'Authorization': 'Basic ' + encodedUser,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
         let data = {
             merchantId: merchantId,
             name: customerName,
             firstName: customerName,
             number: customerNumber
         }
-
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data)
-        }).then((response) => {
-            console.log(response)
-            if (response.status === 201) {
-                this.getCreatedCustomerId(merchantId, headers); //Get that specific customer that was created.
-            }
-            else {
-                Alert.alert("Customer could not be created.", "The customer was not created. Please try again.")
-            }
-        });
-    }
-
-    getCreatedCustomerId(merchantId, headers) {
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/customer", {
-            method: "GET",
-            headers: headers,
-            qs: { merchantId: merchantId }
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            let newCustomer = Json.records[0];
-
-            console.log("new customer")
-            console.log(newCustomer);
-            Alert.alert("Customer Added", newCustomer.name + " was added to payment!");
-            storageSet("selectedCustomerId", newCustomer.id.toString());
+        let customer = await postCustomer(data);
+        
+        if(customer !== null){
+            console.log(customer);
+            showAlert("Customer Added", customer.name + " was added to the payment!");
+            storageSet("selectedCustomerId", customer.id.toString());
             this.props.closeOverlay();
-        });
+        }
+        else{
+            showAlert("Customer could not be created.", "The customer was not created. Please try again.");
+        }
     }
 
     render() {
@@ -105,8 +75,8 @@ export default class CreateCustomerOverlay extends Component {
                         <Button
                             title="Cancel"
                             onPress={() => this.props.closeOverlay()}
-                            containerStyle={{width: 100, height: 50}}
-                            buttonStyle={{width: 100, height: 50, backgroundColor: '#454343'}}
+                            containerStyle={{width: 80, height: 50}}
+                            buttonStyle={{width: 80, height: 50, backgroundColor: '#454343'}}
                             titleStyle={{color: 'red', fontSize: 20}}
                         />
                         <Text style={styles.headerText}>Create Customer</Text>
@@ -147,47 +117,3 @@ export default class CreateCustomerOverlay extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    createSection: {
-        alignItems: 'center',
-        marginTop: 15
-    },
-    row: {
-        flexDirection: 'row',
-        marginBottom: 20
-    },
-    buttonContainer: {
-        width: 200,
-        height: 50,
-        borderRadius: 25
-    },
-    buttonStyle: {
-        width: 200,
-        height: 50,
-        borderRadius: 25
-    },
-    titleStyle: {
-        fontSize: 20
-    },
-    headerText: {
-        color: 'white',
-        fontSize: 25,
-        marginTop: 8,
-        marginLeft: 25
-    },
-    inputContainer: {
-        borderRadius: 25
-    },
-    inputContainerStyle: {
-        backgroundColor: 'white',
-        borderRadius: 25
-    },
-    inputStyle: {
-        marginLeft: 10
-    },
-    spacer: {
-        marginTop: 20
-    },
-});

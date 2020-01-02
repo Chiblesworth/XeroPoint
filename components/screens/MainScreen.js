@@ -144,23 +144,21 @@ export default class MainScreen extends Component {
 
     checkDefaults = async () => {
         //This is used to check if default fee values exist, else it sets defaults.
-        let key;
         let serviceFee = await storageGet("serviceFee");
         let taxFee = await storageGet("taxFee");
 
         if (serviceFee === null) {
-            key = "serviceFee";
-            storageSet(key, 5);
+            storageSet("serviceFee", 5);
         }
+
         if (taxFee === null) {
-            key = "taxFee";
-            storageSet(key, 10);
+            storageSet("taxFee", 10);
         }
     }
 
     getMerchantId = async () => {
         let data = await getMerchants();
-        storageSet(data.records[0].id.toString());
+        storageSet("merchantId", data.records[0].id.toString());
     }
 
     render() {

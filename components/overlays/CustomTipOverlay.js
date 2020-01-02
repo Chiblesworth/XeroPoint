@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Overlay, Button, Input } from 'react-native-elements';
+
+import { styles } from '../styles/CustomTipOverlayStyles';
 
 export default class CustomTipOverlay extends Component {
     constructor(props) {
@@ -11,27 +13,22 @@ export default class CustomTipOverlay extends Component {
             tip: "",
             isButtonDisabled: true
         };
-
-        this.handleTextChange = this.handleTextChange.bind(this);
-        this.adjustTotal = this.adjustTotal.bind(this);
     }
 
-    handleTextChange(text) {
+    handleTextChange = (text) => {
         this.setState({tip: text}, () => {
-            if(this.state.tip !== ""){
-                this.setState({isButtonDisabled: false});
-                this.adjustTotal(this.state.tip);
-            }
-            else{
-                this.setState({isButtonDisabled: true});
-                this.adjustTotal(this.state.tip);
-            }
+            (this.state.tip !== "")
+                ? this.setState({isButtonDisabled: false}, () => {
+                    this.adjustTotal(this.state.tip);
+                })
+                : this.setState({isButtonDisabled: true}, () => {
+                    this.adjustTotal(this.state.tip);
+                });
         })
     }
 
-    adjustTotal(text) {
+    adjustTotal = (text) => {
         let tip = Number(text);
-
         tip += Number(this.props.subtotal);
 
         this.setState({total: tip});
@@ -55,7 +52,7 @@ export default class CustomTipOverlay extends Component {
                     <View style={styles.headerRow}>
                         <Button 
                             title="Cancel"
-                            onPress={() => this.props.closeOverlay()}
+                            onPress={() => this.props.handleClose()}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
                             titleStyle={{color: 'red', fontSize: 20}}
@@ -93,9 +90,8 @@ export default class CustomTipOverlay extends Component {
                             <Button
                                 title="Apply Tip"
                                 onPress={() => this.props.applyCustomTip(Number(this.state.total), Number(this.state.tip))}
-                                containerStyle={styles.applyButtonContainer}
                                 buttonStyle={styles.applyButtonStyle}
-                                titleStyle={{color: 'blue', fontSize: 25}}
+                                titleStyle={{color: 'blue', fontSize: 20}}
                                 disabled={this.state.isButtonDisabled}
                                 disabledStyle={styles.disabledButton}
                             />
@@ -106,91 +102,3 @@ export default class CustomTipOverlay extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-    },
-    headerRow: {
-        flexDirection: 'row',
-        marginBottom: 20
-    },
-    row: {
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        width: '100%'
-    },
-    column: {
-        flexDirection: 'column'
-    },
-    tipAdjustmentForm: {
-        backgroundColor: 'white',
-        width: '100%',
-        borderStyle: 'solid',
-        borderColor: 'white',
-        borderRadius: 25,
-    },
-    text: {
-        fontSize: 25,
-        marginBottom: 10
-    },
-    dollarSign: {
-        fontSize: 25,
-        paddingLeft: 40,
-        marginBottom: 10
-    },
-    amount: {
-        fontSize: 25,
-        paddingLeft: 20,
-        marginBottom: 10
-    },
-    buttonContainer: {
-        width: 100,
-        height: 50
-    },
-    buttonStyle: {
-        width: 100,
-        height: 50,
-        backgroundColor: '#454343'
-    },
-    applyButtonStyle: {
-        width: 150,
-        height: 100,
-        backgroundColor: 'white'
-    },
-    applyButtonContainer: {
-        width: 150,
-        height: 100
-    },
-    headerText: {
-        color: 'white',
-        fontSize: 25,
-        marginTop: 8,
-        marginLeft: 25
-    },
-    inputContainer: {
-        height: 37,
-        width: 170,
-        marginBottom: 6,
-    },
-    input: {
-        borderBottomWidth: 0,
-    },
-    inputStyle: {
-        fontSize: 20,
-        paddingTop: 3,
-        color: 'grey'
-    },
-    divider: {
-        backgroundColor: 'black',
-        height: 2,
-        width: '100%'
-    },
-    applySection: {
-        alignItems: 'center'
-    },
-    disabledButton: {
-        backgroundColor: 'white'
-    },
-});

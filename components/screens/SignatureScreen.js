@@ -1,16 +1,23 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet} from 'react-native';
+import { View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import { StackActions, NavigationActions } from 'react-navigation';
+import Orientation from 'react-native-orientation';
 //import SignatureCapture from 'react-native-signature-capture';
-//Components
+
 import CollectTip from '../CollectTip';
 import CustomTipOverlay from '../overlays/CustomTipOverlay';
-//Helpers
+
+import { applyTip } from '../../api_requests/applyTip';
+import { deletePayment } from '../../api_requests/deletePayment';
+
 import { defaultTips } from '../../helpers/defaultTips';
 import { getCustomTipsArray } from '../../helpers/customTips';
 import { storageGet, removeItem } from '../../helpers/localStorage';
 import { feeCalculations } from '../../helpers/feeCalculations';
+import { showAlert } from '../../helpers/showAlert';
+
+import { styles } from '../styles/SignatureStyles';
 
 const resetAction = StackActions.reset({
     index: 0,
@@ -28,23 +35,14 @@ export default class SignatureScreen extends Component {
             subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
             total: 0,
             tip: 0,
-            overlayVisible: false
+            customTipOverlayVisible: false
         };
-
-        this.adjustTip = this.adjustTip.bind(this);
-        this.handleSegmentedControlSwitch = this.handleSegmentedControlSwitch.bind(this);
-        this.toggleOverlay = this.toggleOverlay.bind(this);
-        this.overlayCancelPressed = this.overlayCancelPressed.bind(this);
-        this.applyCustomTip = this.applyCustomTip.bind(this);
-        this.handleCancelPress = this.handleCancelPress.bind(this);
-        this.voidPayment = this.voidPayment.bind(this);
-        this.handleContinuePress = this.handleContinuePress.bind(this);
     }
 
-    async componentWillMount() {
+    async componentDidMount() {
+        Orientation.lockToLandscape();
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
         let useCustomTips = await storageGet("useCustomTips");
-
         useCustomTips = JSON.parse(useCustomTips);
 
         if(useCustomTips){
@@ -52,9 +50,6 @@ export default class SignatureScreen extends Component {
             customTipArray.push("Other");
             
             this.setState({tipArray: [...customTipArray]}, () => {
-                console.log("In state now");
-                console.log(this.state.tipArray);
-
                 this.adjustTip(this.state.selectedIndex);
             });
         }
@@ -62,23 +57,33 @@ export default class SignatureScreen extends Component {
             if(defaultTips.length === 4){
                 defaultTips.push("Other");
             }
+
             this.setState({
                 tipArray: [...defaultTips], 
                 selectedIndex: Number(selectedDefaultTip)}, () => {
-                    console.log("In state now");
-                    console.log(this.state.tipArray);
-                    console.log(this.state.selectedIndex);
-
                     this.adjustTip(this.state.selectedIndex);
             });
-
         }
     }
 
-    adjustTip(index) {
+    handleSegmentedControlSwitch = (index) => {
+        this.setState({selectedIndex: index}, () => {
+            this.adjustTip(this.state.selectedIndex);
+        });
+    }
+
+    handleCustomTipOverlay = () => {
+        this.setState({customTipOverlayVisible: !this.state.customTipOverlayVisible}, () => {
+            (this.state.customTipOverlayVisible)
+                ? Orientation.lockToPortrait()
+                : Orientation.lockToLandscape();
+        })
+    }
+
+    adjustTip = (index) => {
         if(index === 0){
             let total = parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2);
-            let tip = parseFloat(Math.round(0 * 100) / 100).toFixed(2) //Formats numbers with two decimals
+            let tip = parseFloat(Math.round(0 * 100) / 100).toFixed(2);
             
             this.setState({
                 total: Number(total),
@@ -89,12 +94,11 @@ export default class SignatureScreen extends Component {
             })
         }
         else if(index === 4){
-            this.setState({orientation: "portrait"})
-            this.toggleOverlay();
+            this.handleCustomTipOverlay();
         }
         else{
             let tipPercentage = this.state.tipArray[index].replace(/(%)+/g, "");
-            
+
             let total = feeCalculations(this.state.subtotal, tipPercentage);
             total = parseFloat(Math.round(total * 100) / 100).toFixed(2);
 
@@ -111,83 +115,68 @@ export default class SignatureScreen extends Component {
         }
     }
 
-    handleSegmentedControlSwitch(index) {
-        this.adjustTip(index);
-        this.setState({selectedIndex: index});
-    }
-
-    toggleOverlay() {
-        this.setState({overlayVisible: !this.state.overlayVisible}, () => {
-            if(!this.state.overlayVisible){
-                this.setState({
-                    orientation: "landscape",
-            });
-            }
-        });
-    }
-
-    overlayCancelPressed() {
+    overlayCancelPressed = () => {
         this.setState({
             total: Number(parseFloat(Math.round(this.state.subtotal * 100) / 100).toFixed(2)),
             tip: Number(parseFloat(Math.round(0 * 100) / 100).toFixed(2))
+        }, () => {
+            this.handleCustomTipOverlay();
         });
-        this.toggleOverlay();
     }
 
-    applyCustomTip(total, tip) {
+    applyCustomTip = (total, tip) => {
         console.log("in applyCustomTip")
         console.log(total)
         console.log(tip)
-        this.setState({
-            total: total,
-            tip: tip
-        }, () => {
-            this.toggleOverlay();
+
+        this.setState({total: total, tip: tip}, () => {
+            this.handleCustomTipOverlay();
         });
     }
 
-    handleCancelPress() {
+    handleCancelPress = () => {
         this.voidPayment();
-        this.props.navigation.dispatch(resetAction);
     }
 
-    async voidPayment() {
-        let encodedUser = await storageGet("encodedUser");
+    voidPayment = async () => {
+        let status = await deletePayment(this.props.navigation.state.params.tipAdjustmentData.id);
 
-        let headers = {
-            'Authorization' : 'Basic ' + encodedUser,
-            'Content-Type' : 'application/json; charset=utf-8'
+        if(status === 204){ 
+            removeItem("selectedCustomerId") //Removes selectedCustomerId if payment voided to avoid bugs for future payments
+            Orientation.lockToPortrait(); //This is here to fix bug where the alert would appear in landscaped mode on Main screen
+            
+            showAlert("Payment Voided!", "The payment has been deleted. Navigating back to Home.");
+            this.props.navigation.dispatch(resetAction);
         }
-
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/payment/${this.props.navigation.state.params.tipAdjustmentData.id}`,{
-            method: "DELETE",
-            headers: headers,
-        });
-
-        removeItem("selectedCustomerId"); //Removes selectedCustomerId if payment voided to avoid bugs for future payments
+        else{
+            showAlert("Payment could not be Voided!", "Payment could not be voided please try again.");
+        }
     }
 
-    handleContinuePress() {
+    handleContinuePress = async () => {
+        let selectedCustomerId = await storageGet("selectedCustomerId");
         console.log("in continue press")
         console.log(this.state.total)
         console.log(this.state.tip)
 
-        let saleWithTipAdjustment = {
+        let tipAdjustedPayment = {
             merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,
             id: this.props.navigation.state.params.tipAdjustmentData.id,
             paymentToken: this.props.navigation.state.params.tipAdjustmentData.paymentToken,
             tenderType: "Card",
             tip: this.state.tip,
             amount: this.state.total,
+            customer: {
+                id: selectedCustomerId
+            }
         }
 
-        console.log(saleWithTipAdjustment);
-        
-        this.setState({orientation: "portrait"}, () => {
-            this.props.navigation.navigate("Receipt", {
-                sale: saleWithTipAdjustment
-            });
-        });
+        let status = await applyTip(tipAdjustedPayment);
+        console.log(status);
+
+        (status === 200)
+            ? this.props.navigation.navigate("Receipt", {sale: tipAdjustedPayment})
+            : showAlert("Tip Not Applied!", 'The tip was unable to be adjusted to the payment. Try pressing "Cancel" and restarting payment if error persists.');
     }
 
     render() {
@@ -220,7 +209,7 @@ export default class SignatureScreen extends Component {
                             onPress={() => this.handleCancelPress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
-                            buttonStyle={[styles.buttonStyle, {backgroundColor: 'red'}]}
+                            buttonStyle={{backgroundColor: 'red'}}
                             titleStyle={styles.titleStyle}
                         />
                         <View style={styles.spacer}></View>
@@ -229,76 +218,18 @@ export default class SignatureScreen extends Component {
                             onPress={() => this.handleContinuePress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
-                            buttonStyle={styles.buttonStyle}
                             titleStyle={styles.titleStyle}
                         />
                     </View>
                 </View>
                 <CustomTipOverlay 
-                    isVisible={this.state.overlayVisible}
+                    isVisible={this.state.customTipOverlayVisible}
                     subtotal={this.state.subtotal}
                     total={this.state.total}
-                    closeOverlay={this.overlayCancelPressed}
+                    handleClose={this.overlayCancelPressed}
                     applyCustomTip={this.applyCustomTip}
                 />
             </View>
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'column',
-        marginTop: 25
-    },
-    row: {
-        flex: 1,
-        flexDirection: 'row',
-        marginBottom: 40
-    },
-    totalContainer: {
-        flexDirection: 'column'
-    },
-    signatureContainer: {
-        flex: 1,
-        borderBottomWidth: 3,
-        borderBottomColor: 'black'
-    },
-    signature: {
-        flex: 1
-    },
-    totalContainer: {
-        flexDirection: 'column'
-    },
-    textSection: {
-        alignItems: 'center'
-    },
-    text: {
-        fontSize: 25
-    },
-    lowerSection: {
-        backgroundColor: '#454343',
-        height: 120,
-        alignItems: 'center'
-    },
-    spacer: {
-        marginLeft: 50,
-        marginRight: 50
-    },
-    buttonContainer: {
-        marginTop: 30,
-        height: 60,
-        width: 150,
-        borderRadius: 25
-    },
-    buttonStyle: {
-        height: 60,
-        width: 150,
-        borderRadius: 25
-    },
-    titleStyle: {
-        fontSize: 25
-    }
-});

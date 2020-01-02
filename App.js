@@ -18,7 +18,6 @@ import PaymentScreen from './components/screens/PaymentScreen';
 import SettingScreen from './components/screens/SettingScreen';
 import FeesScreen from './components/screens/FeesScreen';
 import TipsScreen from './components/screens/TipsScreen';
-import SearchCustomerScreen from './components/screens/SearchCustomerScreen';
 import SignatureScreen from './components/screens/SignatureScreen';
 import ReceiptScreen from './components/screens/ReceiptScreen';
 import HistoryScreen from './components/screens/HistoryScreen';
@@ -38,7 +37,6 @@ const MainStack = createStackNavigator(
 	{
 		Main: {screen: MainScreen, navigationOptions: {header: null}},
 		Payment: {screen: PaymentScreen, navigationOptions: {header: null}},
-		SearchCustomer: {screen: SearchCustomerScreen, navigationOptions: {header: null}}, //Consider making this just a full screen overlay
 		Signature: {screen: SignatureScreen, navigationOptions: {header: null}},
 		Receipt: {screen: ReceiptScreen, navigationOptions: {header: null}}
 	},

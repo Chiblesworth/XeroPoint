@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
+
+import { styles } from './styles/CollectTipStyles';
 
 export default class CollectTip extends Component {
     constructor(props) {
@@ -34,37 +36,3 @@ export default class CollectTip extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        marginBottom: 25,
-    },
-    totalContainer: {
-        flexDirection: 'column',
-        marginLeft: 10,
-        marginRight: 10
-    },
-    text: {
-        fontSize: 25
-    },
-    tabsContainerStyle: {
-        flex: 1,
-        borderColor: '#454343'
-    },
-    tabStyle: {
-        backgroundColor: 'white',
-        borderColor: 'black'
-    },
-    tabTextStyle: {
-        fontSize: 18,
-        color: 'black'
-    },
-    activeTabStyle: {
-        backgroundColor: '#454343'
-    },
-    activeTabTextStyle: {
-        color: 'white'
-    },
-});

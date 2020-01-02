@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'center'
     },
     container: {
         flex: 1,

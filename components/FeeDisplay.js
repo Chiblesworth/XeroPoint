@@ -39,7 +39,7 @@ export default class FeeDisplay extends Component {
 
         return (
             <View>
-                <View style={styles.row}>
+                <View style={[styles.row, {justifyContent: 'space-between',}]}>
                     <Text style={styles.subTitle}>Apply {this.props.mainTitle}:</Text>
                     <View style={styles.switch}>
                         <SwitchToggle
@@ -51,7 +51,7 @@ export default class FeeDisplay extends Component {
                         />
                     </View>
                 </View>
-                <View style={styles.container}>
+                <View style={styles.row}>
                     {feeDisplay}
                     <Text style={styles.feeText}>%</Text>
                 </View>
