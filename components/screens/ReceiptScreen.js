@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { StackActions, NavigationActions } from 'react-navigation';
-//Overlays
+import Orientation from 'react-native-orientation';
+
 import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
-//Helpers
-import { storageGet, removeItem, storageSet } from '../../helpers/localStorage';
+
+import { getReceipt } from '../../api_requests/getReceipt';
+
+import { styles } from '../styles/ReceiptStyles';
 //TEST
 import base64 from 'react-native-base64';
 
@@ -20,34 +23,25 @@ export default class ReceiptScreen extends Component {
         this.state = {
             emailReceiptOverlayVisible: false,
             textReceiptOverlay: false,
-            isDisabled: false
         };
     }
 
-    async componentWillMount() {
-        console.log(this.props.navigation.state.params.sale);
-        let selectedCustomerId = await storageGet("selectedCustomerId");
-
-        if (!!selectedCustomerId) {
-            console.log("selectedCustomerId is " + selectedCustomerId);
-            this.setState({
-                createdCustomerId: Number(selectedCustomerId),
-                isDisabled: true
-            }); //Used in case the user already chose a customer
-        }
-    }
-
-    handleReceiptOverlay = (buttonPressed) => {
-        if (buttonPressed === "Email") {
-            this.setState({ emailReceiptOverlayVisible: !this.state.emailReceiptOverlayVisible });
-        }
-        else {
-            this.setState({ textReceiptOverlay: !this.state.textReceiptOverlay });
-        }
+    componentWillMount() {
+        Orientation.lockToPortrait();
     }
 
     handleReceiptButtonPress = (text) => {
         this.handleReceiptOverlay(text);
+    }
+
+    handleSendButtonPress = (input, fieldName) => {
+        this.sendReceipt(input, fieldName);
+    }
+
+    handleReceiptOverlay = (buttonPressed) => {
+        (buttonPressed === "Email")
+            ? this.setState({ emailReceiptOverlayVisible: !this.state.emailReceiptOverlayVisible })
+            : this.setState({ textReceiptOverlay: !this.state.textReceiptOverlay });
     }
 
     createReceiptButton = (title, iconName, iconType, text) => {
@@ -68,12 +62,6 @@ export default class ReceiptScreen extends Component {
                 }
             />
         );
-    }
-
-    handleSendButtonPress = (input, fieldName) => {
-        this.finalizeSale();
-
-        this.sendReceipt(input, fieldName);
     }
 
     sendReceipt = async (input, fieldName) => {
@@ -127,8 +115,7 @@ export default class ReceiptScreen extends Component {
                 <Button
                     title="No Receipt"
                     onPress={() => this.props.navigation.dispatch(resetAction)}
-                    containerStyle={styles.horizontalButtonContainer}
-                    buttonStyle={styles.horizontalButtonStyle}
+                    containerStyle={styles.buttonContainer}
                     titleStyle={styles.titleStyle}
                 />
                 <SendReceiptOverlay
@@ -151,65 +138,3 @@ export default class ReceiptScreen extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    container: {
-        height: '100%',
-        backgroundColor: '#454343',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    text: {
-        fontSize: 25,
-        color: 'white'
-    },
-    divider: {
-        borderBottomColor: '#f2eee4',
-        borderBottomWidth: 2,
-        width: 300,
-        marginTop: 20,
-        marginBottom: 20
-    },
-    buttonContainer: {
-        height: 70,
-        width: 200,
-        marginTop: 20,
-        marginBottom: 20
-    },
-    buttonStyle: {
-        height: 70,
-        width: 200
-    },
-    titleStyle: {
-        fontSize: 23
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        marginLeft: '10%'
-    },
-    receiptButtonContainer: {
-        flex: 1,
-        height: 100,
-        width: 100,
-        marginTop: 20,
-        marginBottom: 20
-    },
-    receiptButtonStyle: {
-        height: 100,
-        width: 100,
-        flexDirection: 'column'
-    },
-    receiptTitleStyle: {
-        fontSize: 20
-    },
-    horizontalButtonContainer: {
-        width: 250,
-        height: 60
-    },
-    horizontalButtonStyle: {
-        width: 250,
-        height: 60
-    },
-});

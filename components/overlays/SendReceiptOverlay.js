@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
 
-//https://stackoverflow.com/questions/55988065/react-how-to-format-phone-number-as-user-types
-const phoneRegex = /^\(?([0-9]{0,3})\)?[-. ]?([0-9]{0,3})[-. ]?([0-9]{0,4})$/;
+import { styles } from '../styles/SendReceiptOverlay';
 
 export default class SendReceiptOverlay extends Component {
     constructor(props) {
@@ -13,57 +12,39 @@ export default class SendReceiptOverlay extends Component {
             input: "",
             errorMessage: ""
         };
-
-        this.toggleDisabled = this.toggleDisabled.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.validateInput = this.validateInput.bind(this);
     }
 
-    toggleDisabled() {
+    toggleDisabled = () => {
         this.setState({isDisabled: !this.state.isDisabled});
     }
 
-    handleInputChange(text) {
+    handleInputChange = (text) => {
         this.setState({input: text}, () => {
             this.validateInput(this.props.text, text);
         })
     }
 
-    validateInput(inputName, textEntered){
-        let regEx;
+    validateInput = (inputName, textEntered) => {
+        let regEx, errorMessage;
 
         if(inputName === "Email"){
             regEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            
-            if(!regEx.test(textEntered)){
-                this.setState({
-                    errorMessage: "Invalid email entered.",
-                    isDisabled: true
-                });
-            }
-            else{
-                this.setState({
-                    errorMessage: "",
-                    isDisabled: false
-                });
-            }
+            errorMessage = "Invalid email entered.";
         }
         else{
             regEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-
-            if(!regEx.test(textEntered)){
-                this.setState({
-                    errorMessage: "Invalid phone number entered.",
-                    isDisabled: true
-                });
-            }
-            else{
-                this.setState({
-                    errorMessage: "",
-                    isDisabled: false
-                });
-            }
+            errorMessage = "Invalid phone number entered.";
         }
+
+        (!regEx.test(textEntered))
+            ? this.setState({
+                errorMessage: errorMessage,
+                isDisabled: true
+            })
+            : this.setState({
+                errorMessage: "",
+                isDisabled: false
+            });
     }
 
     render() {
@@ -106,10 +87,9 @@ export default class SendReceiptOverlay extends Component {
                             onPress={() => this.props.handleSendButtonPress(this.state.input, this.props.text)}
                             disabled={this.state.isDisabled}
                             containerStyle={styles.buttonContainer}
-                            buttonStyle={styles.buttonStyle}
                             titleStyle={styles.titleStyle}
                             disabledStyle={{ backgroundColor: '#b3b2b1' }}
-                            disabledTitleStyle={{ color: 'white' }}
+                            disabledTitleStyle={{ color: '#fff' }}
                         />
                     </View>
                 </View>
@@ -117,54 +97,3 @@ export default class SendReceiptOverlay extends Component {
         );
     }
 }
-
-//Styles
-const styles = StyleSheet.create({
-    createSection: {
-        alignItems: 'center',
-        marginTop: 15
-    },
-    row: {
-        flexDirection: 'row',
-        marginBottom: 20
-    },
-    buttonContainer: {
-        width: 200,
-        height: 50,
-        borderRadius: 25
-    },
-    buttonStyle: {
-        width: 200,
-        height: 50,
-    },
-    titleStyle: {
-        fontSize: 20
-    },
-    headerText: {
-        color: 'white',
-        fontSize: 25,
-        marginTop: 8,
-        marginLeft: 25
-    },
-    text: {
-        fontSize: 20,
-        color: 'white'
-    },
-    inputContainer: {
-        borderRadius: 25
-    },
-    inputContainerStyle: {
-        backgroundColor: 'white',
-        borderRadius: 25
-    },
-    inputStyle: {
-        marginLeft: 10
-    },
-    errorStyle: {
-        fontSize: 14,
-        paddingLeft: 20
-    },
-    disabledButton: {
-        backgroundColor: 'white'
-    },
-});

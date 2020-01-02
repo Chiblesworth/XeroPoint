@@ -27,11 +27,11 @@ export const styles = StyleSheet.create({
     },
     text: {
         fontSize: 30,
-        color: 'white'
+        color: '#fff'
     },
     amountText: {
         fontSize: 70,
-        color: 'white'
+        color: '#fff'
     },
     scrollView: {
         width: '100%',
@@ -50,14 +50,14 @@ export const styles = StyleSheet.create({
     textarea: {
         width: '80%',
         borderRadius: 15,
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
         fontSize: 16
     },
     inputContainer: {
         width: '84%',
         marginLeft: '8%',
         borderRadius: 15,
-        backgroundColor: 'white'
+        backgroundColor: '#fff'
     },
     input: {
         fontSize: 16,

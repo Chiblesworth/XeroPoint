@@ -3,12 +3,12 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     headerText: {
         fontSize: 25,
-        color: 'white',
+        color: '#fff',
         paddingBottom: 30
     },
     payment: {
         borderWidth: 1,
-        borderColor: 'black',
+        borderColor: '#000',
     },
     row: {
         padding: 10,

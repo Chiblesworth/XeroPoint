@@ -134,7 +134,7 @@ export default class PaymentScreen extends Component {
         this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
     }
 
-    handleCreatedPayment = (createdPayment) => {
+    handleCreatedPayment = async (createdPayment) => {
         console.log(createdPayment);
         let createdDate = new Date(createdPayment.created);
         let dateCreated = createdDate.toDateString();
@@ -151,8 +151,12 @@ export default class PaymentScreen extends Component {
                 amount: createdPayment.amount,
                 paymentToken: createdPayment.paymentToken
             }
-        }
 
+            console.log(tipAdjustmentData);
+        }
+        console.log("PaymentScreen payment id is ");
+        console.log(createdPayment.id);
+        
         (createdPayment.authCode === undefined) 
             ? authCode = null 
             : authCode = createdPayment.authCode;
@@ -205,17 +209,44 @@ export default class PaymentScreen extends Component {
 
     startEmv = async () =>{
         try{
+            let emvTransactionType, emvTransactionAmount;
+
+            if(this.props.navigation.state.params.refundSelected){
+                emvTransactionType = "REFUND";
+                emvTransactionAmount = this.state.amountCharged;
+            }
+            else {
+                emvTransactionType = "SALE";
+                emvTransactionAmount = this.state.amountCharged;
+            }
+
+            //Will need to invoice, memo and customer fields somehow
+            //Simple work around could be to pass them to the next screen and add them with the PUT the same way for the TIP!
             var emvObj = {
-                type: 'SALE',
-                totalAmount: this.state.amountCharged,
+                type: emvTransactionType,
+                totalAmount: emvTransactionAmount,
                 currency: 'USD'
-              }
-            console.log(emvObj)
+            }
+            console.log(emvObj);
 
             this.handleEmvOverlay();
 
             transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e));
-            this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
+           // this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
+
+            (this.props.navigation.state.params.refundSelected)
+              ? this.handleCreatedPayment(transaction)
+              : this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
+
+
+            //   var emvObj = {
+            //     type: "REFUND",
+            //     // totalAmount: this.state.amountCharged,
+            //     currency: 'USD'
+            //   }
+            //   this.handleEmvOverlay();
+
+            //     transaction = await AnyPay.refundTransaction(emvObj, Number(this.state.amountCharged)).catch(e => console.log(e));
         }
         catch(e){
             console.log(e);
@@ -230,24 +261,22 @@ export default class PaymentScreen extends Component {
 
         (!!selectedCustomerId)
             ? selectedCustomerId = Number(selectedCustomerId)
-            : selectedCustomerId = "";
+            : selectedCustomerId = null;
 
 
         (this.props.navigation.state.params.refundSelected)
-            ? amount = -Math.abs(amount)
+            ? amount = -Math.abs(this.determineAmount())
             : amount = this.determineAmount();
-
+        console.log(amount);
+        console.log(amount.toString());
         let data = {
             merchantId: merchantId,
             tenderType: "Card",
             amount: amount,
             cardAccount: {
-                // number: cardAccount.number,
-                // expiryMonth: cardAccount.expiryMonth,
-                // expiryYear: cardAccount.expiryYear,
-                number: "4242 4242 4242 4242",
-                expiryMonth: "12",
-                expiryYear: "21",
+                number: cardAccount.number,
+                expiryMonth: cardAccount.expiryMonth,
+                expiryYear: cardAccount.expiryYear,
                 cvv: cardAccount.cvv,
                 avsZip: cardAccount.avsZip,
                 avsStreet: cardAccount.avsStreet,
@@ -259,6 +288,7 @@ export default class PaymentScreen extends Component {
             invoice: this.state.invoice
             
         }
+        console.log(data);
 
         fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
             method: "POST",
@@ -266,6 +296,7 @@ export default class PaymentScreen extends Component {
             body: JSON.stringify(data),
             dataType: "json"
         }).then((response) => {
+            console.log(response);
             return response.json();
         }).then((createdPayment) => {
             this.handleCreatedPayment(createdPayment);
@@ -293,9 +324,7 @@ export default class PaymentScreen extends Component {
     }
 
     render() {
-        let serviceFee;
-        let tax;
-        let text;
+        let serviceFee, tax, text, textColor;
 
         (this.state.taxSwitchValue)
             ? tax = this.state.tax
@@ -305,9 +334,14 @@ export default class PaymentScreen extends Component {
             ? serviceFee = this.state.serviceFee
             : serviceFee = 0;
         
-        (this.props.navigation.state.params.refundSelected)
-            ? text = "REFUND"
-            : text = "CHARGED";
+        if(this.props.navigation.state.params.refundSelected){
+            text = "REFUND";
+            textColor = "#E50F0F";
+        }
+        else{
+            text = "CHARGED";
+            textColor = "#fff";
+        }
 
         return (
             <View style={styles.content}>
@@ -325,12 +359,12 @@ export default class PaymentScreen extends Component {
                     }
                 />
                 <View style={styles.chargedContainer}>
-                    <Text style={styles.text}>{text} AMOUNT</Text>
-                    <Text style={styles.amountText}>
+                    <Text style={[styles.text, {color: textColor}]}>{text} AMOUNT</Text>
+                    <Text style={[styles.amountText, {color: textColor}]}>
                         ${this.determineAmount()}
                     </Text>
-                    <Text style={styles.text}>{this.state.cardReaderConnected.toString()}</Text>
-                    <Text style={styles.text}>{this.state.cardReaderEventText}</Text>
+                    {/* <Text style={styles.text}>{this.state.cardReaderConnected.toString()}</Text>
+                    <Text style={styles.text}>{this.state.cardReaderEventText}</Text> */}
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
                     <KeyedPaymentForm 
@@ -408,7 +442,7 @@ export default class PaymentScreen extends Component {
                     formatedDate={this.state.formatedDate}
                     formatedTime={this.state.formatedTime}
                     authCode={this.state.authCode}
-
+                    isRefund={this.props.navigation.state.params.refundSelected}
                 />
                 <CreateCustomerOverlay
                     isVisible={this.state.createCustomerOverlayVisible}

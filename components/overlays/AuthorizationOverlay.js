@@ -20,6 +20,11 @@ export default class AuthorizationOverlay extends Component {
             iconName = "closecircle";
             iconContainerColor = '#E50F0F';
         }
+
+        (this.props.isRefund)
+            ? refundText = "Refund"
+            : refundText = "";
+        
         
         return (
             <Overlay
@@ -31,7 +36,7 @@ export default class AuthorizationOverlay extends Component {
             >
                 <View style={styles.container}>
                     <View style={styles.row}>
-                        <Text style={styles.title}>{this.props.title}!</Text>
+                        <Text style={styles.title}>{refundText + " " + this.props.title}!</Text>
                         <Icon
                             type="antdesign"
                             name={iconName}

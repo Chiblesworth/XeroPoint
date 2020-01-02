@@ -42,6 +42,7 @@ export default class TipOverlay extends Component {
                                     containerStyle={styles.inputContainer}
                                     inputContainerStyle={styles.inputContainerStyle}
                                     onChangeText={(text) => this.handleTipChange(text, i)}
+                                    keyboardType="numeric"
                                 />
                             </View>
                             <View>

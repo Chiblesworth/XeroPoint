@@ -35,34 +35,46 @@ export default class SignatureScreen extends Component {
             subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
             total: 0,
             tip: 0,
-            customTipOverlayVisible: false
+            customTipOverlayVisible: false,
+            collectingTips: true
         };
     }
 
     async componentDidMount() {
+        console.log("Sig screen payment id is ", this.props.navigation.state.params.tipAdjustmentData.id);
+        console.log(this.props.navigation.state.params.tipAdjustmentData);
+
         Orientation.lockToLandscape();
+        let collectingTips = await storageGet("collectTips");
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
         let useCustomTips = await storageGet("useCustomTips");
+        
+        collectingTips = JSON.parse(collectingTips);
         useCustomTips = JSON.parse(useCustomTips);
 
-        if(useCustomTips){
-            let customTipArray = await getCustomTipsArray();
-            customTipArray.push("Other");
-            
-            this.setState({tipArray: [...customTipArray]}, () => {
-                this.adjustTip(this.state.selectedIndex);
-            });
+        if(collectingTips){
+            if(useCustomTips){
+                let customTipArray = await getCustomTipsArray();
+                customTipArray.push("Other");
+                
+                this.setState({tipArray: [...customTipArray]}, () => {
+                    this.adjustTip(this.state.selectedIndex);
+                });
+            }
+            else{
+                if(defaultTips.length === 4){
+                    defaultTips.push("Other");
+                }
+
+                this.setState({
+                    tipArray: [...defaultTips], 
+                    selectedIndex: Number(selectedDefaultTip)}, () => {
+                        this.adjustTip(this.state.selectedIndex);
+                });
+            }
         }
         else{
-            if(defaultTips.length === 4){
-                defaultTips.push("Other");
-            }
-
-            this.setState({
-                tipArray: [...defaultTips], 
-                selectedIndex: Number(selectedDefaultTip)}, () => {
-                    this.adjustTip(this.state.selectedIndex);
-            });
+            this.setState({collectingTips: false});
         }
     }
 
@@ -77,7 +89,7 @@ export default class SignatureScreen extends Component {
             (this.state.customTipOverlayVisible)
                 ? Orientation.lockToPortrait()
                 : Orientation.lockToLandscape();
-        })
+        });
     }
 
     adjustTip = (index) => {
@@ -91,7 +103,7 @@ export default class SignatureScreen extends Component {
             }, () => {
                 console.log("total = " + this.state.total)
                 console.log("tip = " + this.state.tip)
-            })
+            });
         }
         else if(index === 4){
             this.handleCustomTipOverlay();
@@ -111,7 +123,7 @@ export default class SignatureScreen extends Component {
             }, () => {
                 console.log("total = " + this.state.total)
                 console.log("tip = " + this.state.tip)
-            })
+            });
         }
     }
 
@@ -180,15 +192,27 @@ export default class SignatureScreen extends Component {
     }
 
     render() {
+        console.log(this.state.collectingTips);
         return (
             <View style={styles.container}>
-                <CollectTip
-                    tipArray={this.state.tipArray}
-                    selectedIndex={this.state.selectedIndex}
-                    subtotal={this.state.subtotal}
-                    total={this.state.total}
-                    handleChange={this.handleSegmentedControlSwitch}
-                />
+                {
+                    (this.state.collectingTips)
+                    ?(
+                        <CollectTip
+                            tipArray={this.state.tipArray}
+                            selectedIndex={this.state.selectedIndex}
+                            subtotal={this.state.subtotal}
+                            total={this.state.total}
+                            handleChange={this.handleSegmentedControlSwitch}
+                        />
+                    )
+                    : (
+                        <View style={[styles.row, {justifyContent: 'space-between', margin: '2%'}]}>
+                            <Text style={styles.text}>Not Collecting Tips</Text>
+                            <Text style={styles.text}>Subtotal: ${this.state.subtotal}</Text>
+                        </View>
+                    )
+                }
                 <View style={styles.signatureContainer}>
                     {/* <SignatureCapture
                         style={styles.signature}
