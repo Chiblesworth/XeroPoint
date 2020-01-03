@@ -137,8 +137,8 @@ export default class TipsScreen extends Component {
                             <SwitchToggle
                                 switchOn={this.state.useCustomPercentages}
                                 onPress={() => this.handleSwitchPress("useCustomTips")}
-                                circleColorOff="white"
-                                circleColorOn="white"
+                                circleColorOff="#fff"
+                                circleColorOn="#fff"
                                 backgroundColorOn="blue"
                             />
                         </View>

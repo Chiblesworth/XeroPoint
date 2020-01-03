@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const storageSet = async(key, value) => {
     try{
         await AsyncStorage.setItem(key, value);
+        console.log("key " + key + " was set with " + value);
     }
     catch(error){
         console.log(error);

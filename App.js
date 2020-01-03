@@ -24,6 +24,9 @@ import HistoryScreen from './components/screens/HistoryScreen';
 import BatchPaymentScreen from './components/screens/BatchPaymentScreen';
 import ViewReceiptScreen from './components/screens/ViewReceiptScreen';
 import SupportScreen from './components/screens/SupportScreen';
+import AdvancedSettingScreen from './components/screens/AdvancedSettingScreen';
+import CardReaderScreen from './components/screens/CardReaderScreen';
+import LocationScreen from './components/screens/LocationScreen';
 
 /*
 	Helpful links how I set up navigation
@@ -54,7 +57,10 @@ const SettingStack = createStackNavigator(
 	{
 		Settings: {screen: SettingScreen, navigationOptions: {header: null}},
 		Fees: {screen: FeesScreen, navigationOptions: {header: null}},
-		Tips: {screen: TipsScreen, navigationOptions: {header: null}}
+		Tips: {screen: TipsScreen, navigationOptions: {header: null}},
+		Advanced: {screen: AdvancedSettingScreen, navigationOptions: {header: null}},
+		CardReader: {screen: CardReaderScreen, navigationOptions: {header: null}},
+		Location: {screen: LocationScreen, navigationOptions: {header: null}}
 	}
 );
 

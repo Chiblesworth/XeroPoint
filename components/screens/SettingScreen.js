@@ -23,10 +23,19 @@ export default class SettingScreen extends Component {
         else if(setting === "Tips"){
             this.props.navigation.navigate("Tips");
         }
+        else if(setting === "Advanced"){
+            this.props.navigation.navigate("Advanced");
+        }
+        else if(setting === "Card Reader"){
+            this.props.navigation.navigate("CardReader");
+        }
+        else if(setting === "Location"){
+            this.props.navigation.navigate("Location");
+        }
     }
 
     render() {
-        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Printers", "Card Reader", "Advanced"];
+        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Card Reader", "Advanced"];
         let settingsContent = []; //This holds the <Button> code
 
         for(const [index, setting] of settingsArray.entries()){
