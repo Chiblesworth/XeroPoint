@@ -7,7 +7,6 @@ export const styles = StyleSheet.create({
         marginTop: '2%'
     },
     row: {
-        flex: 1,
         flexDirection: 'row',
     },
     totalContainer: {
@@ -16,10 +15,12 @@ export const styles = StyleSheet.create({
     signatureContainer: {
         flex: 1,
         borderBottomWidth: 3,
-        borderBottomColor: '#000'
+        borderBottomColor: '#000',
     },
     signature: {
-        flex: 1
+        height: 25,
+        width: '100%',
+        backgroundColor: 'red'
     },
     totalContainer: {
         flexDirection: 'column'

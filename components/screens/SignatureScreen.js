@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import { StackActions, NavigationActions } from 'react-navigation';
 import Orientation from 'react-native-orientation';
-//import SignatureCapture from 'react-native-signature-capture';
+import RNAnyPay from 'react-native-any-pay';
 
 import CollectTip from '../CollectTip';
 import CustomTipOverlay from '../overlays/CustomTipOverlay';
@@ -195,6 +195,7 @@ export default class SignatureScreen extends Component {
         console.log(this.state.collectingTips);
         return (
             <View style={styles.container}>
+                <View>
                 {
                     (this.state.collectingTips)
                     ?(
@@ -213,15 +214,13 @@ export default class SignatureScreen extends Component {
                         </View>
                     )
                 }
+                </View>
                 <View style={styles.signatureContainer}>
-                    {/* <SignatureCapture
+                    <RNAnyPay.SignatureView 
+                        ref={(ref) => {this.signatureRef = ref}}
+                        onSignatureReady={null}
                         style={styles.signature}
-                        ref="sign"
-                        saveImageFileInExtStorage={false}
-                        showNativeButtons={false}
-                        showTitleLabel={true}
-                        viewMode={this.state.orientation}
-                    /> */}
+                    />
                 </View>
                 <View style={styles.textSection}>
                     <Text style={styles.text}>Please sign your signature above.</Text>

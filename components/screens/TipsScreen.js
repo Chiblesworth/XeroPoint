@@ -37,6 +37,16 @@ export default class TipsScreen extends Component {
         useCustomTips = JSON.parse(useCustomTips);
         collectTips = JSON.parse(collectTips);
 
+        if(collectTips === null){
+            storageSet("collectTips", "true");
+            collectTips =  true;
+        }
+
+        if(selectedDefaultTip === null){
+            storageSet("selectedDefaultTip", 0);
+            selectedDefaultTip = 0;
+        }
+
         (customTipArray === null)
             ? this.customTips = ["15%", "20%", "25%"]
             : this.customTips = JSON.parse(customTipArray);
@@ -93,7 +103,7 @@ export default class TipsScreen extends Component {
                     handlePress={this.handleHeaderIconPress}
                     backgroundColor="#656565"
                 />
-                <View style={{ paddingTop: 10 }} />
+                <View style={{ paddingTop: '4%' }} />
                 <View style={styles.container}>
                     <View stlye={styles.row}>
                         <View style={styles.textContainer}>

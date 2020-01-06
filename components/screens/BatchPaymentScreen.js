@@ -19,8 +19,9 @@ export default class BatchPaymentScreen extends Component {
     }
 
     componentDidMount() {
-        console.log("In batch payments screen")
-        console.log(this.state.batchPayments)
+        //Remove when in production
+        //console.log("In batch payments screen")
+        //console.log(this.state.batchPayments)
     }
 
     handleHeaderIconPress = () => {

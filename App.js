@@ -10,8 +10,8 @@ import {
 	StackActions,
 } from 'react-navigation';
 import { Button, Icon } from 'react-native-elements';
-import { View, StyleSheet, Image } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { View, Image } from 'react-native';
+
 import LoginScreen from './components/screens/LoginScreen';
 import MainScreen from './components/screens/MainScreen';
 import PaymentScreen from './components/screens/PaymentScreen';
@@ -25,16 +25,11 @@ import BatchPaymentScreen from './components/screens/BatchPaymentScreen';
 import ViewReceiptScreen from './components/screens/ViewReceiptScreen';
 import SupportScreen from './components/screens/SupportScreen';
 import AdvancedSettingScreen from './components/screens/AdvancedSettingScreen';
-import CardReaderScreen from './components/screens/CardReaderScreen';
 import LocationScreen from './components/screens/LocationScreen';
 
-/*
-	Helpful links how I set up navigation
-	https://facebook.github.io/react-native/docs/navigation
-	https://reactnavigation.org/docs/en/hello-react-navigation.html
-	Implements both stack and drawer navigation.
-	Stack for main screens, drawer for settings etc.
-*/
+import { removeItem } from './helpers/localStorage';
+
+import { styles } from './components/styles/DrawerButtonStyles';
 
 const MainStack = createStackNavigator(
 	{
@@ -59,7 +54,6 @@ const SettingStack = createStackNavigator(
 		Fees: {screen: FeesScreen, navigationOptions: {header: null}},
 		Tips: {screen: TipsScreen, navigationOptions: {header: null}},
 		Advanced: {screen: AdvancedSettingScreen, navigationOptions: {header: null}},
-		CardReader: {screen: CardReaderScreen, navigationOptions: {header: null}},
 		Location: {screen: LocationScreen, navigationOptions: {header: null}}
 	}
 );
@@ -75,15 +69,36 @@ const DrawerStack = createDrawerNavigator(
 		Main: {screen: MainStack, navigationOptions: {drawerLabel: () => null}},
 		History: {
 			screen: HistoryStack,
-			navigationOptions: {drawerIcon: (<Icon name="computer" type="material" color="#fff" size={25}/>)}
+			navigationOptions: {drawerIcon: (
+				<Icon 
+					name="computer" 
+					type="material"
+					color="#fff" 
+					size={25}
+				/>
+			)}
 		},
 		Settings: {
 			screen: SettingStack,
-			navigationOptions: {drawerIcon: (<Icon name="settings" type="feather" color="#fff" size={25}/>)}
+			navigationOptions: {drawerIcon: (
+				<Icon 
+					name="settings" 
+					type="feather" 
+					color="#fff" 
+					size={25}
+				/>
+			)}
 		},
 		Support: {
 			screen: SupportStack,
-			navigationOptions: {drawerIcon: (<Icon name="person" type="material" color="#fff" size={25} />)}
+			navigationOptions: {drawerIcon: (
+				<Icon 
+					name="person" 
+					type="material" 
+					color="#fff" 
+					size={25} 
+				/>
+			)}
 		}
 	},
 	{
@@ -103,7 +118,14 @@ const DrawerStack = createDrawerNavigator(
 				<SafeAreaView forceInset={{top: 'always', horizontal: 'never'}}>
 					<DrawerItems {...props} />
 					<Button
-						icon={<Icon name="power" type="feather" color="#fff" size={25}/>}
+						icon={
+							<Icon 
+								name="power" 
+								type="feather"
+								color="#fff" 
+								size={25}
+							/>
+						}
 						type="solid"
 						title="Sign Out"
 						onPress={() => signOut(props)}
@@ -146,34 +168,15 @@ const PrimaryNavigation = createStackNavigator({
 });
 
 const signOut = (props) => {
-	//Where the idea came from
-	//https://stackoverflow.com/questions/43090884/resetting-the-navigation-stack-for-the-home-screen-react-navigation-and-react-n
-	//Delete saved token and use storage get/set
-	AsyncStorage.setItem("stayLoggedIn", "False").then(() => {
-		props.navigation.dispatch(StackActions.reset({
-			index: 0,
-			key: null,
-			actions: [
-				NavigationActions.navigate({ routeName: 'Login' })
-			]
-		}))
-	})
+	removeItem("merchantId");
+	removeItem("encodedUser");
+	removeItem("username");
+
+	props.navigation.dispatch(StackActions.reset({
+		index: 0,
+		key: null,
+		actions: [NavigationActions.navigate({routeName: 'Login'})]
+	}));
 }
 
 export default createAppContainer(PrimaryNavigation);
-
-//Styles for drawer signOut button
-const styles = StyleSheet.create({
-	button: {
-		backgroundColor: '#2D2D2D',
-		marginRight: 100
-	},
-	buttonTitle: {
-		fontSize: 22,
-		color: 'white',
-		marginLeft: 30
-	}, 
-	drawerLogo: {
-		marginLeft: '-48%'
-	}
-})

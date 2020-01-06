@@ -12,8 +12,8 @@ export default class DailyPaymentHistory extends Component {
     }
 
     checkProps = () => {
-        console.log('checkProps here')
-        console.log(this.props.paymentsSplitByDay);
+        // console.log('checkProps here') remove in production
+        // console.log(this.props.paymentsSplitByDay);
     }
 
     calculateDailyNetTotal = (payments) => {
@@ -68,8 +68,8 @@ export default class DailyPaymentHistory extends Component {
                                         onPress={() => this.handlePaymentPress(payment)}
                                     >
                                         <View style={styles.container}>
-                                            <View style={[styles.row, { justifyContent: 'space-between', marginRight: 15 }]}>
-                                                <View style={{ marginLeft: 15 }}>
+                                            <View style={[styles.row, { justifyContent: 'space-between', margin: '1%' }]}>
+                                                <View>
                                                     <View style={styles.row}>
                                                         <Icon
                                                             type='entypo'
@@ -77,12 +77,11 @@ export default class DailyPaymentHistory extends Component {
                                                             size={35}
                                                             containerStyle={{ paddingLeft: 15 }}
                                                         />
-                                                        <View style={{ paddingTop: 5, paddingLeft: 10 }} />
-                                                        <Text style={[styles.text, { paddingTop: 5 }]}>
+                                                        <Text style={[styles.text, { paddingTop: '2%' }]}>
                                                             ${parseFloat(Math.round(payment.amount * 100) / 100).toFixed(2)}
                                                         </Text>
                                                     </View>
-                                                    <View style={[styles.row], { paddingTop: 0, paddingLeft: 10 }}>
+                                                    <View style={[styles.row], { paddingLeft: '2%' }}>
                                                         <Text style={styles.text}>
                                                             {timeOfPayment}
                                                         </Text>
@@ -94,9 +93,9 @@ export default class DailyPaymentHistory extends Component {
                                                             Tip: ${parseFloat(Math.round(payment.tip * 100) / 100).toFixed(2)}
                                                         </Text>
                                                     </View>
-                                                    <View style={[styles.row], { paddingTop: 10, paddingLeft: 10 }}>
+                                                    <View style={[styles.row], { padding: '5%' }}>
                                                         <View style={[styles.statusContainer, { backgroundColor: backgroundCol }]}>
-                                                            <Text style={[styles.text, { color: '#fff', paddingTop: 2 }]}>
+                                                            <Text style={[styles.text, { color: '#fff', paddingTop: '1%' }]}>
                                                                 {payment.status}
                                                             </Text>
                                                         </View>

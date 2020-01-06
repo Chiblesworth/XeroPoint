@@ -34,12 +34,12 @@ export default class PaymentInfo extends Component {
                         name='credit-card'
                         size={35}
                     />
-                    <Text style={[styles.text, { paddingTop: 7, paddingLeft: 15 }]}>
+                    <Text style={[styles.text, { padding: '4%' }]}>
                         XXXX XXXX XXXX {this.props.last4}
                     </Text>
                 </View>
                 <View style={styles.row}>
-                    <View style={{ marginTop: 15 }}>
+                    <View style={{ marginTop: '4%' }}>
                         <Text style={styles.text}>Auth Code: {this.props.authCode}</Text>
                         <Text style={styles.text}>
                             Card {this.props.cardPresent ? "" : "Not "}Present

@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
     },
     row: {
         justifyContent: 'space-around',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        padding: '2%'
     },
     text: {
         fontSize: 18,

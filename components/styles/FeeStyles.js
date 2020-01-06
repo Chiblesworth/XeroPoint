@@ -6,11 +6,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#454343'
     },
     divider: {
-        marginTop: 20,
+        margin: '3%',
+        padding: '3%',
         borderBottomColor: '#fff',
-        borderBottomWidth: 4
+        borderBottomWidth: 2
     },
     extraPadding: {
-        marginTop: 20
+       marginTop: '5%'
     }
 });

@@ -21,7 +21,7 @@ export default class ViewReceiptScreen extends Component {
     }
 
     componentWillMount() {
-        console.log(this.state.payment)
+        //console.log(this.state.payment) remove for production
     }
 
     handleHeaderIconPress = () => {
@@ -37,6 +37,7 @@ export default class ViewReceiptScreen extends Component {
 
         timeCreated = timeCreated.split(" ");
         timeCreated = convertMilitaryToStandardTime(timeCreated[0], true);
+        
         return (
             <View style={{ backgroundColor: '#ECE7E7', height: '100%' }}>
                 <CustomHeader

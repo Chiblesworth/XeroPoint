@@ -15,12 +15,6 @@ export default class TipOverlay extends Component {
         tipAmount += "%";   
         this.props.customTips[index] = tipAmount; 
     }
-
-    printArray = () => {
-        for(let i = 0; i < this.props.customTips.length; i++){
-            console.log(this.props.customTips[i])
-        }
-    }
     
     checkBeforeChange = () => {         
         this.props.applyChanges(this.props.customTips);

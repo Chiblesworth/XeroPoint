@@ -11,7 +11,6 @@ export async function updateMerhcantSettings(merchantId, data){
         headers: headers,
         body: JSON.stringify(data)
     }).then((response) => {
-        console.log(response);
         return response.status;
     });
 

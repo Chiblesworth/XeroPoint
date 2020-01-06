@@ -17,7 +17,6 @@ export default class SettingScreen extends Component {
 
     handleButtonPress = (setting) => {
         if(setting === "Additional Fees"){
-            console.log("Pressed fees button");
             this.props.navigation.navigate("Fees");
         }
         else if(setting === "Tips"){
@@ -26,16 +25,13 @@ export default class SettingScreen extends Component {
         else if(setting === "Advanced"){
             this.props.navigation.navigate("Advanced");
         }
-        else if(setting === "Card Reader"){
-            this.props.navigation.navigate("CardReader");
-        }
         else if(setting === "Location"){
             this.props.navigation.navigate("Location");
         }
     }
 
     render() {
-        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Card Reader", "Advanced"];
+        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Advanced"];
         let settingsContent = []; //This holds the <Button> code
 
         for(const [index, setting] of settingsArray.entries()){
@@ -47,7 +43,7 @@ export default class SettingScreen extends Component {
                             name="chevron-right"
                             type="entypo"
                             size={40}
-                            color="white"
+                            color="#fff"
                         />
                     }
                     iconRight

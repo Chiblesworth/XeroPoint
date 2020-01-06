@@ -6,10 +6,12 @@ import {name as app_name, version as app_version}  from '../../package.json';
 import CustomHeader from '../CustomHeader';
 import SupportTile from '../SupportTile';
 
+import { getMerchantDetails } from '../../api_requests/getMerchantDetails';
+
 import { storageGet } from '../../helpers/localStorage';
 
 import { styles } from '../styles/SupportStyles';
-import { getMerchantDetails } from '../../api_requests/getMerchantDetails';
+
 
 export default class SupportScreen extends Component {
     constructor(props) {
@@ -64,7 +66,7 @@ export default class SupportScreen extends Component {
                         supportText="24/7 Support"
                     />
                 </View>
-                <View style={{marginTop: 30}} />
+                <View style={{marginTop: '10%'}} />
                 <Button
                     title="Help Center"
                     containerStyle={styles.buttonContainer}
@@ -78,13 +80,11 @@ export default class SupportScreen extends Component {
                     <View 
                         style={[styles.row, {
                             justifyContent: 'space-between', 
-                            margin: 20,
-                            marginLeft: 30,
-                            marginRight: 30
+                            margin: '5%'
                         }]}
                     >
                         <View>
-                            <Text style={styles.text}>Merchant Number:</Text>
+                            <Text style={styles.text}>Merchant Number: </Text>
                             <Text style={styles.text}>Merchant Name:</Text>
                             <Text style={styles.text}>App Name:</Text>
                             <Text style={styles.text}>App Version:</Text>

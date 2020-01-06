@@ -52,7 +52,7 @@ export default class MainScreen extends Component {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
         }
-
+        //Imp getApiKeys when moving to production
         //https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}
         fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=418399799`, {
             method: "GET",

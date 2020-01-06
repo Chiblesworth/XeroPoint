@@ -18,14 +18,14 @@ export default class BatchHistory extends Component {
     handleBatchPress = async (batchId) => {
         let data = await getBatchPayments(batchId);
         this.setState({batchPayments: data.records}, () => {
-            console.log(this.state.batchPayments);
+            //console.log(this.state.batchPayments);
             this.props.navigation.navigate("BatchPayments", {batchPayments: this.state.batchPayments});
         });
     }
 
     render() {
-        console.log("here in render of batchHistory")
-        console.log(this.props.batches)
+        // console.log("here in render of batchHistory")
+        // console.log(this.props.batches)
         return (
             <View>
                 {this.props.batches.map((batch, index) => {
@@ -52,7 +52,7 @@ export default class BatchHistory extends Component {
                                     <Text style={styles.text}>Batch {batch.reference}</Text>
                                     <Text style={styles.text}>Closed By: {batch.closerName}</Text>
                                 </View>
-                                <View style={[styles.row, { padding: 20 }]}>
+                                <View style={[styles.row, { padding: '5%' }]}>
                                     <View style={styles.batchInfoContainer}>
                                         <View style={{
                                             backgroundColor: '#2E2B2B',

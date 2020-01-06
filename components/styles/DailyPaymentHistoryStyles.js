@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
     },
     text: {
         padding: 10,

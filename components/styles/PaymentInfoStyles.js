@@ -2,11 +2,11 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     container: {
-        margin: 15,
+        margin: '5%',
     },
     row: {
         flexDirection: 'row',
-        marginLeft: 10
+        margin: '1%'
     },
     text: {
         color: '#000',

@@ -8,32 +8,27 @@ export const styles = StyleSheet.create({
     container: {
         borderBottomColor: '#fff',
         borderBottomWidth: 2,
-        marginBottom: 20,
+        marginBottom: '5%',
         width: '100%'
     },
     row: {
-        flex: 1,
         flexDirection: 'row',
         width: '100%',
-        marginBottom: 10,
     },
     text: {
         fontSize: 18,
         color: '#fff',
-        paddingRight: 10,
-        marginLeft: 10,
-        marginBottom: 20
+        margin: '2%'
     },
     textContainer: {
         flex: 1,
     },
     switch: {
         alignItems: 'flex-end',
-        marginRight: 10,
-        marginBottom: 20
+        margin: '3%'
     },
     segmentedSection: {
-        marginBottom: 20,
+        margin: '3%'
     },
     tabsContainerStyle: {
         height: 70,

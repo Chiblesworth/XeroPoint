@@ -3,8 +3,6 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
-        marginLeft: 50,
-        marginRight: 50
     },
     padButton: {
         alignItems: 'center',

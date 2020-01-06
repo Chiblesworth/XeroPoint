@@ -51,7 +51,6 @@ export default class CreateCustomerOverlay extends Component {
         let customer = await postCustomer(data);
         
         if(customer !== null){
-            console.log(customer);
             showAlert("Customer Added", customer.name + " was added to the payment!");
             storageSet("selectedCustomerId", customer.id.toString());
             this.props.closeOverlay();

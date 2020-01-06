@@ -44,7 +44,6 @@ export default class SearchCustomerOverlay extends Component {
             }
         }
 
-        console.log(filterCustomers);
         this.setState({customers: filterCustomers});
     }
 

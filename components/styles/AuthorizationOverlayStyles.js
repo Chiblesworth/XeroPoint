@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     },
     title: {
         fontSize: 25,
-        marginBottom: 25
+        marginBottom: '8%'
     },
     text: {
         fontSize: 18
@@ -21,8 +21,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     iconContainer: {
-        marginTop: 5,
-        marginLeft: 15
+        margin: '2%'
     },
     icon: {
         color: 'green'

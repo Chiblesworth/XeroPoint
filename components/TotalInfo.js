@@ -21,23 +21,22 @@ export default class TotalInfo extends Component {
             <View style={styles.container}>
                 <View style={styles.row}>
                     <Text style={styles.text}>Amount:</Text>
-                    <View style={{padding:20}}/>
                     <Text style={styles.text}>
                         {parseFloat(Math.round(amount * 100) / 100).toFixed(2)}
                     </Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.text}>+Tip:</Text>
-                    <View style={{padding:20}}/>
+                    <View style={{ padding: '7%' }}/>
                     <Text style={styles.text}>
                         {parseFloat(Math.round(this.props.tip * 100) / 100).toFixed(2)}
                     </Text>
                 </View>
                 <View style={styles.additionBar}/>
-                <View style={{paddingBottom: 15}}/>
+                <View style={{ paddingBottom: '2%' }}/>
                 <View style={styles.row}>
                     <Text style={styles.text}>=Total:</Text>
-                    <View style={{padding:20}}/>
+                    <View style={{ padding:'7%' }}/>
                     <Text style={styles.text}>
                         {parseFloat(Math.round(this.props.total * 100) / 100).toFixed(2)}
                     </Text>

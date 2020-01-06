@@ -6,9 +6,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#656565',
         height: '100%',
         width: '45%',
-        marginTop: 20,
-        marginRight: 4,
-        marginLeft: 15,
+        margin: '3%',
         borderRadius: 10
     },
     text: {

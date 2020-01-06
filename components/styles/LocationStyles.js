@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: '8%',
+        padding: '4%',
+        margin: '4%',
         borderBottomColor: '#fff',
         borderBottomWidth: 1
     },

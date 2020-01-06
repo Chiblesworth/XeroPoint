@@ -32,9 +32,6 @@ export default class HistoryScreen extends Component {
         //https://stackoverflow.com/questions/7937233/how-do-i-calculate-the-date-in-javascript-three-months-prior-to-today
         startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
         endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
-
-        console.log(endDate.toLocaleDateString())
-        console.log(startDate.toLocaleDateString())
         
         //Get batches 
         let batches = await getBatches(merchantId, startDate, endDate);
@@ -54,8 +51,8 @@ export default class HistoryScreen extends Component {
     }
 
     parsePaymentsByDay = (payments) => {
-        console.log(payments)
-        console.log(payments.length);
+        // console.log(payments) //Remove in production
+        // console.log(payments.length);
 
         let dateToBeCompared = new Date(payments[0].created); //Holds the first date for other records to compare date to
         let paymentsForOneDay = [];
@@ -78,19 +75,19 @@ export default class HistoryScreen extends Component {
                 }
             }
         }
+
         allPaymentsSplitByDay.push(paymentsForOneDay);
 
         this.setState({paymentsSplitByDay: allPaymentsSplitByDay});
     }
 
     render() {
-        let paymentHistoryContent 
-        if(this.state.selectedIndex === 0){
-            paymentHistoryContent = <DailyPaymentHistory navigation={this.props.navigation} paymentsSplitByDay={this.state.paymentsSplitByDay} />;
-        }
-        else{
-            paymentHistoryContent = <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>;
-        }
+        let paymentHistoryContent;
+        
+        (this.state.selectedIndex === 0)
+            ? paymentHistoryContent = <DailyPaymentHistory navigation={this.props.navigation} paymentsSplitByDay={this.state.paymentsSplitByDay} />
+            : paymentHistoryContent = <BatchHistory batches={this.state.batches} navigation={this.props.navigation}/>;
+
         return (
             <View style={{flex: 1}}>
                 <CustomHeader 

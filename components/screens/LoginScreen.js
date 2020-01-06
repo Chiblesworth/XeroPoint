@@ -29,7 +29,9 @@ export default class LoginScreen extends Component {
 		Orientation.lockToPortrait();
 		let stayLoggedIn = await storageGet("stayLoggedIn");
 		
-		if(stayLoggedIn === "True"){
+		stayLoggedIn = JSON.parse(stayLoggedIn);
+
+		if(stayLoggedIn){
 			this.props.navigation.navigate("Main");
 		}
 	}
@@ -56,9 +58,10 @@ export default class LoginScreen extends Component {
 		let data = await authenticate(headers);
 
 		if(data === 200){
-			if(this.state.switchValue){
-				storageSet("stayLoggedIn", "True");
-			}
+			(this.state.switchValue)
+				? storageSet("stayLoggedIn", "true")
+				: storageSet("stayLoggedIn", "false");
+			
 			storageSet("encodedUser", encodedString);
 			storageSet("username", base64.decode(this.state.encodedUsername));
 			this.props.navigation.navigate("Main")

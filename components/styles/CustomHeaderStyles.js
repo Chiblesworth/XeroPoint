@@ -4,6 +4,6 @@ export const styles = StyleSheet.create({
     headerText: {
         fontSize: 27,
         color: '#fff',
-        paddingBottom: 30
+        paddingBottom: '10%'
     }
 });

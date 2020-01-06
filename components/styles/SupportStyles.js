@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
         height: '100%'
     },
     row: {
-        flexDirection: 'row',
+        flexDirection: 'row'
     },
     buttonContainer: {
         height: '10%',
@@ -23,6 +23,6 @@ export const styles = StyleSheet.create({
     text: {
         color: '#fff',
         fontSize: 16,
-        paddingTop: 7
+        paddingTop: 8
     }
 });

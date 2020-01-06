@@ -7,11 +7,11 @@ export const styles = StyleSheet.create({
     },
     title: {
         fontSize: 25,
-        marginBottom: 25
+        marginBottom: '10%'
     },
     text: {
         fontSize: 20,
-        marginBottom: 25
+        marginBottom: '10%'
     },
     row: {
         flexDirection: 'row',
@@ -22,30 +22,20 @@ export const styles = StyleSheet.create({
         height: 40,
     },
     inputContainerStyle: {
-        paddingTop: 15
+        paddingTop: '12%'
     },
     tipHeader: {
-        marginRight: 30,
-        marginTop: 15,
+        margin: '8%',
         fontSize: 20,
     },
     percentSign: {
-        marginTop: 10,
+        marginTop: '5%',
         fontSize: 27
     },
-    //Two button containers here because it was the only way I was able to add space between the two buttons.
-    //Could not get justifyContent: 'space-between' to work with the current set up.
     buttonContainer: {
         width: 100,
         height: 50,
-        marginTop: 130,
-        //marginRight: 40,
-    },
-    buttonContainer2: {
-        width: 100,
-        height: 50,
-        marginTop: 130,
-        marginLeft: 40,
+        marginTop: '30%'
     },
     buttonStyle: {
         width: 100,

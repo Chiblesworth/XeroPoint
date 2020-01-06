@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#454343',
         width: '100%',
-        paddingBottom: 10
+        paddingBottom: '2%'
     },
     tabsContainerStyle: {
         width: '50%',
@@ -13,16 +13,16 @@ export const styles = StyleSheet.create({
     },
     tabStyle: {
         backgroundColor: '#454343',
-        borderColor: 'black'
+        borderColor: '#000'
     },
     tabTextStyle: {
         fontSize: 18,
-        color: 'white'
+        color: '#fff'
     },
     activeTabStyle: {
-        backgroundColor: 'white'
+        backgroundColor: '#fff'
     },
     activeTabTextStyle: {
-        color: 'black'
+        color: '#000'
     },
 });

@@ -26,8 +26,9 @@ export default class MerchantInfo extends Component {
 
     async componentDidMount() {
         //let merchantId = await storageGet("merchantId");
+
         let headers = {
-            'Authorization': 'Basic ' + encodedUser,
+            'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
         }
         fetch(`https://api.mxmerchant.com/checkout/v3/merchant/418399799/setting`, {
@@ -52,6 +53,7 @@ export default class MerchantInfo extends Component {
             })
         });
 
+        //Switch to this before moving to produc
         // let data = await getMerchantSettings(merchantId);
         // this.setState({
         //     name: data.receipt.name,

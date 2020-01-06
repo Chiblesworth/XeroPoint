@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 
+import { getMerchantSettings } from '../api_requests/getMerchantSettings';
+
 import { storageGet } from '../helpers/localStorage';
-import { getRequestHeader } from '../helpers/getRequestHeader';
 import { showAlert } from '../helpers/showAlert';
 
 import { styles } from './styles/KeyedPaymentFormStyles';
@@ -33,24 +34,17 @@ export default class KeyedPaymentForm extends Component {
     }
 
     componentDidMount() {
-        this.getMerchantSettings();
+        this.getLossPreventionFields();
     }
 
-    getMerchantSettings = async () => { //FIX API CALL MADE WITH NEW HELPER METHODS
+    getLossPreventionFields = async () => {
         let merchantId = await storageGet("merchantId");
-        let headers = await getRequestHeader();
+        let data = await getMerchantSettings(merchantId);
 
-        fetch(`https://sandbox.api.mxmerchant.com/checkout/v3/merchant/${merchantId}/setting`, {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            return response.json();
-        }).then((Json) => {
-            this.setState({
-                streetOn: Json.lossPrevention.keyedAvsAddress,
-                zipOn: Json.lossPrevention.keyedAvsZip,
-                cvvOn: Json.lossPrevention.keyedCvv
-            });
+        this.setState({
+            streetOn: data.lossPrevention.keyedAvsAddress,
+            zipOn: data.lossPrevention.keyedAvsZip,
+            cvvOn: data.lossPrevention.keyedCvv
         });
     }
 

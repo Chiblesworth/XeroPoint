@@ -13,9 +13,8 @@ const SupportTile = (props) => {
                 color="#fff"
                 size={60}
             />
-            <View style={{ padding: 10 }} />
             <Text style={styles.text}>{props.contact}</Text>
-            <View style={{ padding: 10 }} />
+            <View style={{ padding: '10%' }} />
             <Text style={[styles.text, { color: "#BABABA" }]}>{props.supportText}</Text>
         </View>
     );

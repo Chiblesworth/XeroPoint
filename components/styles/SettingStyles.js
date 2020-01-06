@@ -5,16 +5,12 @@ export const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#454343'
     },
-    headerText: {
-        fontSize: 30,
-        color: '#fff',
-        paddingBottom: 30
-    },
     button: {
         justifyContent: 'space-between',
         backgroundColor: '#454343',
         borderBottomWidth: 2,
         borderBottomColor: '#E8E8E8',
+        margin: '1%'
     },
     buttonTitle: {
         fontSize: 25

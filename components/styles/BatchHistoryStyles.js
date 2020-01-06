@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     text: {
-        padding: 10,
+        padding: '3%',
         fontSize: 16,
         color: "#000"
     },
@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     },
     infoText: {
-        padding: 10,
+        padding: '10%',
         borderRadius: 20
     },
 });

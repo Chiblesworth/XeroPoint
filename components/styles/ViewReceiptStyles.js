@@ -1,15 +1,10 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 25,
-        color: '#fff',
-        paddingBottom: 30
-    },
     receiptContainer: {
         backgroundColor: '#fff',
         height: '100%',
-        margin: 20,
+        margin: '8%',
     },
     divider: {
         borderBottomWidth: 1,

@@ -22,14 +22,9 @@ export default class AdvancedSettingScreen extends Component {
         let lossPreventionOn = await storageGet("lossPreventionOn");
         lossPreventionOn = JSON.parse(lossPreventionOn);
 
-        if(lossPreventionOn != null){
-            console.log("lossPreventionOn is ", lossPreventionOn);
-            this.setState({advancedSettingSwitch: lossPreventionOn});
-        }
-        else{
-            console.log("HERE in else, ");
-            this.setState({advancedSettingSwitch: false});
-        }
+        (lossPreventionOn != null)
+            ? this.setState({advancedSettingSwitch: lossPreventionOn})
+            : this.setState({advancedSettingSwitch: false});
     }
 
     handleHeaderIconPress = () => {
@@ -53,7 +48,6 @@ export default class AdvancedSettingScreen extends Component {
         };
 
         let status = await updateMerhcantSettings(merchantId, data);
-        console.log(status);
 
         if(status === 200){
             (this.state.advancedSettingSwitch)

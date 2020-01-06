@@ -23,7 +23,6 @@ export default class LocationScreen extends Component {
         let merchantId = await storageGet("merchantId");
         let data = await getLocation(merchantId);
 
-        console.log(data);
         this.setState({dba: data.dba, xmid: data.xmid});
     }
 

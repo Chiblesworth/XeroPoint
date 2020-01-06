@@ -13,10 +13,11 @@ import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import SearchCustomerOverlay from '../overlays/SearchCustomerOverlay';
 import AuthorizationOverlay from '../overlays/AuthorizationOverlay';
 import EmvProcessOverlay from '../overlays/EmvProcessOverlay';
+import ConnectReaderOverlay from '../overlays/ConnectReaderOverlay';
 
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
-import { storageGet } from '../../helpers/localStorage';
+import { storageGet, storageSet } from '../../helpers/localStorage';
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
 import { styles } from '../styles/PaymentStyles';
@@ -25,9 +26,9 @@ const AnyPay = RNAnyPay.AnyPay;
 const eventEmitter = new NativeEventEmitter(RNAnyPay.AnyPay);
 var transaction = null;
 
-eventEmitter.addListener('CardReaderError', (event) => {
-    console.log(event); // "someValue"
-});
+// eventEmitter.addListener('CardReaderError', (event) => {
+//     console.log(event); // "someValue"
+// });
 /*
     This resets the component of the main screen 
     Making the amount charged not carry over from screen to screen.
@@ -52,7 +53,7 @@ export default class PaymentScreen extends Component {
             meno: null,
             tax: 0,
             serviceFee: 0,
-            authorizationVisible: false,
+            authorizationOverlayVisible: false,
             authorizationTitle: "",
             formatedDate: "",
             formatedTime: "",
@@ -60,7 +61,8 @@ export default class PaymentScreen extends Component {
             tipAdjustmentData: null,
             createCustomerOverlayVisible: false,
             emvOverlayVisible: false,
-            searchCustomerOverlayVisible: false
+            searchCustomerOverlayVisible: false,
+            connectReaderOverlayVisible: false
         }
     }
 
@@ -72,18 +74,45 @@ export default class PaymentScreen extends Component {
         let collectTaxFee = await storageGet("collectTaxFee");
         let connected =  await AnyPay.isReaderConnected();
 
+        //Give default values
+        if(taxFee === null){
+            storageSet("taxFee", 10);
+            taxFee = 5;
+        }
+
+        if(serviceFee === null){
+            storageSet("serviceFee", 5);
+            serviceFee = 5;
+        }
+
+        if(collectTaxFee === null){
+            storageSet("collectTaxFee", "false");
+            collectTaxFee = false;
+        }
+
+        if(collectServiceFee === null){
+            storageSet("collectTaxFee", "true");
+            collectServiceFee = true;
+        }
+
         console.log("connected ", connected)
 
         collectServiceFee = JSON.parse(collectServiceFee);
         collectTaxFee = JSON.parse(collectTaxFee);
 
-        eventEmitter.addListener('CardReaderEvent', this.handleCardReaderEvent.bind(this));
-        eventEmitter.addListener('CardReaderConnected', this.handleCardReaderConnect.bind(this));
-        eventEmitter.addListener('CardReaderDisconnected', this.handleCardReaderDisconnect.bind(this));
+        this.cardReaderEventListener = eventEmitter.addListener('CardReaderEvent', this.handleCardReaderEvent.bind(this));
+        this.cardReaderConnectedListener = eventEmitter.addListener('CardReaderConnected', this.handleCardReaderConnect.bind(this));
+        this.cardReaderDisconnectedListener = eventEmitter.addListener('CardReaderDisconnected', this.handleCardReaderDisconnect.bind(this));
 
         (this.props.navigation.state.params.refundSelected)
             ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee})
             : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee});
+    }
+
+    componentWillUnmount() {
+        this.cardReaderConnectedListener.remove();
+        this.cardReaderDisconnectedListener.remove();
+        this.cardReaderEventListener.remove();
     }
 
     handleCardReaderEvent = (event) => {
@@ -96,7 +125,10 @@ export default class PaymentScreen extends Component {
     handleCardReaderConnect = (event) => {
         console.log(event);
         AnyPay.isReaderConnected().then((connected) => {
-            this.setState({cardReaderConnected: connected});
+            this.setState({
+                cardReaderConnected: connected, 
+                connectReaderOverlayVisible: false
+            });
         });
     }
 
@@ -119,7 +151,11 @@ export default class PaymentScreen extends Component {
         console.log("handleConnectReaderPress ", this.state.cardReaderConnected);
         (this.state.cardReaderConnected)
             ? AnyPay.disconnectReader()
-            : AnyPay.connectBluetoothReader();
+            : this.handleConnectReaderOverlay();
+    }
+
+    handleConnectReaderOverlay = () => {
+        this.setState({connectReaderOverlayVisible: !this.state.connectReaderOverlayVisible});
     }
 
     handleCreateCustomerOverlay = () => {
@@ -177,8 +213,8 @@ export default class PaymentScreen extends Component {
             this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
         }
 
-        if(this.state.authorizationVisible){
-            this.setState({authorizationVisible: !this.state.authorizationVisible});
+        if(this.state.authorizationOverlayVisible){
+            this.setState({authorizationOverlayVisible: !this.state.authorizationOverlayVisible});
             console.log("HERE in handleAuthOVerlay");
             console.log(status);
             if(status === "Approved"){
@@ -189,7 +225,7 @@ export default class PaymentScreen extends Component {
         }
         else{
             this.setState({
-                authorizationVisible: !this.state.authorizationVisible,
+                authorizationOverlayVisible: !this.state.authorizationOverlayVisible,
                 authorizationTitle: status
             });
         }
@@ -323,6 +359,15 @@ export default class PaymentScreen extends Component {
         return amount;
     }
 
+    connectViaAudio = () => {
+        AnyPay.connectAudioReader();
+        this.handleConnectReaderOverlay();
+    }
+
+    connectViaBluetooth = () => {
+        AnyPay.connectBluetoothReader();
+    }
+
     render() {
         let serviceFee, tax, text, textColor;
 
@@ -435,7 +480,7 @@ export default class PaymentScreen extends Component {
                     />
                 </ScrollView>
                 <AuthorizationOverlay
-                    visible={this.state.authorizationVisible}
+                    visible={this.state.authorizationOverlayVisible}
                     title={this.state.authorizationTitle}
                     handleClose={this.handleAuthorizationOverlay}
                     determineAmount={this.determineAmount}
@@ -457,6 +502,13 @@ export default class PaymentScreen extends Component {
                 <SearchCustomerOverlay
                     isVisible={this.state.searchCustomerOverlayVisible}
                     handleClose={this.handleSearchCustomerOverlay}
+                />
+                <ConnectReaderOverlay
+                    isVisible={this.state.connectReaderOverlayVisible}
+                    handleClose={this.handleConnectReaderOverlay}
+                    AnyPay={RNAnyPay.AnyPay}
+                    connectAudioReader={this.connectViaAudio}
+                    connectBluetoothReader={this.connectViaBluetooth}
                 />
             </View>
         );

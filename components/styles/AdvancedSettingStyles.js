@@ -10,7 +10,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderBottomColor: '#fff',
         borderBottomWidth: 1,
-        padding: '5%'
+        padding: '5%',
+        margin: '1%'
     },
     text: {
         color: '#fff',

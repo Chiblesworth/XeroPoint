@@ -7,7 +7,8 @@ export const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        padding: '2%'
     },
     container: {
         flex: 1,
@@ -21,7 +22,7 @@ export const styles = StyleSheet.create({
     },
     buttonContainer: {
         width: '50%',
-        height: 75,
+        height: '100%',
     },
     editButton: {
         backgroundColor: '#FFC502'
@@ -31,13 +32,12 @@ export const styles = StyleSheet.create({
     },
     buttonTitle: {
         fontSize: 30,
-        paddingRight: 15,
+        paddingRight: '5%',
         color: '#000'
     },
     inputContainer: {
         width: '30%',
         height: 80,
-        paddingTop: -10
     },
     input: {
         fontSize: 50,
@@ -45,7 +45,6 @@ export const styles = StyleSheet.create({
     },
     switch: {
         alignItems: 'flex-end',
-        marginRight: 10,
-        marginBottom: 20
+        marginRight: '2%',
     },
 });

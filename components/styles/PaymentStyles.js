@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     },
     chargedContainer: {
         alignItems: 'center',
-        marginBottom: 10
+        marginBottom: '5%'
     },
     text: {
         fontSize: 30,
@@ -61,6 +61,6 @@ export const styles = StyleSheet.create({
     },
     input: {
         fontSize: 16,
-        paddingLeft: 20
+        paddingLeft: '5%'
     }
 });
