@@ -10,5 +10,10 @@ export const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#010101',
         width: '90%',
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: '3%'
     }
 });

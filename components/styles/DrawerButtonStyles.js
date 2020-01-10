@@ -11,6 +11,7 @@ export const styles = StyleSheet.create({
 		marginLeft: 30
 	}, 
 	drawerLogo: {
-		marginLeft: '-48%'
+		marginLeft: '-48%',
+		marginTop: '-10%'
 	}
 });

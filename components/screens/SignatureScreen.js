@@ -5,7 +5,8 @@ import { StackActions, NavigationActions } from 'react-navigation';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
 
-import CollectTip from '../CollectTip';
+import CollectTip from '../ui/CollectTip';
+
 import CustomTipOverlay from '../overlays/CustomTipOverlay';
 
 import { applyTip } from '../../api_requests/applyTip';
@@ -13,7 +14,7 @@ import { deletePayment } from '../../api_requests/deletePayment';
 
 import { defaultTips } from '../../helpers/defaultTips';
 import { getCustomTipsArray } from '../../helpers/customTips';
-import { storageGet, removeItem } from '../../helpers/localStorage';
+import { storageGet, removeItem, storageSet } from '../../helpers/localStorage';
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { showAlert } from '../../helpers/showAlert';
 
@@ -36,7 +37,8 @@ export default class SignatureScreen extends Component {
             total: 0,
             tip: 0,
             customTipOverlayVisible: false,
-            collectingTips: true
+            collectingTips: true,
+            collectingSignature: true
         };
     }
 
@@ -48,16 +50,25 @@ export default class SignatureScreen extends Component {
         let collectingTips = await storageGet("collectTips");
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
         let useCustomTips = await storageGet("useCustomTips");
+        let collectingSignature =  await storageGet("collectSignature");
         
         collectingTips = JSON.parse(collectingTips);
         useCustomTips = JSON.parse(useCustomTips);
+        collectingSignature = JSON.parse(collectingSignature);
+
+        if(collectingSignature === null){
+            storageSet("collectSignature", "true");
+            collectingSignature = true;
+        }
 
         if(collectingTips){
             if(useCustomTips){
                 let customTipArray = await getCustomTipsArray();
                 customTipArray.push("Other");
                 
-                this.setState({tipArray: [...customTipArray]}, () => {
+                this.setState({tipArray: [...customTipArray],
+                    collectingSignature: collectingSignature
+                }, () => {
                     this.adjustTip(this.state.selectedIndex);
                 });
             }
@@ -68,13 +79,15 @@ export default class SignatureScreen extends Component {
 
                 this.setState({
                     tipArray: [...defaultTips], 
-                    selectedIndex: Number(selectedDefaultTip)}, () => {
+                    selectedIndex: Number(selectedDefaultTip),
+                    collectingSignature: collectingSignature
+                }, () => {
                         this.adjustTip(this.state.selectedIndex);
                 });
             }
         }
         else{
-            this.setState({collectingTips: false});
+            this.setState({collectingTips: false, collectingSignature: collectingSignature});
         }
     }
 
@@ -195,7 +208,7 @@ export default class SignatureScreen extends Component {
         console.log(this.state.collectingTips);
         return (
             <View style={styles.container}>
-                <View>
+                <View style={styles.collectTipContainer}>
                 {
                     (this.state.collectingTips)
                     ?(
@@ -216,15 +229,33 @@ export default class SignatureScreen extends Component {
                 }
                 </View>
                 <View style={styles.signatureContainer}>
-                    <RNAnyPay.SignatureView 
-                        ref={(ref) => {this.signatureRef = ref}}
-                        onSignatureReady={null}
-                        style={styles.signature}
-                    />
+                    {
+                        (this.state.collectingSignature)
+                            ? (
+                                <RNAnyPay.SignatureView 
+                                    ref={(ref) => {this.signatureRef = ref}}
+                                    onSignatureReady={null}
+                                    style={styles.signature}
+                                />
+                            )
+                            : (
+                                null
+                            )
+                    }
                 </View>
-                <View style={styles.textSection}>
-                    <Text style={styles.text}>Please sign your signature above.</Text>
-                </View> 
+                {
+                    (this.state.collectingSignature)
+                    ? (
+                        <View style={styles.textSection}>
+                            <Text style={styles.text}>Please sign your signature above.</Text>
+                        </View>
+                    )
+                    : (
+                        <View style={styles.textSection}>
+                            <Text style={styles.text}>Signature not being collected.</Text>
+                        </View>
+                    )
+                }
                 <View style={styles.lowerSection}>
                     <View style={styles.row}>
                         <Button
@@ -232,7 +263,7 @@ export default class SignatureScreen extends Component {
                             onPress={() => this.handleCancelPress()}
                             borderRadius={25}
                             containerStyle={styles.buttonContainer}
-                            buttonStyle={{backgroundColor: 'red'}}
+                            buttonStyle={{backgroundColor: '#E50F0F'}}
                             titleStyle={styles.titleStyle}
                         />
                         <View style={styles.spacer}></View>

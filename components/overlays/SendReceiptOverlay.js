@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
 
+import { formatPhoneNumber } from '../../helpers/formatPhoneNumber';
+
 import { styles } from '../styles/SendReceiptOverlay';
 
 export default class SendReceiptOverlay extends Component {
@@ -34,16 +36,19 @@ export default class SendReceiptOverlay extends Component {
         else{
             regEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
             errorMessage = "Invalid phone number entered.";
+            textEntered = formatPhoneNumber(textEntered);
         }
 
         (!regEx.test(textEntered))
             ? this.setState({
                 errorMessage: errorMessage,
-                isDisabled: true
+                isDisabled: true,
+                input: textEntered
             })
             : this.setState({
                 errorMessage: "",
-                isDisabled: false
+                isDisabled: false,
+                input: textEntered
             });
     }
 
@@ -61,7 +66,7 @@ export default class SendReceiptOverlay extends Component {
                             onPress={() => this.props.closeOverlay(this.props.text)}
                             containerStyle={{ width: 100, height: 50 }}
                             buttonStyle={{ width: 100, height: 50, backgroundColor: '#454343' }}
-                            titleStyle={{ color: 'red', fontSize: 20 }}
+                            titleStyle={{ color: '#E50F0F', fontSize: 20 }}
                         />
                         <Text style={styles.headerText}>{this.props.title}</Text>
                     </View>
@@ -79,6 +84,7 @@ export default class SendReceiptOverlay extends Component {
                             containerStyle={styles.inputContainer}
                             inputContainerStyle={styles.inputContainerStyle}
                             inputStyle={styles.inputStyle}
+                            keyboardType="numeric"
                         />
                     </View>
                     <View style={styles.createSection}>

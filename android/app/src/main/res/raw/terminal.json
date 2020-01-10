@@ -1,7 +1,7 @@
 {
   "configuration": {
     "endpoint": {
-      "gatewayUrl": "https://sandbox.api.mxmerchant.com/checkout/v3/",
+      "gatewayUrl": "https://api.mxmerchant.com/checkout/v3/",
       "provider": "pps",
       "serverDateFormat": "dd-MM-yyyy HH:mm:ss:SSS",
       "username": "",

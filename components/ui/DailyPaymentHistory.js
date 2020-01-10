@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
+import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
-import { styles } from  './styles/DailyPaymentHistoryStyles';
+import { styles } from  '../styles/DailyPaymentHistoryStyles';
 
 export default class DailyPaymentHistory extends Component {
     constructor(props) {
@@ -25,6 +25,7 @@ export default class DailyPaymentHistory extends Component {
     }
 
     handlePaymentPress = (payment) => {
+        console.log(payment);
         this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 
@@ -47,7 +48,7 @@ export default class DailyPaymentHistory extends Component {
                                 }
 
                                 let backgroundCol;
-                                if (payment.status === "Settled") {
+                                if (payment.status === "Settled" || payment.status === "Approved") {
                                     backgroundCol = '#287C28';
                                 }
                                 else if (payment.status === "Declined") {

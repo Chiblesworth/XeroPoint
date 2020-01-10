@@ -6,13 +6,13 @@ import base64 from 'react-native-base64'
 export async function deletePayment(paymentId){
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
-   url += `payment/${paymentId}`;
+    url += `payment/${paymentId}?force=true`;
 
-    //url = `https://api.mxmerchant.com/checkout/v3/payment/${paymentId}`;
+    // // url = `https://api.mxmerchant.com/checkout/v3/payment/${paymentId}`;
     //    let headers = {
     //        'Authorization': 'Basic ' + encoded,
-   //         'Content-Type': 'application/json; charset=utf-8'
-   //     }
+    //        'Content-Type': 'application/json; charset=utf-8'
+    //    }
 
 
     let status = fetch(url, {

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Linking, Platform } from 'react-native';
 import { Button } from 'react-native-elements';
 import {name as app_name, version as app_version}  from '../../package.json';
 
-import CustomHeader from '../CustomHeader';
-import SupportTile from '../SupportTile';
+import CustomHeader from '../ui/CustomHeader';
+import SupportTile from '../ui/SupportTile';
 
 import { getMerchantDetails } from '../../api_requests/getMerchantDetails';
 
 import { storageGet } from '../../helpers/localStorage';
+import { showAlert } from '../../helpers/showAlert.js';
 
 import { styles } from '../styles/SupportStyles';
-
 
 export default class SupportScreen extends Component {
     constructor(props) {
@@ -42,6 +42,38 @@ export default class SupportScreen extends Component {
         this.props.navigation.navigate("Main");
     }
 
+    linkToTelephone = () => {
+        let phoneNumber;
+        if(Platform.OS === 'android'){
+            phoneNumber = `tel:8009355961`;
+        }
+        else if(Platform.OS === "ios"){
+            phoneNumber = `telprompt:8009355961`;
+        }
+
+        Linking.canOpenURL(phoneNumber).then(supported => {
+            if(!supported){
+                showAlert("Error!", "Phone number is not available.");
+            }
+            else{
+                return Linking.openURL(phoneNumber);
+            }
+        })
+    }
+
+    linkToEmail = () => {
+        let emailAddress = `mailto:support@processinginc.com`;
+
+        Linking.canOpenURL(emailAddress).then(supported => {
+            if(!supported){
+                showAlert("Error!", "Email address does not exist.");
+            }
+            else{
+                return Linking.openURL(emailAddress);
+            }
+        })
+    }
+
     render() {
         return (
             <View style={styles.content}>
@@ -51,6 +83,7 @@ export default class SupportScreen extends Component {
                     title="Support"
                     handlePress={this.handleHeaderIconPress}
                     backgroundColor="#656565"
+                    underlayColor="#656565"
                 />
                 <View style={styles.row}>
                     <SupportTile
@@ -58,12 +91,14 @@ export default class SupportScreen extends Component {
                         iconType="entypo"
                         contact="support@processinginc.com"
                         supportText="Varies"
+                        handlePress={this.linkToEmail}
                     />
                     <SupportTile
                         iconName="phone"
                         iconType="entypo"
                         contact="(800) 935-5961"
                         supportText="24/7 Support"
+                        handlePress={this.linkToTelephone}
                     />
                 </View>
                 <View style={{marginTop: '10%'}} />

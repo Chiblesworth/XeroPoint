@@ -11,6 +11,7 @@ import { getReceipt } from '../../api_requests/getReceipt';
 import { styles } from '../styles/ReceiptStyles';
 //TEST
 import base64 from 'react-native-base64';
+import { removeItem } from '../../helpers/localStorage';
 
 const resetAction = StackActions.reset({
     index: 0,
@@ -28,6 +29,7 @@ export default class ReceiptScreen extends Component {
 
     componentWillMount() {
         Orientation.lockToPortrait();
+        removeItem("selectedCustomerId");
     }
 
     handleReceiptButtonPress = (text) => {
@@ -65,6 +67,9 @@ export default class ReceiptScreen extends Component {
     }
 
     sendReceipt = async (input, fieldName) => {
+        if(fieldName === "Text"){
+            let cleanedInput = ("" + input).replace(/\D/g, '');
+        }
         // let url;
         // //let paymentId = this.props.navigation.state.params.sale.id;
         // //let encodedUser = await storageGet("encodedUser");
@@ -109,7 +114,6 @@ export default class ReceiptScreen extends Component {
                 <View style={styles.row}>
                     {this.createReceiptButton("EMAIL", "mail", "feather", "Email")}
                     {this.createReceiptButton("TEXT", "message1", "antdesign", "Text")}
-                    {this.createReceiptButton("PRINT", "printer", "feather", null)}
                 </View>
                 <View style={styles.divider} />
                 <Button

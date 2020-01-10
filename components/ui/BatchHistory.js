@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-import { getBatchPayments } from '../api_requests/getBatchPayments';
+import { getBatchPayments } from '../../api_requests/getBatchPayments';
 
-import { convertMilitaryToStandardTime } from '../helpers/dateFormats';
+import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
-import { styles } from './styles/BatchHistoryStyles';
+import { styles } from '../styles/BatchHistoryStyles';
 
 export default class BatchHistory extends Component {
     constructor(props) {
@@ -18,7 +18,7 @@ export default class BatchHistory extends Component {
     handleBatchPress = async (batchId) => {
         let data = await getBatchPayments(batchId);
         this.setState({batchPayments: data.records}, () => {
-            //console.log(this.state.batchPayments);
+            // console.log(this.state.batchPayments);
             this.props.navigation.navigate("BatchPayments", {batchPayments: this.state.batchPayments});
         });
     }

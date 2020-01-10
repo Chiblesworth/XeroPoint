@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
 		fontSize: 17
 	},
 	policyLinks: {
-		color: 'blue',
+		color: '#0080FF',
 		fontSize: 17
 	},
 	rememberMeSection: {

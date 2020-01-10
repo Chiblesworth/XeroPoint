@@ -15,6 +15,4 @@ const getCustomTipsArray = async () => {
     return customTipArray;
 }
 
-export {
-    getCustomTipsArray
-}
+export { getCustomTipsArray }

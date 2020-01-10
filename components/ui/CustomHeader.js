@@ -4,7 +4,7 @@ import { Header } from 'react-native-elements';
 
 import HeaderIcon from './HeaderIcon';
 
-import { styles } from './styles/CustomHeaderStyles';
+import { styles } from '../styles/CustomHeaderStyles';
 
 export default class CustomHeader extends Component {
     constructor(props) {
@@ -21,6 +21,7 @@ export default class CustomHeader extends Component {
                             type={this.props.type}
                             size={50}
                             handlePress={this.props.handlePress}
+                            underlayColor={this.props.underlayColor}
                         />
                     }
                     centerComponent={

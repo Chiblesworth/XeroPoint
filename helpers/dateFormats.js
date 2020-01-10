@@ -1,6 +1,19 @@
-import { months } from './monthsArray';
-
 //https://stackoverflow.com/questions/29206453/best-way-to-convert-military-time-to-standard-time-in-javascript
+
+const months = [
+    "January", 
+    "February", 
+    "March", 
+    "April", 
+    "May", 
+    "June", 
+    "July", 
+    "August", 
+    "September", 
+    "October", 
+    "November", 
+    "December"
+];
 
 const formatDate = () => {
     let date = new Date();

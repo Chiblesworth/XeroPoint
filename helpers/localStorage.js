@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { showAlert } from './showAlert';
 
 //Helper functions to reduce lines of code for AsyncStorage
 //https://stackoverflow.com/questions/49761839/asyncstorage-getitem-returns-a-single-value-and-a-promise
@@ -9,19 +10,18 @@ const storageSet = async(key, value) => {
         console.log("key " + key + " was set with " + value);
     }
     catch(error){
-        console.log(error);
+        showAlert("Error Occured!", error.toString());
     }
 }
 
 const storageGet = async(key) => {
-    //Move default check here??
     try{
         const result = await AsyncStorage.getItem(key);
         console.log("AsyncStorage helper method: " + key + " " + result);
         return result;
     }
     catch(error){
-        console.log(error);
+        showAlert("Error Occured!", error.toString());
     }
 }
 
@@ -31,7 +31,7 @@ const removeItem = async(key) => {
         console.log("AsyncStorage helper method removed: " + key);
     }
     catch(error){
-        console.log(error);
+        showAlert("Error Occured!", error.toString());
     }
 }
 

@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { styles } from './styles/SupportTileStyles';
+import { styles } from '../styles/SupportTileStyles';
  
 const SupportTile = (props) => {
     return (
-        <View style={styles.supportContainer}>
+        <TouchableOpacity 
+            style={styles.supportContainer}
+            onPress={() => props.handlePress()}
+        >
             <Icon
                 name={props.iconName}
                 type={props.iconType}
@@ -16,7 +19,7 @@ const SupportTile = (props) => {
             <Text style={styles.text}>{props.contact}</Text>
             <View style={{ padding: '10%' }} />
             <Text style={[styles.text, { color: "#BABABA" }]}>{props.supportText}</Text>
-        </View>
+        </TouchableOpacity>
     );
 }
 

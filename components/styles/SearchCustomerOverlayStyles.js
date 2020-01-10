@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#454343'
     },
     titleStyle: {
-        color: 'red',
+        color: '#E50F0F',
         fontSize: 20
     }
 });

@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { Button, Icon, Input } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 
-import { styles } from './styles/FeeDisplayStyles';
+import { styles } from '../styles/FeeDisplayStyles';
 
 export default class FeeDisplay extends Component {
     constructor(props) {

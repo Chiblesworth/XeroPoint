@@ -10,9 +10,8 @@ import { Icon } from 'react-native-elements';
             color="#fff"
             iconStyle={{}}
             containerStyle={{height: '100%', paddingBottom: 50}}
-            underlayColor={'#454343'}
+            underlayColor={props.underlayColor}
             onPress={() => props.handlePress(props.name)}
-            
         />
     );
  }

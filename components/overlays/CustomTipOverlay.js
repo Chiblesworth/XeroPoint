@@ -55,35 +55,31 @@ export default class CustomTipOverlay extends Component {
                             onPress={() => this.props.handleClose()}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
-                            titleStyle={{color: 'red', fontSize: 20}}
+                            titleStyle={{color: '#E50F0F', fontSize: 20}}
                         />
                         <Text style={styles.headerText}>Custom Tip</Text>
                     </View>
                     <View style={styles.tipAdjustmentForm}>
                         <View style={styles.row}>
-                            <View style={styles.column}>
-                                <Text style={styles.text}>Subtotal:</Text>
-                                <Text style={styles.text}>Tip:</Text>
-                                <Text style={styles.text}>Total:</Text>
-                            </View>
-                            <View style={styles.column}>
-                                {dollarSigns}
-                            </View>
-                            <View style={styles.column}>
-                                <Text style={styles.amount}>{parseFloat(Math.round(this.props.subtotal * 100) / 100).toFixed(2)}</Text>
-                                <Input
-                                    placeholder="Dollar Amount"
-                                    placeholderTextColor="grey"
-                                    containerStyle={styles.inputContainer}
-                                    inputContainerStyle={styles.input}
-                                    inputStyle={styles.inputStyle}
-                                    autoFocus={true}
-                                    keyboardType="numeric"
-                                    value={this.state.tip}
-                                    onChangeText={(text) => this.handleTextChange(text)}
-                                />
-                                <Text style={styles.amount}>{parseFloat(Math.round(this.state.total * 100) / 100).toFixed(2)}</Text>
-                            </View>
+                            <Text style={styles.text}>Subtotal:</Text>
+                            <Text style={styles.amount}>${parseFloat(Math.round(this.props.subtotal * 100) / 100).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.text}>Tip:                  $</Text>
+                            <Input
+                                placeholder="Dollar Amount"
+                                placeholderTextColor="grey"
+                                containerStyle={styles.inputContainer}
+                                inputStyle={styles.inputStyle}
+                                autoFocus={true}
+                                keyboardType="numeric"
+                                value={this.state.tip}
+                                onChangeText={(text) => this.handleTextChange(text)}
+                            />
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.text}>Total:</Text>
+                            <Text style={styles.amount}>${parseFloat(Math.round(this.state.total * 100) / 100).toFixed(2)}</Text>
                         </View>
                         <View style={styles.divider}/>
                         <View style={styles.applySection}>
@@ -91,7 +87,7 @@ export default class CustomTipOverlay extends Component {
                                 title="Apply Tip"
                                 onPress={() => this.props.applyCustomTip(Number(this.state.total), Number(this.state.tip))}
                                 buttonStyle={styles.applyButtonStyle}
-                                titleStyle={{color: 'blue', fontSize: 20}}
+                                titleStyle={{color: '#0080FF', fontSize: 20}}
                                 disabled={this.state.isButtonDisabled}
                                 disabledStyle={styles.disabledButton}
                             />

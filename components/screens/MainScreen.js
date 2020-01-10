@@ -5,11 +5,10 @@ import accounting from 'accounting';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
 
-import NumberPad from '../NumberPad';
-import HeaderIcon from '../HeaderIcon';
+import NumberPad from '../ui/NumberPad';
+import HeaderIcon from '../ui/HeaderIcon';
 
 import { storageGet, storageSet} from '../../helpers/localStorage';
-import { checkDefaultStorageValues } from '../../helpers/checkDefaultStorageValues';
 import { showAlert } from '../../helpers/showAlert';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
 
@@ -31,7 +30,8 @@ export default class MainScreen extends Component {
             numbersPressed: "", //Holds string of numbers pressed for manipulation in formatNumbersPressed()
             amount: "0.00",
             amountFontColor: "#fff", //Color depends if refund is selected.
-            refundSelected: false //Will need to pass this as prop to the payment screen if checked as true
+            refundSelected: false, //Will need to pass this as prop to the payment screen if checked as true
+            numberPadDisabled: false
         }
     }
 
@@ -42,8 +42,11 @@ export default class MainScreen extends Component {
     async componentDidMount(){
         //TODO: Refactor this later
         let merchantId = await storageGet("merchantId");
-        await checkDefaultStorageValues();
-        this.getMerchantId();       
+        
+        if(merchantId === null){
+            this.getMerchantId();
+        }
+               
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
@@ -111,14 +114,25 @@ export default class MainScreen extends Component {
     formatNumbersPressed = () => {
         let numsPressed = Number(this.state.numbersPressed);
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
+        
+        console.log(numsPressed);
+        let cleaned;
+        if(numsPressed.charAt(0) === "$"){
+            cleaned = numsPressed.slice(1);
+            cleaned = cleaned.replace(/,/g, '');
+        }
+        console.log(cleaned);
+        console.log(Number(cleaned));
 
-        this.setState({ amount: numsPressed });
+        (Number(cleaned) > 99999.99)
+            ? this.setState({amount: "$99,999.99", numberPadDisabled: true},)
+            : this.setState({ amount: numsPressed,numberPadDisabled: false });
     }
 
     handleRefundChange = () => {
         (this.state.refundSelected)
-            ? this.setState({ refundSelected: false, amountFontColor: "white" })
-            : this.setState({ refundSelected: true, amountFontColor: "red" });
+            ? this.setState({ refundSelected: false, amountFontColor: "#fff" })
+            : this.setState({ refundSelected: true, amountFontColor: "#E50F0F" });
     }
 
     handleHeaderIconPress = (iconPushed) => {
@@ -127,7 +141,6 @@ export default class MainScreen extends Component {
                 showAlert("Warning", "Please enter an amount before proceeding.");
             }
             else {
-                this.checkDefaults();
                 this.props.navigation.navigate(
                     "Payment",
                     {
@@ -142,22 +155,9 @@ export default class MainScreen extends Component {
         }
     }
 
-    checkDefaults = async () => {
-        //This is used to check if default fee values exist, else it sets defaults.
-        let serviceFee = await storageGet("serviceFee");
-        let taxFee = await storageGet("taxFee");
-
-        if (serviceFee === null) {
-            storageSet("serviceFee", 5);
-        }
-
-        if (taxFee === null) {
-            storageSet("taxFee", 10);
-        }
-    }
-
     getMerchantId = async () => {
         let data = await getMerchants();
+        console.log(data.records);
         storageSet("merchantId", data.records[0].id.toString());
     }
 
@@ -173,6 +173,7 @@ export default class MainScreen extends Component {
                                 type="entypo"
                                 size={50}
                                 handlePress={this.handleHeaderIconPress}
+                                underlayColor="#454343"
                             />
                         }
                         rightComponent={
@@ -181,6 +182,7 @@ export default class MainScreen extends Component {
                                 type="font-awesome"
                                 size={50}
                                 handlePress={this.handleHeaderIconPress}
+                                underlayColor="#454343"
                             />
                         }
                     />
@@ -196,7 +198,7 @@ export default class MainScreen extends Component {
                         </Text>
                     </View>
                     <View style={styles.numberPad}>
-                        <NumberPad handlePress={this.handleNumberPadPress} />
+                        <NumberPad handlePress={this.handleNumberPadPress} isDisabled={this.state.numberPadDisabled} />
                     </View>
                 </View>
             </View>

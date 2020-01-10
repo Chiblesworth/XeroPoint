@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 
-import { styles } from './styles/CustomerInfoStyles';
+import { styles } from '../styles/CustomerInfoStyles';
 
 export default class CustomerInfo extends Component {
     constructor(props) {

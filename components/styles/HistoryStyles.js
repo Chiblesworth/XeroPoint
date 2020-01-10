@@ -25,4 +25,7 @@ export const styles = StyleSheet.create({
     activeTabTextStyle: {
         color: '#000'
     },
+    activityIndicator: {
+        marginTop: '50%'
+    }
 });

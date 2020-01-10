@@ -5,15 +5,17 @@ import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
 import { StackActions, NavigationActions } from 'react-navigation';
 
-import HeaderIcon from '../HeaderIcon';
-import KeyedPaymentForm from '../KeyedPaymentForm';
-import FeeSwitch from '../FeeSwitch';
+import HeaderIcon from '../ui/HeaderIcon';
+import KeyedPaymentForm from '../ui/KeyedPaymentForm';
+import FeeSwitch from '../ui/FeeSwitch';
 
 import CreateCustomerOverlay from '../overlays/CreateCustomerOverlay';
 import SearchCustomerOverlay from '../overlays/SearchCustomerOverlay';
 import AuthorizationOverlay from '../overlays/AuthorizationOverlay';
 import EmvProcessOverlay from '../overlays/EmvProcessOverlay';
 import ConnectReaderOverlay from '../overlays/ConnectReaderOverlay';
+
+import { postPayment } from '../../api_requests/postPayment';
 
 import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
@@ -26,9 +28,6 @@ const AnyPay = RNAnyPay.AnyPay;
 const eventEmitter = new NativeEventEmitter(RNAnyPay.AnyPay);
 var transaction = null;
 
-// eventEmitter.addListener('CardReaderError', (event) => {
-//     console.log(event); // "someValue"
-// });
 /*
     This resets the component of the main screen 
     Making the amount charged not carry over from screen to screen.
@@ -72,25 +71,25 @@ export default class PaymentScreen extends Component {
         let serviceFee = await storageGet("serviceFee");
         let collectServiceFee = await storageGet("collectServiceFee");
         let collectTaxFee = await storageGet("collectTaxFee");
-        let connected =  await AnyPay.isReaderConnected();
+        let connected = await AnyPay.isReaderConnected();
 
         //Give default values
-        if(taxFee === null){
+        if (taxFee === null) {
             storageSet("taxFee", 10);
             taxFee = 5;
         }
 
-        if(serviceFee === null){
+        if (serviceFee === null) {
             storageSet("serviceFee", 5);
             serviceFee = 5;
         }
 
-        if(collectTaxFee === null){
+        if (collectTaxFee === null) {
             storageSet("collectTaxFee", "false");
             collectTaxFee = false;
         }
 
-        if(collectServiceFee === null){
+        if (collectServiceFee === null) {
             storageSet("collectTaxFee", "true");
             collectServiceFee = true;
         }
@@ -103,22 +102,24 @@ export default class PaymentScreen extends Component {
         this.cardReaderEventListener = eventEmitter.addListener('CardReaderEvent', this.handleCardReaderEvent.bind(this));
         this.cardReaderConnectedListener = eventEmitter.addListener('CardReaderConnected', this.handleCardReaderConnect.bind(this));
         this.cardReaderDisconnectedListener = eventEmitter.addListener('CardReaderDisconnected', this.handleCardReaderDisconnect.bind(this));
+        this.cardReaderErrorListener = eventEmitter.addListener('CardReaderError', this.handleCardReaderError.bind(this));
 
         (this.props.navigation.state.params.refundSelected)
-            ? this.setState({serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee})
-            : this.setState({serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee});
+            ? this.setState({ serviceFeeSwitchValue: false, taxSwitchValue: false, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee })
+            : this.setState({ serviceFeeSwitchValue: collectServiceFee, taxSwitchValue: collectTaxFee, cardReaderConnected: connected, tax: taxFee, serviceFee: serviceFee });
     }
 
     componentWillUnmount() {
         this.cardReaderConnectedListener.remove();
         this.cardReaderDisconnectedListener.remove();
         this.cardReaderEventListener.remove();
+        this.cardReaderErrorListener.remove();
     }
 
     handleCardReaderEvent = (event) => {
         console.log(event);
-        if(event.detail != "Approved"){
-            this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail});
+        if (event.detail != "Approved") {
+            this.setState({ cardReaderEventText: (event.detail === null) ? event.message : event.detail });
         }
     }
 
@@ -126,7 +127,7 @@ export default class PaymentScreen extends Component {
         console.log(event);
         AnyPay.isReaderConnected().then((connected) => {
             this.setState({
-                cardReaderConnected: connected, 
+                cardReaderConnected: connected,
                 connectReaderOverlayVisible: false
             });
         });
@@ -135,8 +136,13 @@ export default class PaymentScreen extends Component {
     handleCardReaderDisconnect = (event) => {
         console.log(event);
         AnyPay.isReaderConnected().then((connected) => {
-            this.setState({cardReaderConnected: connected});
+            this.setState({ cardReaderConnected: connected });
         });
+    }
+
+    handleCardReaderError = (event) => {
+        console.log(event);
+        this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail})
     }
 
     handleHeaderIconPress = () => {
@@ -147,7 +153,7 @@ export default class PaymentScreen extends Component {
         this.props.navigation.navigate("SearchCustomer");
     }
 
-    handleConnectReaderPress = async () => {    
+    handleConnectReaderPress = async () => {
         console.log("handleConnectReaderPress ", this.state.cardReaderConnected);
         (this.state.cardReaderConnected)
             ? AnyPay.disconnectReader()
@@ -155,19 +161,19 @@ export default class PaymentScreen extends Component {
     }
 
     handleConnectReaderOverlay = () => {
-        this.setState({connectReaderOverlayVisible: !this.state.connectReaderOverlayVisible});
+        this.setState({ connectReaderOverlayVisible: !this.state.connectReaderOverlayVisible });
     }
 
     handleCreateCustomerOverlay = () => {
-        this.setState({createCustomerOverlayVisible: !this.state.createCustomerOverlayVisible});
+        this.setState({ createCustomerOverlayVisible: !this.state.createCustomerOverlayVisible });
     }
 
     handleSearchCustomerOverlay = () => {
-        this.setState({searchCustomerOverlayVisible: !this.state.searchCustomerOverlayVisible});
+        this.setState({ searchCustomerOverlayVisible: !this.state.searchCustomerOverlayVisible });
     }
 
-    handleEmvOverlay =() => {
-        this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
+    handleEmvOverlay = () => {
+        this.setState({ emvOverlayVisible: !this.state.emvOverlayVisible });
     }
 
     handleCreatedPayment = async (createdPayment) => {
@@ -180,7 +186,7 @@ export default class PaymentScreen extends Component {
         timeCreated = timeCreated.split(" ");
         timeCreated = convertMilitaryToStandardTime(timeCreated[0], true);
 
-        if(createdPayment.status === "Approved"){
+        if (createdPayment.status === "Approved") {
             tipAdjustmentData = {
                 id: createdPayment.id,
                 merchantId: createdPayment.merchantId,
@@ -192,9 +198,9 @@ export default class PaymentScreen extends Component {
         }
         console.log("PaymentScreen payment id is ");
         console.log(createdPayment.id);
-        
-        (createdPayment.authCode === undefined) 
-            ? authCode = null 
+
+        (createdPayment.authCode === undefined)
+            ? authCode = null
             : authCode = createdPayment.authCode;
 
         this.setState({
@@ -208,22 +214,22 @@ export default class PaymentScreen extends Component {
     }
 
     handleAuthorizationOverlay = (status) => {
-        if(this.state.emvOverlayVisible){
+        if (this.state.emvOverlayVisible) {
             //Removes EMV overlay so not visible when this overlay appears.
-            this.setState({emvOverlayVisible: !this.state.emvOverlayVisible});
+            this.setState({ emvOverlayVisible: !this.state.emvOverlayVisible });
         }
 
-        if(this.state.authorizationOverlayVisible){
-            this.setState({authorizationOverlayVisible: !this.state.authorizationOverlayVisible});
+        if (this.state.authorizationOverlayVisible) {
+            this.setState({ authorizationOverlayVisible: !this.state.authorizationOverlayVisible });
             console.log("HERE in handleAuthOVerlay");
             console.log(status);
-            if(status === "Approved"){
+            if (status === "Approved") {
                 (this.props.navigation.state.params.refundSelected)
-                ? this.props.navigation.dispatch(resetAction)
-                : this.props.navigation.navigate("Signature", {tipAdjustmentData: this.state.tipAdjustmentData});
+                    ? this.props.navigation.dispatch(resetAction)
+                    : this.props.navigation.navigate("Signature", { tipAdjustmentData: this.state.tipAdjustmentData });
             }
         }
-        else{
+        else {
             this.setState({
                 authorizationOverlayVisible: !this.state.authorizationOverlayVisible,
                 authorizationTitle: status
@@ -232,9 +238,9 @@ export default class PaymentScreen extends Component {
     }
 
     toggleSwitch = (switchHit) => {
-        (switchHit === "Tax Fee")
-            ? this.setState({ taxSwitchValue: !this.state.taxSwitchValue })
-            : this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue });
+        (switchHit === "Service Fee")
+            ? this.setState({ serviceFeeSwitchValue: !this.state.serviceFeeSwitchValue })
+            : this.setState({ taxSwitchValue: !this.state.taxSwitchValue }) ;
     }
 
     startPaymentProcess = (cardAccount) => {
@@ -243,11 +249,11 @@ export default class PaymentScreen extends Component {
             : this.authorizePayment(cardAccount);
     }
 
-    startEmv = async () =>{
-        try{
+    startEmv = async () => {
+        try {
             let emvTransactionType, emvTransactionAmount;
 
-            if(this.props.navigation.state.params.refundSelected){
+            if (this.props.navigation.state.params.refundSelected) {
                 emvTransactionType = "REFUND";
                 emvTransactionAmount = this.state.amountCharged;
             }
@@ -268,11 +274,11 @@ export default class PaymentScreen extends Component {
             this.handleEmvOverlay();
 
             transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e));
-           // this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
+            // this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
 
             (this.props.navigation.state.params.refundSelected)
-              ? this.handleCreatedPayment(transaction)
-              : this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
+                ? this.handleCreatedPayment(transaction)
+                : this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
 
 
             //   var emvObj = {
@@ -283,8 +289,9 @@ export default class PaymentScreen extends Component {
             //   this.handleEmvOverlay();
 
             //     transaction = await AnyPay.refundTransaction(emvObj, Number(this.state.amountCharged)).catch(e => console.log(e));
+            //     console.log(transaction);
         }
-        catch(e){
+        catch (e) {
             console.log(e);
         }
     }
@@ -322,21 +329,13 @@ export default class PaymentScreen extends Component {
             },
             meta: this.state.memo,
             invoice: this.state.invoice
-            
+
         }
         console.log(data);
 
-        fetch("https://sandbox.api.mxmerchant.com/checkout/v3/payment?echo=true", {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data),
-            dataType: "json"
-        }).then((response) => {
-            console.log(response);
-            return response.json();
-        }).then((createdPayment) => {
-            this.handleCreatedPayment(createdPayment);
-        });
+        let createdPayment = await postPayment(data);
+
+        this.handleCreatedPayment(createdPayment);
     }
 
     determineAmount = () => {
@@ -378,12 +377,12 @@ export default class PaymentScreen extends Component {
         (this.state.serviceFeeSwitchValue)
             ? serviceFee = this.state.serviceFee
             : serviceFee = 0;
-        
-        if(this.props.navigation.state.params.refundSelected){
+
+        if (this.props.navigation.state.params.refundSelected) {
             text = "REFUND";
             textColor = "#E50F0F";
         }
-        else{
+        else {
             text = "CHARGED";
             textColor = "#fff";
         }
@@ -400,26 +399,27 @@ export default class PaymentScreen extends Component {
                             type="entypo"
                             size={50}
                             handlePress={this.handleHeaderIconPress}
+                            underlayColor="#454343"
                         />
                     }
                 />
                 <View style={styles.chargedContainer}>
-                    <Text style={[styles.text, {color: textColor}]}>{text} AMOUNT</Text>
-                    <Text style={[styles.amountText, {color: textColor}]}>
+                    <Text style={[styles.text, { color: textColor }]}>{text} AMOUNT</Text>
+                    <Text style={[styles.amountText, { color: textColor }]}>
                         ${this.determineAmount()}
                     </Text>
                     {/* <Text style={styles.text}>{this.state.cardReaderConnected.toString()}</Text>
                     <Text style={styles.text}>{this.state.cardReaderEventText}</Text> */}
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
-                    <KeyedPaymentForm 
+                    <KeyedPaymentForm
                         charge={this.startPaymentProcess}
                         connected={this.state.cardReaderConnected}
                     />
                     <View style={styles.spacer} />
                     <Button
                         type="solid"
-                        title={(this.state.cardReaderConnected) ? "Disconnect Card Reader" : "Connect Card Reader"} 
+                        title={(this.state.cardReaderConnected) ? "Disconnect Card Reader" : "Connect Card Reader"}
                         containerStyle={styles.buttonContainer}
                         buttonStyle={styles.button}
                         titleStyle={styles.buttonTitle}
@@ -463,9 +463,9 @@ export default class PaymentScreen extends Component {
                         />
                     </View>
                     <View style={styles.spacer} />
-                    <FeeSwitch 
+                    <FeeSwitch
                         toggle={this.toggleSwitch}
-                        swtichTitle="Tax Fee"
+                        swtichTitle="Tax       "
                         switchOn={this.state.taxSwitchValue}
                         fee={tax}
                         marginLeftValue={53}

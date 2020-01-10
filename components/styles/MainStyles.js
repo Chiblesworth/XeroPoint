@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
         marginBottom: 5
     },
     refundText: {
-        color: 'red',
+        color: '#E50F0F',
         fontSize: 15
     },
     icon: {

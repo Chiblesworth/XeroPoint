@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import CustomerHeader from '../CustomHeader';
+import CustomerHeader from '../ui/CustomHeader';
 
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
 
@@ -20,8 +20,8 @@ export default class BatchPaymentScreen extends Component {
 
     componentDidMount() {
         //Remove when in production
-        //console.log("In batch payments screen")
-        //console.log(this.state.batchPayments)
+        // console.log("In batch payments screen")
+        // console.log(this.state.batchPayments)
     }
 
     handleHeaderIconPress = () => {

@@ -76,7 +76,7 @@ export default class CreateCustomerOverlay extends Component {
                             onPress={() => this.props.closeOverlay()}
                             containerStyle={{width: 80, height: 50}}
                             buttonStyle={{width: 80, height: 50, backgroundColor: '#454343'}}
-                            titleStyle={{color: 'red', fontSize: 20}}
+                            titleStyle={{color: '#E50F0F', fontSize: 20}}
                         />
                         <Text style={styles.headerText}>Create Customer</Text>
                     </View>

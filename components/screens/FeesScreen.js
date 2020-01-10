@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, ScrollView } from 'react-native';
 
-import CustomHeader from '../CustomHeader';
-import FeeDisplay from '../FeeDisplay';
+import CustomHeader from '../ui/CustomHeader';
+import FeeDisplay from '../ui/FeeDisplay';
 
 import { storageGet, storageSet } from '../../helpers/localStorage';
 
@@ -32,23 +32,23 @@ export default class FeeScreen extends Component {
         
         //Set defaults
         if(collectServiceFee === null){
-            storageSet("collectServiceFee", true);
+            storageSet("collectServiceFee", "true");
             collectServiceFee = true;
         }
 
         if(collectTaxFee === null){
-            storageSet("collectTaxFee", false);
+            storageSet("collectTaxFee", "false");
             collectTaxFee = false;
         }
 
         if(serviceFee === null){
-            storageSet("serviceFee", 5);
+            storageSet("serviceFee", "5");
             serviceFee = 5;
         }
 
         if(taxFee === null){
-            storageSet("taxFee", 10);
-            taxFee = 5;
+            storageSet("taxFee", "10");
+            taxFee = 10;
         }
 
         this.setState({
@@ -94,6 +94,7 @@ export default class FeeScreen extends Component {
                     title="Additional Fees"
                     handlePress={this.handleHeaderIconPress}
                     backgroundColor="#656565"
+                    underlayColor="#656565"
                 />
                 <View style={{ paddingTop: 10 }} />
                 {/* Wrapped this a ScrollView so the keyboard doesn't cover input areas. */}

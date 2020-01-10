@@ -4,7 +4,7 @@ import { Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 
-import CustomHeader from '../CustomHeader';
+import CustomHeader from '../ui/CustomHeader';
 import TipOverlay from '../overlays/TipOverlay';
 
 import { defaultTips } from '../../helpers/defaultTips';
@@ -43,7 +43,7 @@ export default class TipsScreen extends Component {
         }
 
         if(selectedDefaultTip === null){
-            storageSet("selectedDefaultTip", 0);
+            storageSet("selectedDefaultTip", "0");
             selectedDefaultTip = 0;
         }
 
@@ -102,6 +102,7 @@ export default class TipsScreen extends Component {
                     title="Tips"
                     handlePress={this.handleHeaderIconPress}
                     backgroundColor="#656565"
+                    underlayColor="#656565"
                 />
                 <View style={{ paddingTop: '4%' }} />
                 <View style={styles.container}>

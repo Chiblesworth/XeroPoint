@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { styles } from './styles/PaymentInfoStyles';
+import { styles } from '../styles/PaymentInfoStyles';
 
 export default class PaymentInfo extends Component {
     constructor(props) {

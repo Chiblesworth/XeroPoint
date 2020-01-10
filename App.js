@@ -35,7 +35,7 @@ const MainStack = createStackNavigator(
 	{
 		Main: {screen: MainScreen, navigationOptions: {header: null}},
 		Payment: {screen: PaymentScreen, navigationOptions: {header: null}},
-		Signature: {screen: SignatureScreen, navigationOptions: {header: null}},
+		Signature: {screen: SignatureScreen, navigationOptions: {header: null, drawerLockMode: 'locked-closed', disableGestures: true}},
 		Receipt: {screen: ReceiptScreen, navigationOptions: {header: null}}
 	},
 );

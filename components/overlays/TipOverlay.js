@@ -62,14 +62,14 @@ export default class TipOverlay extends Component {
                             onPress={() => this.props.handleClose()}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
-                            titleStyle={{color: 'red', fontSize: 20}}
+                            titleStyle={{color: '#E50F0F', fontSize: 20}}
                         />
                         <Button 
                             title="Apply Changes"
                             onPress={() => this.checkBeforeChange()}
                             containerStyle={styles.buttonContainer}
                             buttonStyle={styles.buttonStyle}
-                            titleStyle={{color: 'blue', fontSize: 20}}
+                            titleStyle={{color: '#0080FF', fontSize: 20}}
                         />
                     </View>
                 </View>

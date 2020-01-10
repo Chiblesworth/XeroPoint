@@ -24,11 +24,11 @@ export const styles = StyleSheet.create({
         margin: '2%'
     },
     icon: {
-        color: 'green'
+        color: '#287C28'
     },
     buttonContainer: {
-        width: 100,
-        height: 50,
+        width: '40%',
+        height: '10%',
     },
     buttonTitle: {
         fontSize: 20,

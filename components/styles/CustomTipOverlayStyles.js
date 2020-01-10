@@ -6,40 +6,32 @@ export const styles = StyleSheet.create({
     },
     headerRow: {
         flexDirection: 'row',
-        marginBottom: 20
+        marginBottom: '10%'
     },
     row: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         backgroundColor: '#fff',
-        width: '100%'
-    },
-    column: {
-        flexDirection: 'column'
+        width: '100%',
+        padding: '1%'
     },
     tipAdjustmentForm: {
         backgroundColor: '#fff',
         width: '100%',
         borderStyle: 'solid',
         borderColor: '#fff',
-        borderRadius: 15,
+        borderRadius: 10,
     },
     text: {
         fontSize: 20,
-        marginBottom: 10
-    },
-    dollarSign: {
-        fontSize: 20,
-        paddingLeft: 40,
-        marginBottom: 10
     },
     amount: {
         fontSize: 20,
-        paddingLeft: 20,
-        marginBottom: 10
+        marginRight: '48%'      
     },
     buttonContainer: {
-        width: 100,
-        height: 50
+        width: '28%',
+        height: '10%'
     },
     buttonStyle: {
         backgroundColor: '#454343'
@@ -50,19 +42,16 @@ export const styles = StyleSheet.create({
     headerText: {
         color: '#fff',
         fontSize: 25,
-        marginTop: 8,
-        marginLeft: 25
+        margin: '2%'
     },
     inputContainer: {
-        width: 170,
-    },
-    input: {
-        borderBottomWidth: 0,
+        width: 178,
+        marginRight: '10%'
     },
     inputStyle: {
         fontSize: 20,
         paddingTop: 0,
-        color: 'grey'
+        color: '#454343'
     },
     divider: {
         backgroundColor: '#000',

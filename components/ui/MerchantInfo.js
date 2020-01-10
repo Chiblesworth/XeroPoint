@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 
-import { storageGet } from '../helpers/localStorage';
-import { formatPhoneNumber } from '../helpers/formatPhoneNumber';
+import { storageGet } from '../../helpers/localStorage';
+import { formatPhoneNumber } from '../../helpers/formatPhoneNumber';
 
-import { styles } from './styles/MerchantInfoStyles';
+import { styles } from '../styles/MerchantInfoStyles';
 //Test
 import base64 from 'react-native-base64';
 
@@ -26,7 +26,6 @@ export default class MerchantInfo extends Component {
 
     async componentDidMount() {
         //let merchantId = await storageGet("merchantId");
-
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
@@ -37,8 +36,8 @@ export default class MerchantInfo extends Component {
         }).then((response) => {
             return response.json();
         }).then((Json) => {
-            console.log(Json)
-            console.log(Json.receipt)
+            // console.log(Json)
+            // console.log(Json.receipt)
             let receipt = Json.receipt;
 
             this.setState({

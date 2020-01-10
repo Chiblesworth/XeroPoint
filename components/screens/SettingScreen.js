@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 
-import CustomHeader from '../CustomHeader';
+import CustomHeader from '../ui/CustomHeader';
 
 import { styles } from '../styles/SettingStyles';
 
@@ -31,7 +31,7 @@ export default class SettingScreen extends Component {
     }
 
     render() {
-        const settingsArray = ["Location", "Additional Fees", "Signature", "Tips", "Advanced"];
+        const settingsArray = ["Location", "Additional Fees", "Tips", "Advanced"];
         let settingsContent = []; //This holds the <Button> code
 
         for(const [index, setting] of settingsArray.entries()){
@@ -63,6 +63,7 @@ export default class SettingScreen extends Component {
                     title="Settings"
                     handlePress={this.handleHeaderIconPress}
                     backgroundColor="#656565"
+                    underlayColor="#656565"
                 />
                 <View style={styles.container}>
                     {settingsContent}

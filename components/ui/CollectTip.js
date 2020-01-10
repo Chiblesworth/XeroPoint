@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 
-import { styles } from './styles/CollectTipStyles';
+import { styles } from '../styles/CollectTipStyles';
 
 export default class CollectTip extends Component {
     constructor(props) {

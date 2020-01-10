@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 
-import { getMerchantSettings } from '../api_requests/getMerchantSettings';
+import { getMerchantSettings } from '../../api_requests/getMerchantSettings';
 
-import { storageGet } from '../helpers/localStorage';
-import { showAlert } from '../helpers/showAlert';
+import { storageGet } from '../../helpers/localStorage';
+import { showAlert } from '../../helpers/showAlert';
 
-import { styles } from './styles/KeyedPaymentFormStyles';
+import { styles } from '../styles/KeyedPaymentFormStyles';
 
 export default class KeyedPaymentForm extends Component {
     constructor(props) {
@@ -277,7 +277,7 @@ export default class KeyedPaymentForm extends Component {
                         disabled={(this.props.connected) ? true : false}
                         placeholder={(this.props.connected) ? "Card Reader Connected" : "1234 5678 9012 3..."}
                         placeholderTextColor="grey"
-                        leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: 'gray' }}
+                        leftIcon={{ type: 'entypo', name: 'credit-card', size: 25, color: '#454343' }}
                         inputContainerStyle={styles.inputContainer}
                         inputStyle={styles.input}
                         keyboardType="numeric"

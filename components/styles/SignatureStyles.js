@@ -4,10 +4,12 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        marginTop: '2%'
     },
     row: {
         flexDirection: 'row',
+    },
+    collectTipContainer: {
+        backgroundColor: '#454343',
     },
     totalContainer: {
         flexDirection: 'column'
@@ -18,9 +20,8 @@ export const styles = StyleSheet.create({
         borderBottomColor: '#000',
     },
     signature: {
-        height: 25,
-        width: '100%',
-        backgroundColor: 'red'
+        height: '80%',
+        width: '100%'
     },
     totalContainer: {
         flexDirection: 'column'
@@ -41,7 +42,7 @@ export const styles = StyleSheet.create({
         marginRight: '20%'
     },
     buttonContainer: {
-        marginTop: 30,
+        margin: '5%',
         width: '20%',
         borderRadius: 15
     },

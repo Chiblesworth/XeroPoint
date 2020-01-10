@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import SwitchToggle from 'react-native-switch-toggle';
 
-import { styles } from './styles/FeeSwitchStyles';
+import { styles } from '../styles/FeeSwitchStyles';
 
 export default class FeeSwitch extends Component {
     constructor(props) {
