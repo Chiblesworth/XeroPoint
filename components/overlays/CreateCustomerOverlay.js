@@ -32,12 +32,9 @@ export default class CreateCustomerOverlay extends Component {
     }
 
     isButtonDisabled = () => {
-        if((this.state.customerName != "") && (this.state.customerNumber != "")){
-            this.setState({isDisabled: false});
-        }
-        else{
-            this.setState({isDisabled: true});
-        }
+        ((this.state.customerName != "") && (this.state.customerNumber != ""))
+            ? this.setState({isDisabled: false})
+            : this.setState({isDisabled: true});
     }
 
     createCustomer = async (customerName, customerNumber) => {
