@@ -12,8 +12,6 @@ import { removeItem } from '../../helpers/localStorage';
 import { showAlert } from '../../helpers/showAlert';
 
 import { styles } from '../styles/ReceiptStyles';
-//TEST
-import base64 from 'react-native-base64';
 
 const resetAction = StackActions.reset({
     index: 0,

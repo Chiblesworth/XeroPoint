@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Alert, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Button, Overlay, Input } from 'react-native-elements';
 
 import { postCustomer } from '../../api_requests/postCustomer';

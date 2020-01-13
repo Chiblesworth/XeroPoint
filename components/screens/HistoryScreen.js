@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ScrollView, Text, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import { StackActions, NavigationActions } from 'react-navigation';
 

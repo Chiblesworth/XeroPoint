@@ -10,7 +10,6 @@ import HeaderIcon from '../ui/HeaderIcon';
 
 import { storageGet, storageSet} from '../../helpers/localStorage';
 import { showAlert } from '../../helpers/showAlert';
-import { getRequestHeader } from '../../helpers/getRequestHeader';
 
 import { getMerchants } from '../../api_requests/getMerchants';
 
