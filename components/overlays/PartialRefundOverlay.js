@@ -26,10 +26,7 @@ export default class RefundTypeOverlay extends Component {
     }
 
     validateInput = (textEntered) => {
-        console.log(textEntered);
-        console.log(Number(textEntered));
         if(Number(textEntered)){
-            console.log("true");
             (Number(textEntered) > Number(this.props.paymentAmount))
                 ?this.setState({
                     errorMessage: "Cannot refund more than payment's total",
@@ -43,7 +40,6 @@ export default class RefundTypeOverlay extends Component {
                 });
         }
         else{
-            console.log("false");
             this.setState({
                 errorMessage: "Need to enter an amount",
                 isDisabled: true,
@@ -71,6 +67,7 @@ export default class RefundTypeOverlay extends Component {
                         onChangeText={(text) => this.handleInputChange(text)}
                         errorMessage={this.state.errorMessage}
                         errorStyle={styles.errorStyle}
+                        autoFocus={true}
                     />
                     <Button
                         type="solid"

@@ -171,6 +171,7 @@ const signOut = (props) => {
 	removeItem("merchantId");
 	removeItem("encodedUser");
 	removeItem("username");
+	removeItem("stayLoggedIn");
 
 	props.navigation.dispatch(StackActions.reset({
 		index: 0,

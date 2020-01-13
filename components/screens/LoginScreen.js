@@ -30,6 +30,10 @@ export default class LoginScreen extends Component {
 		let stayLoggedIn = await storageGet("stayLoggedIn");
 		
 		stayLoggedIn = JSON.parse(stayLoggedIn);
+		
+		if(stayLoggedIn === null){
+			stayLoggedIn = false;
+		}
 
 		if(stayLoggedIn){
 			this.props.navigation.navigate("Main");
@@ -42,8 +46,8 @@ export default class LoginScreen extends Component {
 
 	encodeString = (text, inputField) => {
 		(inputField === "Username") 
-		? this.setState({encodedUsername: base64.encode(text)})
-		: this.setState({encodedPassword: base64.encode(text)});
+			? this.setState({encodedUsername: base64.encode(text)})
+			: this.setState({encodedPassword: base64.encode(text)});
 	}
 
 	signIn = async () => {
@@ -79,7 +83,7 @@ export default class LoginScreen extends Component {
 				<View style={styles.logo}>
 					<Image
 						source={require("../../images/logo.png")}
-						transform={[{scale: 0.8}]}
+						transform={[{scale: 0.75}]}
 					/>
 				</View>
 				<View style={styles.loginFormSection}>

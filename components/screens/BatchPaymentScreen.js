@@ -18,12 +18,6 @@ export default class BatchPaymentScreen extends Component {
         };
     }
 
-    componentDidMount() {
-        //Remove when in production
-        // console.log("In batch payments screen")
-        // console.log(this.state.batchPayments)
-    }
-
     handleHeaderIconPress = () => {
         this.props.navigation.pop();
     }
@@ -58,6 +52,7 @@ export default class BatchPaymentScreen extends Component {
                         else if (payment.status === "Voided") {
                             backgroundCol = '#F3A41C';
                         }
+                        
                         let dateOfPayment = new Date(payment.created);
                         let timeOfPayment = dateOfPayment.toTimeString();
 

@@ -26,7 +26,7 @@ export default class SupportScreen extends Component {
         this.handleHeaderIconPress = this.handleHeaderIconPress.bind(this);
     }
 
-    async componentWillMount(){
+    async componentDidMount(){
         let merchantId = await storageGet("merchantId");
         let user = await storageGet("username");
         let data = await getMerchantDetails(merchantId);

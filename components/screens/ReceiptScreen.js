@@ -8,10 +8,12 @@ import SendReceiptOverlay from '../overlays/SendReceiptOverlay';
 
 import { getReceipt } from '../../api_requests/getReceipt';
 
+import { removeItem } from '../../helpers/localStorage';
+import { showAlert } from '../../helpers/showAlert';
+
 import { styles } from '../styles/ReceiptStyles';
 //TEST
 import base64 from 'react-native-base64';
-import { removeItem } from '../../helpers/localStorage';
 
 const resetAction = StackActions.reset({
     index: 0,
@@ -67,44 +69,31 @@ export default class ReceiptScreen extends Component {
     }
 
     sendReceipt = async (input, fieldName) => {
+        let status, alertTitle, alertMessage;
         if(fieldName === "Text"){
             let cleanedInput = ("" + input).replace(/\D/g, '');
+            console.log(this.props.navigation.state.params.paymentId); //Remove after test.
+            console.log(cleanedInput);
+            status = await getReceipt(this.props.navigation.state.params.paymentId, cleanedInput);
+
+            (status === 202)
+                ? alertMessage = "Receipt sent via SMS."
+                : alertMessage = "Receipt could not be sent via SMS.";
         }
-        // let url;
-        // //let paymentId = this.props.navigation.state.params.sale.id;
-        // //let encodedUser = await storageGet("encodedUser");
-  
-        // paymentId = 84002558;
-        // fetch("https://api.mxmerchant.com/checkout/v3/payment", {
-        //     method: "GET",
-        //     headers: headers
-        // }).then((response) => {
-        //     console.log("Procinc payments")
-        //     console.log(response.json())
-        // })
-        // if (fieldName === "Email") {
-        //     url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
+        else if(fieldName === "Email"){
+            console.log(input); //Remove after test.
+            status = await getReceipt(paymentId, input);
 
-        //     fetch(url, {
-        //         method: "POST",
-        //         headers: headers,
-        //         //qs: {id: paymentId, contact: input}
-        //     }).then((response) => {
-        //         console.log(response);
-        //         console.log(response.json());
-        //     })
-        // }
-        // else {
-        //     url = `https://api.mxmerchant.com/checkout/v3/paymentreceipt?id=${paymentId}&contact=${input}`;
+            (status === 202)
+                ? alertMessage = "Receipt sent via email."
+                : alertMessage = "Receipt could not be sent via email";
+        }
 
-        //     fetch(url, {
-        //         method: "POST",
-        //         headers: headers
-        //     }).then((response) => {
-        //         console.log(response);
-        //         console.log(response.json());
-        //     })
-        // }
+        (status === 202)
+            ? alertTitle = "Receipt Sent!"
+            : alertTitle = "Receipt Not Sent!";
+
+        showAlert(alertTitle, alertMessage);
     }
 
     render() {

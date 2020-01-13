@@ -42,20 +42,23 @@ export default class MainScreen extends Component {
     async componentDidMount(){
         //TODO: Refactor this later
         let merchantId = await storageGet("merchantId");
-        
+        merchantId = JSON.parse(merchantId);
+        console.log(merchantId);
+
         if(merchantId === null){
-            this.getMerchantId();
+            merchantId = await this.getMerchantId();
         }
                
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
         //console.log(encoded);
+        let encoded = base64.encode("processingsol:processing*2019");
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
         }
-        //Imp getApiKeys when moving to production
+        //Imp getApiKeys when moving to production use merchantId in production
         //https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}
         fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=418399799`, {
             method: "GET",
@@ -92,6 +95,45 @@ export default class MainScreen extends Component {
             }
         });
     }
+    
+    //Refactored componentDidMount()
+    // async componentDidMount(){
+    //     let consumerKey, secret;
+    //     let merchantId = await storageGet("merchantId");
+    //     merchantId = JSON.parse(merchantId);
+    
+    //     if(merchantId === null){
+    //         merchantId = await this.getMerchantId();
+    //     }
+    
+    //     let data = await getApiKeys(merchantId);
+    //     console.log(data);
+    
+    //     consumerKey = data.records[0].apiKey;
+    //     secret = data.records[0].apiSecret;
+    
+    //     try{
+    //         if(AnyPay.verifyPermissions()){
+    //             AnyPay.requestPermissions();
+    
+    //             await AnyPay.initializeSDK();
+    //             var sdkVersion = await AnyPay.getSDKVersion();
+    //             console.log(sdkVersion);
+    
+    //             await AnyPay.initializeTerminal({
+    //                 consumerKey: consumerKey,
+    //                 secret: secret,
+    //                 merchantId: merchantId,
+    //                 url: 'https://api.mxmerchant.com/checkout/v3/'
+    //             }).catch((e) => {
+    //                 showAlert("Error!", e);
+    //             });
+    //         }
+    //     }
+    //     catch(e){
+    //         showAlert("Error!", e);
+    //     }
+    // }
 
     handleNumberPadPress = (value) => {
         let newNumbersPressed = "";
@@ -115,14 +157,11 @@ export default class MainScreen extends Component {
         let numsPressed = Number(this.state.numbersPressed);
         numsPressed = accounting.formatMoney(parseFloat(numsPressed) / 100);
         
-        console.log(numsPressed);
         let cleaned;
         if(numsPressed.charAt(0) === "$"){
             cleaned = numsPressed.slice(1);
             cleaned = cleaned.replace(/,/g, '');
         }
-        console.log(cleaned);
-        console.log(Number(cleaned));
 
         (Number(cleaned) > 99999.99)
             ? this.setState({amount: "$99,999.99", numberPadDisabled: true},)
@@ -157,8 +196,9 @@ export default class MainScreen extends Component {
 
     getMerchantId = async () => {
         let data = await getMerchants();
-        console.log(data.records);
         storageSet("merchantId", data.records[0].id.toString());
+
+        return data.records[0].id.toString();
     }
 
     render() {

@@ -30,7 +30,6 @@ export default class SignatureScreen extends Component {
         super(props);
 
         this.state = {
-            orientation: "landscape", //Switch when closing the Overlay
             tipArray: [], //Will be either defaultTips or customTips
             selectedIndex: 0,
             subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
@@ -43,9 +42,6 @@ export default class SignatureScreen extends Component {
     }
 
     async componentDidMount() {
-        console.log("Sig screen payment id is ", this.props.navigation.state.params.tipAdjustmentData.id);
-        console.log(this.props.navigation.state.params.tipAdjustmentData);
-
         Orientation.lockToLandscape();
         let collectingTips = await storageGet("collectTips");
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
@@ -67,6 +63,7 @@ export default class SignatureScreen extends Component {
                 customTipArray.push("Other");
                 
                 this.setState({tipArray: [...customTipArray],
+                    selectedIndex: Number(selectedDefaultTip),
                     collectingSignature: collectingSignature
                 }, () => {
                     this.adjustTip(this.state.selectedIndex);
@@ -113,9 +110,6 @@ export default class SignatureScreen extends Component {
             this.setState({
                 total: Number(total),
                 tip: Number(tip)
-            }, () => {
-                console.log("total = " + this.state.total)
-                console.log("tip = " + this.state.tip)
             });
         }
         else if(index === 4){
@@ -133,9 +127,6 @@ export default class SignatureScreen extends Component {
             this.setState({
                 total: Number(total),
                 tip: Number(tipDollarAmount)
-            }, () => {
-                console.log("total = " + this.state.total)
-                console.log("tip = " + this.state.tip)
             });
         }
     }
@@ -150,10 +141,6 @@ export default class SignatureScreen extends Component {
     }
 
     applyCustomTip = (total, tip) => {
-        console.log("in applyCustomTip")
-        console.log(total)
-        console.log(tip)
-
         this.setState({total: total, tip: tip}, () => {
             this.handleCustomTipOverlay();
         });
@@ -180,9 +167,6 @@ export default class SignatureScreen extends Component {
 
     handleContinuePress = async () => {
         let selectedCustomerId = await storageGet("selectedCustomerId");
-        console.log("in continue press")
-        console.log(this.state.total)
-        console.log(this.state.tip)
 
         let tipAdjustedPayment = {
             merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,
@@ -197,15 +181,12 @@ export default class SignatureScreen extends Component {
         }
 
         let status = await applyTip(tipAdjustedPayment);
-        console.log(status);
-
         (status === 200)
-            ? this.props.navigation.navigate("Receipt", {sale: tipAdjustedPayment})
+            ? this.props.navigation.navigate("Receipt", {paymentId: tipAdjustedPayment.id})
             : showAlert("Tip Not Applied!", 'The tip was unable to be adjusted to the payment. Try pressing "Cancel" and restarting payment if error persists.');
     }
 
     render() {
-        console.log(this.state.collectingTips);
         return (
             <View style={styles.container}>
                 <View style={styles.collectTipContainer}>

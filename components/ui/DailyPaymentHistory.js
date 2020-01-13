@@ -11,21 +11,16 @@ export default class DailyPaymentHistory extends Component {
         super(props);
     }
 
-    checkProps = () => {
-        // console.log('checkProps here') remove in production
-        // console.log(this.props.paymentsSplitByDay);
-    }
-
     calculateDailyNetTotal = (payments) => {
         let netTotal = 0;
         for (let i = 0; i < payments.length; i++) {
             netTotal += Number(payments[i].amount);
         }
+
         return "$" + parseFloat(Math.round(netTotal * 100) / 100).toFixed(2);
     }
 
     handlePaymentPress = (payment) => {
-        console.log(payment);
         this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 
@@ -34,8 +29,8 @@ export default class DailyPaymentHistory extends Component {
         return (
             <View>
                 {this.props.paymentsSplitByDay.map((dailyPayments, index) => {
-                    console.log(dailyPayments)
                     let dayOfPayments = new Date(dailyPayments[0].created);
+                    
                     return (
                         <View key={index}>
                             <View style={[styles.row, { backgroundColor: "#D3D3D3" }]}>

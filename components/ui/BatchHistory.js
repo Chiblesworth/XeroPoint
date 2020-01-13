@@ -18,14 +18,11 @@ export default class BatchHistory extends Component {
     handleBatchPress = async (batchId) => {
         let data = await getBatchPayments(batchId);
         this.setState({batchPayments: data.records}, () => {
-            // console.log(this.state.batchPayments);
             this.props.navigation.navigate("BatchPayments", {batchPayments: this.state.batchPayments});
         });
     }
 
     render() {
-        // console.log("here in render of batchHistory")
-        // console.log(this.props.batches)
         return (
             <View>
                 {this.props.batches.map((batch, index) => {

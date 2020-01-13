@@ -21,6 +21,7 @@ import { feeCalculations } from '../../helpers/feeCalculations';
 import { getRequestHeader } from '../../helpers/getRequestHeader';
 import { storageGet, storageSet } from '../../helpers/localStorage';
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
+import { showAlert } from '../../helpers/showAlert';
 
 import { styles } from '../styles/PaymentStyles';
 
@@ -73,7 +74,7 @@ export default class PaymentScreen extends Component {
         let collectTaxFee = await storageGet("collectTaxFee");
         let connected = await AnyPay.isReaderConnected();
 
-        //Give default values
+        // Give default values
         if (taxFee === null) {
             storageSet("taxFee", 10);
             taxFee = 5;
@@ -93,8 +94,6 @@ export default class PaymentScreen extends Component {
             storageSet("collectTaxFee", "true");
             collectServiceFee = true;
         }
-
-        console.log("connected ", connected)
 
         collectServiceFee = JSON.parse(collectServiceFee);
         collectTaxFee = JSON.parse(collectTaxFee);
@@ -117,14 +116,12 @@ export default class PaymentScreen extends Component {
     }
 
     handleCardReaderEvent = (event) => {
-        console.log(event);
         if (event.detail != "Approved") {
             this.setState({ cardReaderEventText: (event.detail === null) ? event.message : event.detail });
         }
     }
 
     handleCardReaderConnect = (event) => {
-        console.log(event);
         AnyPay.isReaderConnected().then((connected) => {
             this.setState({
                 cardReaderConnected: connected,
@@ -134,14 +131,12 @@ export default class PaymentScreen extends Component {
     }
 
     handleCardReaderDisconnect = (event) => {
-        console.log(event);
         AnyPay.isReaderConnected().then((connected) => {
             this.setState({ cardReaderConnected: connected });
         });
     }
 
     handleCardReaderError = (event) => {
-        console.log(event);
         this.setState({cardReaderEventText: (event.detail === null) ? event.message : event.detail})
     }
 
@@ -154,7 +149,6 @@ export default class PaymentScreen extends Component {
     }
 
     handleConnectReaderPress = async () => {
-        console.log("handleConnectReaderPress ", this.state.cardReaderConnected);
         (this.state.cardReaderConnected)
             ? AnyPay.disconnectReader()
             : this.handleConnectReaderOverlay();
@@ -273,7 +267,9 @@ export default class PaymentScreen extends Component {
 
             this.handleEmvOverlay();
 
-            transaction = await AnyPay.startEMVTransaction(emvObj).catch(e => console.log(e));
+            transaction = await AnyPay.startEMVTransaction(emvObj).catch((e) => {
+                showAlert("EMV Payment Error!", e);
+            });
             // this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
 
             (this.props.navigation.state.params.refundSelected)
@@ -292,7 +288,7 @@ export default class PaymentScreen extends Component {
             //     console.log(transaction);
         }
         catch (e) {
-            console.log(e);
+            showAlert("EMV Payment Error!", e);
         }
     }
 
@@ -310,8 +306,7 @@ export default class PaymentScreen extends Component {
         (this.props.navigation.state.params.refundSelected)
             ? amount = -Math.abs(this.determineAmount())
             : amount = this.determineAmount();
-        console.log(amount);
-        console.log(amount.toString());
+
         let data = {
             merchantId: merchantId,
             tenderType: "Card",

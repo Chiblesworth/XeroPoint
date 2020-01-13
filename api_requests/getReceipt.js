@@ -7,7 +7,7 @@ export async function getReceipt(paymentId, input){
     url += `paymentreceipt?id=${paymentId}&contact=${input}`;
 
     let status = fetch(url, {
-        method: "DELETE",
+        method: "POST",
         headers: headers,
     }).then((response) => {
         return response.status;

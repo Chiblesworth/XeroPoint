@@ -17,11 +17,12 @@ import ConfirmRefundOverlay from '../overlays/ConfirmRefundOverlay';
 
 import { postPayment } from '../../api_requests/postPayment';
 import { deletePayment } from '../../api_requests/deletePayment';
+import { getReceipt } from '../../api_requests/getReceipt';
 
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
+import { showAlert } from '../../helpers/showAlert';
 
 import { styles } from '../styles/ViewReceiptStyles';
-import { showAlert } from '../../helpers/showAlert';
 
 const resetAction = StackActions.reset({
     index: 0,
@@ -38,6 +39,7 @@ export default class ViewReceiptScreen extends Component {
             refundSelectOverlayVisible: false,
             partialRefundOverlayVisible: false,
             confirmRefundOverlayVisible: false,
+            confirmRefundVoidOverlayVisible: false,
             refundAmount: null
         };
     }
@@ -57,7 +59,6 @@ export default class ViewReceiptScreen extends Component {
                 title={title}
                 onPress={() => this.handleButtonPress(title)}
                 disabled={disabled}
-            
             />
         )
     }
@@ -72,15 +73,7 @@ export default class ViewReceiptScreen extends Component {
             this.handleRefundTypeSelectOverlay();
         }
         else if(buttonPressed === "Void Refund"){
-            let status = await deletePayment(this.state.payment.id);
-            
-            if(status === 204){
-                showAlert("Payment Voided!", "The payment has been voided out.");
-                this.props.navigation.dispatch(resetAction);
-            }
-            else{
-                showAlert("Payment Void Error", "There was an error in the void payment process.");
-            }
+            this.handleConfirmVoidRefundOverlay();
         }
     }
 
@@ -98,8 +91,36 @@ export default class ViewReceiptScreen extends Component {
         this.setState({confirmRefundOverlayVisible: !this.state.confirmRefundOverlayVisible});
     }
 
-    handleSendButtonPress = () => {
-        console.log("Send it"); //Send the receipt when switch to production
+    handleConfirmVoidRefundOverlay = () => {
+        this.setState({confirmRefundVoidOverlayVisible: !this.state.confirmRefundVoidOverlayVisible});
+    }
+
+    handleSendButtonPress = async (input, fieldName) => {
+        let status, alertTitle, alertMessage;
+        if(fieldName === "Text"){
+            let cleanedInput = ("" + input).replace(/\D/g, '');
+            console.log(this.props.navigation.state.params.payment.id); //Remove after test.
+            console.log(cleanedInput);
+            status = await getReceipt(this.props.navigation.state.params.payment.id, cleanedInput);
+
+            (status === 202)
+                ? alertMessage = "Receipt sent via SMS."
+                : alertMessage = "Receipt could not be sent via SMS.";
+        }
+        else if(fieldName === "Email"){
+            console.log(input); //Remove after test.
+            status = await getReceipt(paymentId, input);
+
+            (status === 202)
+                ? alertMessage = "Receipt sent via email."
+                : alertMessage = "Receipt could not be sent via email";
+        }
+
+        (status === 202)
+            ? alertTitle = "Receipt Sent!"
+            : alertTitle = "Receipt Not Sent!";
+
+        showAlert(alertTitle, alertMessage);
     }
 
     handleSelectedRefundType = (selectedRefund) => {
@@ -141,6 +162,18 @@ export default class ViewReceiptScreen extends Component {
             this.handleConfirmRefundOverlay();
             this.props.navigation.dispatch(resetAction);
             showAlert("Payment Refunded", "The payment has been refuned!");
+        }
+    }
+
+    voidRefund = async () => {
+        let status = await deletePayment(this.state.payment.id);
+            
+        if(status === 204){
+            showAlert("Refund Voided!", "The refund has been voided out.");
+            this.props.navigation.dispatch(resetAction);
+        }
+        else{
+            showAlert("Refund Void Error", "There was an error in the void refund process.");
         }
     }
 
@@ -250,6 +283,11 @@ export default class ViewReceiptScreen extends Component {
                     isVisible={this.state.confirmRefundOverlayVisible}
                     handleClose={this.handleConfirmRefundOverlay}
                     issueRefund={this.issueRefund}
+                />
+                <ConfirmRefundOverlay
+                    isVisible={this.state.confirmRefundVoidOverlayVisible}
+                    handleClose={this.handleConfirmVoidRefundOverlay}
+                    issueRefund={this.voidRefund}
                 />
             </View>
         );

@@ -56,10 +56,7 @@ export default class HistoryScreen extends Component {
     }
 
     parsePaymentsByDay = (payments) => {
-        // console.log(payments) //Remove in production
-        // console.log(payments.length);
-
-        let dateToBeCompared = new Date(payments[0].created); //Holds the first date for other records to compare date to
+        let dateToBeCompared = new Date(payments[0].created); // Holds the first date for other records to compare date to
         let paymentsForOneDay = [];
         let allPaymentsSplitByDay = [];
         let dateOfPayment;
@@ -88,8 +85,6 @@ export default class HistoryScreen extends Component {
     }
 
     render() {
-        console.log(this.state.batches);
-        console.log(this.state.paymentsSplitByDay);
         let paymentHistoryContent;
         
         (this.state.selectedIndex === 0)
@@ -120,7 +115,6 @@ export default class HistoryScreen extends Component {
                     />
                 </View>
                 <ScrollView>
-                    {/* {paymentHistoryContent} */}
                     {
                         (this.state.batches === null && this.state.paymentsSplitByDay === null)
                             ?  (
