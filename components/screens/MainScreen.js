@@ -52,7 +52,8 @@ export default class MainScreen extends Component {
         // let secret;
         //let headers = await getRequestHeader();
         //console.log(encoded);
-        let encoded = base64.encode("processingsol:processing*2019");
+        //test
+
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
