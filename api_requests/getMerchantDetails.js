@@ -6,6 +6,7 @@ export async function getMerchantDetails(merchantId){
     let data;
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     // merchantId = "418399799"; //REMOVE LATER
     url += `merchant/${merchantId}`;
 

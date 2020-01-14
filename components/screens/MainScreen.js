@@ -47,13 +47,14 @@ export default class MainScreen extends Component {
         if(merchantId === null){
             merchantId = await this.getMerchantId();
         }
+        merchantId = await this.getMerchantId();
                
         // let consumerKey;
         // let secret;
         //let headers = await getRequestHeader();
         //console.log(encoded);
         //test
-
+        let encoded = base64.encode("processingsol:processing*2019");
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
@@ -196,6 +197,7 @@ export default class MainScreen extends Component {
 
     getMerchantId = async () => {
         let data = await getMerchants();
+        console.log(data.records);
         storageSet("merchantId", data.records[0].id.toString());
 
         return data.records[0].id.toString();

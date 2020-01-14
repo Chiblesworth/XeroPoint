@@ -1,12 +1,13 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { sandboxBaseUrl } from './baseUrl';
+import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
 import base64 from 'react-native-base64'
 
 export async function applyTip(data){
     //FOR Testing EMV NEEDS PRODUCTION URL
-let headers = await getRequestHeader();
-   let url = sandboxBaseUrl;
- url += `payment/${data.id}`;
+    let headers = await getRequestHeader();
+    let url = sandboxBaseUrl;
+   //let url = productionBaseUrl;
+    url += `payment/${data.id}`;
     // url = `https://api.mxmerchant.com/checkout/v3/payment/${data.id}`;
     //     let headers = {
     //         'Authorization': 'Basic ' + encoded,

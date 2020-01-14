@@ -76,12 +76,12 @@ export default class PaymentScreen extends Component {
 
         // Give default values
         if (taxFee === null) {
-            storageSet("taxFee", 10);
+            storageSet("taxFee", "10");
             taxFee = 5;
         }
 
         if (serviceFee === null) {
-            storageSet("serviceFee", 5);
+            storageSet("serviceFee", "5");
             serviceFee = 5;
         }
 
@@ -209,7 +209,7 @@ export default class PaymentScreen extends Component {
 
     handleAuthorizationOverlay = (status) => {
         if (this.state.emvOverlayVisible) {
-            //Removes EMV overlay so not visible when this overlay appears.
+            // Removes EMV overlay so not visible when this overlay appears.
             this.setState({ emvOverlayVisible: !this.state.emvOverlayVisible });
         }
 
@@ -403,8 +403,6 @@ export default class PaymentScreen extends Component {
                     <Text style={[styles.amountText, { color: textColor }]}>
                         ${this.determineAmount()}
                     </Text>
-                    {/* <Text style={styles.text}>{this.state.cardReaderConnected.toString()}</Text>
-                    <Text style={styles.text}>{this.state.cardReaderEventText}</Text> */}
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollView}>
                     <KeyedPaymentForm

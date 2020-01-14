@@ -15,10 +15,14 @@ export default class BatchHistory extends Component {
         };
     }
 
-    handleBatchPress = async (batchId) => {
+    handleBatchPress = async (batchId, batchStatus) => {
         let data = await getBatchPayments(batchId);
         this.setState({batchPayments: data.records}, () => {
-            this.props.navigation.navigate("BatchPayments", {batchPayments: this.state.batchPayments});
+            this.props.navigation.navigate("BatchPayments", {
+                batchPayments: this.state.batchPayments,
+                batchId: batchId,
+                batchStatus: batchStatus
+            });
         });
     }
 
@@ -32,6 +36,7 @@ export default class BatchHistory extends Component {
                     let timeOpened = batchOpened.toTimeString();
                     let dateClosed = batchClosed.toDateString();
                     let timeClosed = batchClosed.toTimeString();
+                    let backgroundColor;
 
                     timeOpened = timeOpened.split(" ");
                     timeOpened = convertMilitaryToStandardTime(timeOpened[0], false);
@@ -39,10 +44,15 @@ export default class BatchHistory extends Component {
                     timeClosed = timeClosed.split(" ");
                     timeClosed = convertMilitaryToStandardTime(timeClosed[0], false);
 
+                    console.log(batch.status);
+                    (batch.status === "Open")
+                        ? backgroundColor = "#287C28"
+                        : backgroundColor = "#2E2B2B";
+
                     return (
                         <TouchableOpacity
                             key={index}
-                            onPress={() => this.handleBatchPress(batch.id)}
+                            onPress={() => this.handleBatchPress(batch.id, batch.status)}
                         >
                             <View>
                                 <View style={[styles.row, { backgroundColor: "#D3D3D3" }]}>
@@ -52,7 +62,7 @@ export default class BatchHistory extends Component {
                                 <View style={[styles.row, { padding: '5%' }]}>
                                     <View style={styles.batchInfoContainer}>
                                         <View style={{
-                                            backgroundColor: '#2E2B2B',
+                                            backgroundColor: backgroundColor,
                                             borderTopLeftRadius: 17,
                                             borderTopRightRadius: 17,
                                             width: '100%',

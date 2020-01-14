@@ -56,6 +56,16 @@ export default class SignatureScreen extends Component {
             storageSet("collectSignature", "true");
             collectingSignature = true;
         }
+        
+        if(collectingTips === null){
+            storageSet("collectTips", "true");
+            collectingTips = true;
+        }
+
+        if(useCustomTips === null){
+            storageSet("useCustomTips", "false");
+            useCustomTips = false;
+        }
 
         if(collectingTips){
             if(useCustomTips){
@@ -203,8 +213,8 @@ export default class SignatureScreen extends Component {
                     )
                     : (
                         <View style={[styles.row, {justifyContent: 'space-between', margin: '2%'}]}>
-                            <Text style={styles.text}>Not Collecting Tips</Text>
-                            <Text style={styles.text}>Subtotal: ${this.state.subtotal}</Text>
+                            <Text style={[styles.text, {color: '#fff'}]}>Not Collecting Tips</Text>
+                            <Text style={[styles.text, {color: '#fff'}]}>Subtotal: ${this.state.subtotal}</Text>
                         </View>
                     )
                 }

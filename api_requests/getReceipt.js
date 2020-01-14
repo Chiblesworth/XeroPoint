@@ -3,7 +3,7 @@ import { productionBaseUrl } from './baseUrl';
 
 export async function getReceipt(paymentId, input){
     let headers = await getRequestHeader();
-    let url = sandboxBaseUrl;
+    let url = productionBaseUrl;
     url += `paymentreceipt?id=${paymentId}&contact=${input}`;
 
     let status = fetch(url, {

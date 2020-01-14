@@ -1,18 +1,18 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
 import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
 
-export async function getApiKeys(merchantId) {
+export async function closeBatch(batchId){
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
     // let url = productionBaseUrl;
-    url += `application?merchantId=${merchantId}`;
+    url += `batch/${batchId}`;
 
-    let data = fetch(url, {
-        method: "GET",
+    let status = fetch(url, {
+        method: "PUT",
         headers: headers
     }).then((response) => {
-        return response.json();
+        return response.status;
     });
 
-    return data;
+    return status;
 }

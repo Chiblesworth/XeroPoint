@@ -6,6 +6,7 @@ export async function getBatchPayments(batchId) {
     let data;
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     url += `batchpayment?id=${batchId}`;
 
     //    let headers = {

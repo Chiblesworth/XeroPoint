@@ -1,9 +1,10 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { sandboxBaseUrl } from './baseUrl';
+import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
 
 export async function postPayment(data){
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     url += `payment?echo=true`;
 
     let createdPayment = fetch(url, {

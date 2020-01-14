@@ -6,6 +6,7 @@ export async function getCustomers(merchantId, searchText){
     let data;
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     //merchantId = "418399799";
     url += `customer?merchantId=${merchantId}&filter=${searchText}`;
 

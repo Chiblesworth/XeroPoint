@@ -1,9 +1,10 @@
-import { sandboxBaseUrl } from './baseUrl';
+import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
 
-//Header gets passed in since it's login
+// Header gets passed in since it's login
 export async function authenticate(headers) {
     let data;
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     url += `payment?echo=true`;
 
     data = fetch(url, {

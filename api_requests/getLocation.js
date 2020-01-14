@@ -5,6 +5,7 @@ import base64 from 'react-native-base64';
 export async function getLocation(merchantId){
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     // merchantId = "418399799"; //REMOVE LATER
     url += `merchant/${merchantId}`;
 

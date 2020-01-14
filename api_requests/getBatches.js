@@ -6,6 +6,7 @@ export async function getBatches(merchantId, startDate, endDate){
     let data;
     let headers = await getRequestHeader();
     let url = sandboxBaseUrl;
+    // let url = productionBaseUrl;
     //merchantId = "418399799"; //REMOVE LATER
     url += `batch?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`
 
