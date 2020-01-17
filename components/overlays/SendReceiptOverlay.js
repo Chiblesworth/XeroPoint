@@ -53,6 +53,12 @@ export default class SendReceiptOverlay extends Component {
     }
 
     render() {
+        let keyboardType;
+
+        (this.props.title === "Email Receipt")
+            ? keyboardType = "default"
+            : keyboardType = "numeric";
+
         return (
             <Overlay
                 isVisible={this.props.isVisible}
@@ -84,7 +90,7 @@ export default class SendReceiptOverlay extends Component {
                             containerStyle={styles.inputContainer}
                             inputContainerStyle={styles.inputContainerStyle}
                             inputStyle={styles.inputStyle}
-                            keyboardType="numeric"
+                            keyboardType={keyboardType}
                         />
                     </View>
                     <View style={styles.createSection}>

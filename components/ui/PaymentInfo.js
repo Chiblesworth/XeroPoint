@@ -26,12 +26,30 @@ export default class PaymentInfo extends Component {
             backgroundCol = '#287C28';
         }
 
+        let iconName, iconType;
+        if(this.props.cardType === "Visa"){
+            iconName = "cc-visa";
+            iconType = "font-awesome";
+        }
+        else if(this.props.cardType === "MasterCard"){
+            iconName = "cc-mastercard";
+            iconType = "font-awesome";
+        }
+        else if(this.props.cardType === "Discover"){
+            iconName = "cc-discover";
+            iconType = "font-awesome";
+        }
+        else if(this.props.cardType === "American Express"){
+            iconName = "credit-card";
+            iconType = "entypo";
+        }
+
         return (
             <View style={styles.container}>
                 <View style={styles.row}>
                     <Icon
-                        type='entypo'
-                        name='credit-card'
+                        type={iconType}
+                        name={iconName}
                         size={35}
                     />
                     <Text style={[styles.text, { padding: '4%' }]}>

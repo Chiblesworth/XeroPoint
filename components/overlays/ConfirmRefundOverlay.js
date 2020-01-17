@@ -25,7 +25,7 @@ export default class ConfirmRefundOverlay extends Component {
                         title="Yes"
                         containerStyle={styles.buttonContainer}
                         titleStyle={styles.text}
-                        onPress={() => this.props.issueRefund()}
+                        onPress={() => this.props.action()}
                     />
                     <Button
                         type="solid"

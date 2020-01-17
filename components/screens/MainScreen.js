@@ -8,7 +8,7 @@ import RNAnyPay from 'react-native-any-pay';
 import NumberPad from '../ui/NumberPad';
 import HeaderIcon from '../ui/HeaderIcon';
 
-import { storageGet, storageSet} from '../../helpers/localStorage';
+import { storageGet, storageSet, removeItem} from '../../helpers/localStorage';
 import { showAlert } from '../../helpers/showAlert';
 
 import { getMerchants } from '../../api_requests/getMerchants';
@@ -35,7 +35,8 @@ export default class MainScreen extends Component {
     }
 
     componentWillMount() {
-        Orientation.lockToPortrait();      
+        Orientation.lockToPortrait();    
+        removeItem("selectedCustomerId");
     }
 
     async componentDidMount(){
@@ -54,7 +55,6 @@ export default class MainScreen extends Component {
         //let headers = await getRequestHeader();
         //console.log(encoded);
         //test
-        let encoded = base64.encode("processingsol:processing*2019");
         let headers = {
             'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/json; charset=utf-8'
@@ -197,7 +197,6 @@ export default class MainScreen extends Component {
 
     getMerchantId = async () => {
         let data = await getMerchants();
-        console.log(data.records);
         storageSet("merchantId", data.records[0].id.toString());
 
         return data.records[0].id.toString();

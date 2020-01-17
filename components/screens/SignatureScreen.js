@@ -164,8 +164,8 @@ export default class SignatureScreen extends Component {
         let status = await deletePayment(this.props.navigation.state.params.tipAdjustmentData.id);
 
         if(status === 204){ 
-            removeItem("selectedCustomerId") //Removes selectedCustomerId if payment voided to avoid bugs for future payments
-            Orientation.lockToPortrait(); //This is here to fix bug where the alert would appear in landscaped mode on Main screen
+            removeItem("selectedCustomerId") // Removes selectedCustomerId if payment voided to avoid bugs for future payments
+            Orientation.lockToPortrait(); // This is here to fix bug where the alert would appear in landscaped mode on Main screen
             
             showAlert("Payment Voided!", "The payment has been deleted. Navigating back to Home.");
             this.props.navigation.dispatch(resetAction);
@@ -177,6 +177,10 @@ export default class SignatureScreen extends Component {
 
     handleContinuePress = async () => {
         let selectedCustomerId = await storageGet("selectedCustomerId");
+        
+        (!!selectedCustomerId)
+            ? selectedCustomerId = Number(selectedCustomerId)
+            : selectedCustomerId = null;
 
         let tipAdjustedPayment = {
             merchantId: this.props.navigation.state.params.tipAdjustmentData.merchantId,

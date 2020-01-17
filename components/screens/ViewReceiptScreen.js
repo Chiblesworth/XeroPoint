@@ -229,6 +229,7 @@ export default class ViewReceiptScreen extends Component {
                             authCode={payment.authCode}
                             cardPresent={payment.cardPresent}
                             entryMode={payment.cardAccount.entryMode}
+                            cardType={payment.cardAccount.cardType}
                             reference={payment.reference}
                             batch={payment.batch}
                             creatorName={payment.creatorName}
@@ -282,12 +283,12 @@ export default class ViewReceiptScreen extends Component {
                 <ConfirmRefundOverlay
                     isVisible={this.state.confirmRefundOverlayVisible}
                     handleClose={this.handleConfirmRefundOverlay}
-                    issueRefund={this.issueRefund}
+                    action={this.issueRefund}
                 />
                 <ConfirmRefundOverlay
                     isVisible={this.state.confirmRefundVoidOverlayVisible}
                     handleClose={this.handleConfirmVoidRefundOverlay}
-                    issueRefund={this.voidRefund}
+                    action={this.voidRefund}
                 />
             </View>
         );

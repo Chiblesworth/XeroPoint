@@ -48,8 +48,10 @@ export default class SearchCustomerOverlay extends Component {
     }
 
     handleSelectedCustomer = (customer) => {
+        console.log(customer);
         showAlert("Customer Added", customer.name + " was added to the payment!");
         storageSet("selectedCustomerId", customer.id.toString()); //REMEMBER TO REMOVE AFTER PAYMENT IS DONE
+        storageSet("selectedCustomerName", customer.name.toString());
         this.props.handleClose();
     }
 

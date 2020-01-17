@@ -29,8 +29,8 @@ export default class TipsScreen extends Component {
     }
 
     async componentDidMount() {
-        let collectTips = await storageGet("collectTips"); //Is the user collecting tips after payments
-        let useCustomTips = await storageGet("useCustomTips"); //Is the user collecting tips after payments?
+        let collectTips = await storageGet("collectTips"); // Is the user collecting tips after payments
+        let useCustomTips = await storageGet("useCustomTips"); // Is the user collecting tips after payments?
         let selectedDefaultTip = await storageGet("selectedDefaultTip");
         let customTipArray = await storageGet("customTips");
 

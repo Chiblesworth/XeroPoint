@@ -30,6 +30,7 @@ export default class ReceiptScreen extends Component {
     componentWillMount() {
         Orientation.lockToPortrait();
         removeItem("selectedCustomerId");
+        removeItem("selectedCustomerName");
     }
 
     handleReceiptButtonPress = (text) => {

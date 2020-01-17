@@ -6,6 +6,8 @@ import { StackActions, NavigationActions } from 'react-navigation';
 
 import CustomerHeader from '../ui/CustomHeader';
 
+import ConfirmRefundOverlay from '../overlays/ConfirmRefundOverlay'; // Added here for the confirmation user wants to close batch. Could be named better.
+
 import { closeBatch } from '../../api_requests/closeBatch';
 
 import { convertMilitaryToStandardTime } from '../../helpers/dateFormats';
@@ -24,7 +26,8 @@ export default class BatchPaymentScreen extends Component {
         this.state = {
             batchPayments: this.props.navigation.state.params.batchPayments,
             batchId: this.props.navigation.state.params.batchId,
-            batchStatus: this.props.navigation.state.params.batchStatus
+            batchStatus: this.props.navigation.state.params.batchStatus,
+            confirmBatchCloseOverlay: false
         };
     }
 
@@ -32,11 +35,15 @@ export default class BatchPaymentScreen extends Component {
         this.props.navigation.pop();
     }
 
+    handleConfirmOverlay = () => {
+        this.setState({confirmBatchCloseOverlay: !this.state.confirmBatchCloseOverlay})
+    }
+
     handlePaymentPress = (payment) => {
         this.props.navigation.push("ViewReceipt", { payment: payment });
     }
 
-    handleButtonPress = async () => {
+    confirmBatchClose = async () => {
         if(this.state.batchStatus === "Open"){
             let status = await closeBatch(this.state.batchId);
 
@@ -80,7 +87,7 @@ export default class BatchPaymentScreen extends Component {
                         disabled={disabled}
                         disabledStyle={styles.disabledButton}
                         disabledTitleStyle={styles.disabledTitle}
-                        onPress={() => this.handleButtonPress()}
+                        onPress={() => this.handleConfirmOverlay()}
                     />
                 </View>
                 <ScrollView>
@@ -99,6 +106,24 @@ export default class BatchPaymentScreen extends Component {
                         else if (payment.status === "Voided") {
                             backgroundCol = '#F3A41C';
                         }
+
+                        let iconName, iconType;
+                        if(payment.cardAccount.cardType === "Visa"){
+                            iconName = "cc-visa";
+                            iconType = "font-awesome";
+                        }
+                        else if(payment.cardAccount.cardType === "MasterCard"){
+                            iconName = "cc-mastercard";
+                            iconType = "font-awesome";
+                        }
+                        else if(payment.cardAccount.cardType === "Discover"){
+                            iconName = "cc-discover";
+                            iconType = "font-awesome";
+                        }
+                        else if(payment.cardAccount.cardType === "American Express"){
+                            iconName = "credit-card";
+                            iconType = "entypo";
+                        }
                         
                         let dateOfPayment = new Date(payment.created);
                         let timeOfPayment = dateOfPayment.toTimeString();
@@ -116,8 +141,8 @@ export default class BatchPaymentScreen extends Component {
                                         <View>
                                             <View style={styles.row}>
                                                 <Icon
-                                                    type='entypo'
-                                                    name='credit-card'
+                                                    type={iconType}
+                                                    name={iconName}
                                                     size={35}
                                                 />
                                                 <View style={{ padding: 5 }} />
@@ -151,6 +176,11 @@ export default class BatchPaymentScreen extends Component {
                         )
                     })}
                 </ScrollView>
+                <ConfirmRefundOverlay
+                    isVisible={this.state.confirmBatchCloseOverlay}
+                    handleClose={this.handleConfirmOverlay}
+                    action={this.confirmBatchClose}
+                />
             </View>
         );
     }

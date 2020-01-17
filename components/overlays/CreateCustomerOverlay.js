@@ -32,7 +32,7 @@ export default class CreateCustomerOverlay extends Component {
     }
 
     isButtonDisabled = () => {
-        ((this.state.customerName != "") && (this.state.customerNumber != ""))
+        (this.state.customerName != "")
             ? this.setState({isDisabled: false})
             : this.setState({isDisabled: true});
     }
@@ -88,7 +88,7 @@ export default class CreateCustomerOverlay extends Component {
                         />
                         <View style={styles.spacer} />
                         <Input 
-                            placeholder="Customer Number"
+                            placeholder="Customer Number (Not Required)"
                             onChangeText={(text) => this.handleNumberChange(text)}
                             keyboardType="numeric"
                             containerStyle={styles.inputContainer}

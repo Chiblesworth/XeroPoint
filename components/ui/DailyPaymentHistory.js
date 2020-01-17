@@ -21,6 +21,7 @@ export default class DailyPaymentHistory extends Component {
     }
 
     handlePaymentPress = (payment) => {
+        console.log(payment);
         this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 
@@ -53,6 +54,24 @@ export default class DailyPaymentHistory extends Component {
                                     backgroundCol = '#F3A41C';
                                 }
 
+                                let iconName, iconType;
+                                if(payment.cardAccount.cardType === "Visa"){
+                                    iconName = "cc-visa";
+                                    iconType = "font-awesome";
+                                }
+                                else if(payment.cardAccount.cardType === "MasterCard"){
+                                    iconName = "cc-mastercard";
+                                    iconType = "font-awesome";
+                                }
+                                else if(payment.cardAccount.cardType === "Discover"){
+                                    iconName = "cc-discover";
+                                    iconType = "font-awesome";
+                                }
+                                else if(payment.cardAccount.cardType === "American Express"){
+                                    iconName = "credit-card";
+                                    iconType = "entypo";
+                                }
+
                                 let dateOfPayment = new Date(payment.created);
                                 let timeOfPayment = dateOfPayment.toTimeString();
 
@@ -68,8 +87,8 @@ export default class DailyPaymentHistory extends Component {
                                                 <View>
                                                     <View style={styles.row}>
                                                         <Icon
-                                                            type='entypo'
-                                                            name='credit-card'
+                                                            type={iconType}
+                                                            name={iconName}
                                                             size={35}
                                                             containerStyle={{ paddingLeft: 15 }}
                                                         />

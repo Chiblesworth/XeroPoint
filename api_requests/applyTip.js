@@ -5,10 +5,10 @@ import base64 from 'react-native-base64'
 export async function applyTip(data){
     //FOR Testing EMV NEEDS PRODUCTION URL
     let headers = await getRequestHeader();
-    let url = sandboxBaseUrl;
-   //let url = productionBaseUrl;
+   let url = sandboxBaseUrl;
+  // let url = productionBaseUrl;
     url += `payment/${data.id}`;
-    // url = `https://api.mxmerchant.com/checkout/v3/payment/${data.id}`;
+    //rl = `https://api.mxmerchant.com/checkout/v3/payment/${data.id}`;
     //     let headers = {
     //         'Authorization': 'Basic ' + encoded,
     //         'Content-Type': 'application/json; charset=utf-8'

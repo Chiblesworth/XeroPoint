@@ -132,11 +132,31 @@ export default class KeyedPaymentForm extends Component {
     }
 
     handleCardInputChange = (number) => {
-        let regex = /[0-9- ]{19}/g;
-        let message;
-        (regex.test(number))
+        let regex, message, americanExpressCard;
+
+        if(number.charAt(0) === "3"){
+            regex = /[0-9- ]{18}/g;
+            americanExpressCard = true;
+        }
+        else{
+            regex = /[0-9- ]{19}/g;
+            americanExpressCard = false;
+        }
+
+        if(americanExpressCard){
+            (regex.test(number))
+            ? message = null
+            : message = "15 numbers required";
+
+            if(number.length > 18){ // Value is 18 and not 15 to account for spaces once input is formatted below
+                message = "AmEx cards cannot be longer than 15 digits";
+            }
+        }
+        else{
+            (regex.test(number))
             ? message = null
             : message = "16 numbers required";
+        }
 
         this.setState(prevState => ({
             cardAccount: {
