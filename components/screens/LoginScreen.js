@@ -12,8 +12,6 @@ import { authenticate } from '../../api_requests/authenticate';
 
 import { styles } from '../styles/LoginStyles';
 
-
-
 export default class LoginScreen extends Component {
 	constructor(props){
 		super(props);
@@ -135,12 +133,6 @@ export default class LoginScreen extends Component {
 						onPress={this.signIn}
 						containerStyle={styles.buttonContainer}
 						titleStyle={styles.buttonTitle}
-					/>
-				</View>
-				<View>
-					<Button 
-						title="Skip Login"
-						onPress={() => navigate('Main')}
 					/>
 				</View>
 			</View>

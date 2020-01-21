@@ -16,8 +16,8 @@ export default class TotalInfo extends Component {
     render() {
         let amount; 
       
-        //MX Merchant doesn't give an originalAmount field back if tip is 0.00. 
-        //Simple workaround for that
+        // MX Merchant doesn't give an originalAmount field back if tip is 0.00. 
+        // Simple workaround for that
         (this.props.tip === "0.00")
             ? amount = this.props.total
             : amount = this.determineSubtotal();

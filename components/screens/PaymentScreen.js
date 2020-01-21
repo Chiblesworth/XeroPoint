@@ -4,7 +4,6 @@ import { Header, Input, Button } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import RNAnyPay from 'react-native-any-pay';
 import { StackActions, NavigationActions } from 'react-navigation';
-import base64 from 'react-native-base64';
 
 import HeaderIcon from '../ui/HeaderIcon';
 import KeyedPaymentForm from '../ui/KeyedPaymentForm';
@@ -68,11 +67,6 @@ export default class PaymentScreen extends Component {
     }
 
     async componentDidMount() {
-        console.log("Props");
-        console.log(this.props.navigation.state.params.amountCharged);
-        console.log("State");
-        console.log(this.state.amountCharged);
-
         Orientation.lockToPortrait();
         let taxFee = await storageGet("taxFee");
         let serviceFee = await storageGet("serviceFee");
@@ -177,7 +171,6 @@ export default class PaymentScreen extends Component {
     }
 
     handleCreatedPayment = async (createdPayment) => {
-        console.log(createdPayment);
         let createdDate = new Date(createdPayment.created);
         let dateCreated = createdDate.toDateString();
         let timeCreated = createdDate.toTimeString();
@@ -193,11 +186,7 @@ export default class PaymentScreen extends Component {
                 amount: createdPayment.amount,
                 paymentToken: createdPayment.paymentToken
             }
-
-            console.log(tipAdjustmentData);
         }
-        console.log("PaymentScreen payment id is ");
-        console.log(createdPayment.id);
 
         (createdPayment.authCode === undefined)
             ? authCode = null
@@ -209,29 +198,6 @@ export default class PaymentScreen extends Component {
             authCode: authCode,
             tipAdjustmentData: tipAdjustmentData
         });
-        
-        // let selectedCustomerId = await storageGet("selectedCustomerId");
-        // (!!selectedCustomerId)
-        //     ? selectedCustomerId = Number(selectedCustomerId)
-        //     : selectedCustomerId = null
-
-        // if(selectedCustomerId !== null){
-        //     let headers = {
-        //         'Authorization': 'Basic ' + encoded,
-        //         'Content-Type': 'application/json; charset=utf-8'
-        //     }
-        //     let data = {
-        //         magstripe: createdPayment.cardAccount.emvData
-        //     }
-
-        //     fetch(`https://api.mxmerchant.com/checkout/v3/customercardaccount?id=${selectedCustomerId}&echo=true`, {
-        //         method: "POST",
-        //         headers: headers,
-        //         body: JSON.stringify(data)
-        //     }).then((response) => {
-        //         console.log(response.json());
-        //     });
-        // }
 
         this.handleAuthorizationOverlay(createdPayment.status);
     }
@@ -244,8 +210,7 @@ export default class PaymentScreen extends Component {
 
         if (this.state.authorizationOverlayVisible) {
             this.setState({ authorizationOverlayVisible: !this.state.authorizationOverlayVisible });
-            console.log("HERE in handleAuthOVerlay");
-            console.log(status);
+
             if (status === "Approved") {
                 (this.props.navigation.state.params.refundSelected)
                     ? this.props.navigation.dispatch(resetAction)
@@ -285,23 +250,14 @@ export default class PaymentScreen extends Component {
                 emvTransactionAmount = this.state.amountCharged;
             }
 
-            let selectedCustomerId = await storageGet("selectedCustomerId");
             let selectedCustomerName =  await storageGet("selectedCustomerName");
 
             (!!selectedCustomerName)
                 ? selectedCustomerName = selectedCustomerName
                 : selectedCustomerName = null;
 
-            // console.log(selectedCustomerId);
-            // selectedCustomerId = selectedCustomerId.toString();
-           // console.log(selectedCustomerId);
-
-           console.log(selectedCustomerName);
             selectedCustomerName = selectedCustomerName.toString();
-        //    console.log(selectedCustomerName);
 
-            //Will need to invoice, memo and customer fields somehow
-            //Simple work around could be to pass them to the next screen and add them with the PUT the same way for the TIP!
             var emvObj = {
                 type: emvTransactionType,
                 totalAmount: emvTransactionAmount,
@@ -309,44 +265,23 @@ export default class PaymentScreen extends Component {
                 customFields: {
                     meta: this.state.memo,
                     invoice: this.state.invoice,
-                    customerName: selectedCustomerName,
-                    // customer: {
-                    //     id: selectedCustomerId,
-                    // }
                 }
             }
 
-            if(!!selectedCustomerId){
-                selectedCustomerId = selectedCustomerId.toString();
-                // emvObj.customFields.customer = {
-                //     id: selectedCustomerId
-                // }
-                emvObj.customFields["customer.id"] = selectedCustomerId;
+            if(!!selectedCustomerName){
+                selectedCustomerName = selectedCustomerName.toString();
+                emvObj.customFields.customerName = selectedCustomerName;
             }
-            console.log(emvObj);
 
             this.handleEmvOverlay();
 
             transaction = await AnyPay.startEMVTransaction(emvObj).catch((e) => {
                 showAlert("EMV Payment Error!", e);
             });
-            console.log(transaction);
-            // this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
 
             (this.props.navigation.state.params.refundSelected)
                 ? this.handleCreatedPayment(transaction)
                 : this.handleCreatedPayment(transaction.gatewayResponse.responseJson);
-
-
-            //   var emvObj = {
-            //     type: "REFUND",
-            //     // totalAmount: this.state.amountCharged,
-            //     currency: 'USD'
-            //   }
-            //   this.handleEmvOverlay();
-
-            //     transaction = await AnyPay.refundTransaction(emvObj, Number(this.state.amountCharged)).catch(e => console.log(e));
-            //     console.log(transaction);
         }
         catch (e) {
             showAlert("EMV Payment Error!", e);
@@ -385,11 +320,8 @@ export default class PaymentScreen extends Component {
                 id: selectedCustomerId
             }
         }
-        console.log(data);
 
         let createdPayment = await postPayment(data);
-        console.log(createdPayment);
-
         this.handleCreatedPayment(createdPayment);
     }
 
@@ -398,7 +330,7 @@ export default class PaymentScreen extends Component {
         let amountChargedWithoutCommas = parseFloat(this.state.amountCharged.replace(/,/g, "")); // Fixes an issue where numbers over $1000 weren't displaying because of the comma within string
 
         if (this.state.taxSwitchValue && this.state.serviceFeeSwitchValue) {
-            amount = feeCalculations(feeCalculations(Number(amountChargedWithoutCommas), this.state.tax), this.state.serviceFee); //Tax fee is applied first.
+            amount = feeCalculations(feeCalculations(Number(amountChargedWithoutCommas), this.state.tax), this.state.serviceFee); // Tax fee is applied first.
         }
         else if (this.state.taxSwitchValue && !this.state.serviceFeeSwitchValue) {
             amount = feeCalculations(Number(amountChargedWithoutCommas), this.state.tax);
@@ -411,9 +343,6 @@ export default class PaymentScreen extends Component {
         }
 
         amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
-        
-        console.log("amount is ");
-        console.log(amount);
         return amount;
     }
 

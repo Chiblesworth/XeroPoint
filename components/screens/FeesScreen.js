@@ -30,7 +30,7 @@ export default class FeeScreen extends Component {
         collectServiceFee = JSON.parse(collectServiceFee);
         collectTaxFee = JSON.parse(collectTaxFee);
         
-        //Set defaults
+        // Set defaults
         if(collectServiceFee === null){
             storageSet("collectServiceFee", "true");
             collectServiceFee = true;

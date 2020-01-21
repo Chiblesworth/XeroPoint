@@ -22,7 +22,7 @@ export default class PaymentInfo extends Component {
             backgroundCol = '#F3A41C';
         }
         else if(this.props.status === "Approved"){
-            //This was originally in the settled condition, but it kept causing voided to be green rather than orange
+            // This was originally in the settled condition, but it kept causing voided to be green rather than orange
             backgroundCol = '#287C28';
         }
 

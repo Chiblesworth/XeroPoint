@@ -1,20 +1,12 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
-import base64 from 'react-native-base64'
+import { productionBaseUrl } from './baseUrl';
 
 export async function getCustomers(merchantId, searchText){
     let data;
-   //let headers = await getRequestHeader();
-   // let url = sandboxBaseUrl;
+    let headers = await getRequestHeader();
     let url = productionBaseUrl;
-    merchantId = "418399799";
     url += `customer?merchantId=${merchantId}&filter=${searchText}`;
-
-        let headers = {
-            'Authorization': 'Basic ' + encoded,
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-
+    
     data = fetch(url, {
         method: "GET",
         headers: headers

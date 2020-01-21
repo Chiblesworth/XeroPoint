@@ -16,7 +16,7 @@ import { styles } from '../styles/ReceiptStyles';
 const resetAction = StackActions.reset({
     index: 0,
     actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
-}); //Reset stack back to Main screen
+}); // Reset stack back to Main screen
 
 export default class ReceiptScreen extends Component {
     constructor(props) {
@@ -71,8 +71,6 @@ export default class ReceiptScreen extends Component {
         let status, alertTitle, alertMessage;
         if(fieldName === "Text"){
             let cleanedInput = ("" + input).replace(/\D/g, '');
-            console.log(this.props.navigation.state.params.paymentId); //Remove after test.
-            console.log(cleanedInput);
             status = await getReceipt(this.props.navigation.state.params.paymentId, cleanedInput);
 
             (status === 202)
@@ -80,8 +78,7 @@ export default class ReceiptScreen extends Component {
                 : alertMessage = "Receipt could not be sent via SMS.";
         }
         else if(fieldName === "Email"){
-            console.log(input); //Remove after test.
-            status = await getReceipt(paymentId, input);
+            status = await getReceipt(this.props.navigation.state.params.paymentId, input);
 
             (status === 202)
                 ? alertMessage = "Receipt sent via email."
@@ -93,6 +90,7 @@ export default class ReceiptScreen extends Component {
             : alertTitle = "Receipt Not Sent!";
 
         showAlert(alertTitle, alertMessage);
+        this.props.navigation.dispatch(resetAction);
     }
 
     render() {

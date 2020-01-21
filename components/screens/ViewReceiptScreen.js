@@ -99,8 +99,6 @@ export default class ViewReceiptScreen extends Component {
         let status, alertTitle, alertMessage;
         if(fieldName === "Text"){
             let cleanedInput = ("" + input).replace(/\D/g, '');
-            console.log(this.props.navigation.state.params.payment.id); //Remove after test.
-            console.log(cleanedInput);
             status = await getReceipt(this.props.navigation.state.params.payment.id, cleanedInput);
 
             (status === 202)
@@ -108,8 +106,7 @@ export default class ViewReceiptScreen extends Component {
                 : alertMessage = "Receipt could not be sent via SMS.";
         }
         else if(fieldName === "Email"){
-            console.log(input); //Remove after test.
-            status = await getReceipt(paymentId, input);
+            status = await getReceipt(this.props.navigation.state.params.payment.id, input);
 
             (status === 202)
                 ? alertMessage = "Receipt sent via email."

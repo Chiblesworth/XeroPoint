@@ -12,11 +12,9 @@ import { storageGet, storageSet, removeItem} from '../../helpers/localStorage';
 import { showAlert } from '../../helpers/showAlert';
 
 import { getMerchants } from '../../api_requests/getMerchants';
+import { getApiKeys } from '../../api_requests/getApiKeys';
 
 import { styles } from '../styles/MainStyles';
-
-import base64 from 'react-native-base64';
-
 
 const AnyPay = RNAnyPay.AnyPay;
 
@@ -26,10 +24,10 @@ export default class MainScreen extends Component {
 
         this.state = {
             buttonPressed: false,
-            numbersPressed: "", //Holds string of numbers pressed for manipulation in formatNumbersPressed()
+            numbersPressed: "", // Holds string of numbers pressed for manipulation in formatNumbersPressed()
             amount: "0.00",
-            amountFontColor: "#fff", //Color depends if refund is selected.
-            refundSelected: false, //Will need to pass this as prop to the payment screen if checked as true
+            amountFontColor: "#fff", // Color depends if refund is selected.
+            refundSelected: false, // Will need to pass this as prop to the payment screen if checked as true
             numberPadDisabled: false
         }
     }
@@ -40,101 +38,35 @@ export default class MainScreen extends Component {
     }
 
     async componentDidMount(){
-        //TODO: Refactor this later
+        let consumerKey, secret;
         let merchantId = await storageGet("merchantId");
         merchantId = JSON.parse(merchantId);
-        console.log(merchantId);
-
+    
         if(merchantId === null){
-            merchantId = await this.getMerchantId();
+           merchantId = await this.getMerchantId();
         }
-        merchantId = await this.getMerchantId();
-               
-        // let consumerKey;
-        // let secret;
-        //let headers = await getRequestHeader();
-        //console.log(encoded);
-        //test
-        let headers = {
-            'Authorization': 'Basic ' + encoded,
-            'Content-Type': 'application/json; charset=utf-8'
+        else{
+            let data = await getApiKeys(merchantId);
+        
+            consumerKey = data.records[0].apiKey;
+            secret = data.records[0].apiSecret;
+        
+            if(AnyPay.verifyPermissions()){
+                AnyPay.requestPermissions();
+    
+                await AnyPay.initializeSDK();
+       
+                await AnyPay.intializeTerminal({
+                    consumerKey: consumerKey,
+                    secret: secret,
+                    merchantId: merchantId.toString(),
+                    url: 'https://api.mxmerchant.com/checkout/v3/'
+                }).catch((e) => {
+                    showAlert("Error!", e);
+                });
+            }
         }
-        //Imp getApiKeys when moving to production use merchantId in production
-        //https://sandbox.api.mxmerchant.com/checkout/v3/application?merchantId=${merchantId}
-        fetch(`https://api.mxmerchant.com/checkout/v3/application?merchantId=418399799`, {
-            method: "GET",
-            headers: headers
-        }).then((response) => {
-            //console.log(response)
-            return response.json();
-        }).then(async (json) => {
-            let consumerKey = json.records[0].apiKey;
-            let secret = json.records[0].apiSecret;
-
-            try{
-                if(AnyPay.verifyPermissions()){
-                    AnyPay.requestPermissions();
-
-                    await AnyPay.initializeSDK();
-                    var sdkVersion = await AnyPay.getSDKVersion();
-                    console.log(sdkVersion);
-                   // console.log(consumerKey)
-                   // console.log(secret)
-                    //console.log(merchantId)
-                    await AnyPay.intializeTerminal({
-                        consumerKey: consumerKey,
-                        secret: secret,
-                        merchantId: '418399799',
-                        url: 'https://api.mxmerchant.com/checkout/v3/'
-
-                    }).catch(err => console.log(err));
-                  //  console.log("HERE0101");
-                }
-            }
-            catch(e){
-                console.log(e);
-            }
-        });
     }
-    
-    //Refactored componentDidMount()
-    // async componentDidMount(){
-    //     let consumerKey, secret;
-    //     let merchantId = await storageGet("merchantId");
-    //     merchantId = JSON.parse(merchantId);
-    
-    //     if(merchantId === null){
-    //         merchantId = await this.getMerchantId();
-    //     }
-    
-    //     let data = await getApiKeys(merchantId);
-    //     console.log(data);
-    
-    //     consumerKey = data.records[0].apiKey;
-    //     secret = data.records[0].apiSecret;
-    
-    //     try{
-    //         if(AnyPay.verifyPermissions()){
-    //             AnyPay.requestPermissions();
-    
-    //             await AnyPay.initializeSDK();
-    //             var sdkVersion = await AnyPay.getSDKVersion();
-    //             console.log(sdkVersion);
-    
-    //             await AnyPay.initializeTerminal({
-    //                 consumerKey: consumerKey,
-    //                 secret: secret,
-    //                 merchantId: merchantId,
-    //                 url: 'https://api.mxmerchant.com/checkout/v3/'
-    //             }).catch((e) => {
-    //                 showAlert("Error!", e);
-    //             });
-    //         }
-    //     }
-    //     catch(e){
-    //         showAlert("Error!", e);
-    //     }
-    // }
 
     handleNumberPadPress = (value) => {
         let newNumbersPressed = "";
@@ -196,10 +128,16 @@ export default class MainScreen extends Component {
     }
 
     getMerchantId = async () => {
-        let data = await getMerchants();
-        storageSet("merchantId", data.records[0].id.toString());
+        let data = await getMerchants();   
 
-        return data.records[0].id.toString();
+        if(data.records.length > 1){
+            showAlert("Multiple Merchants Found", "Navigating to allow user to select merchant to process under.");
+            this.props.navigation.navigate("Location");
+        }
+        else{
+            storageSet("merchantId", data.records[0].id.toString());
+            return data.records[0].id.toString();
+        }
     }
 
     render() {

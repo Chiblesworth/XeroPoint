@@ -23,14 +23,14 @@ import { styles } from '../styles/SignatureStyles';
 const resetAction = StackActions.reset({
     index: 0,
     actions: [NavigationActions.navigate({ routeName: 'DrawerStack' })],
-}); //Reset stack if payment is cancelled
+}); // Reset stack if payment is cancelled
 
 export default class SignatureScreen extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            tipArray: [], //Will be either defaultTips or customTips
+            tipArray: [], // Will be either defaultTips or customTips
             selectedIndex: 0,
             subtotal: Number(this.props.navigation.state.params.tipAdjustmentData.amount),
             total: 0,

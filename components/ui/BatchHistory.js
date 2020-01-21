@@ -44,7 +44,6 @@ export default class BatchHistory extends Component {
                     timeClosed = timeClosed.split(" ");
                     timeClosed = convertMilitaryToStandardTime(timeClosed[0], false);
 
-                    console.log(batch.status);
                     (batch.status === "Open")
                         ? backgroundColor = "#287C28"
                         : backgroundColor = "#2E2B2B";

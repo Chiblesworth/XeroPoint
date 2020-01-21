@@ -21,7 +21,6 @@ export default class DailyPaymentHistory extends Component {
     }
 
     handlePaymentPress = (payment) => {
-        console.log(payment);
         this.props.navigation.push("ViewReceipt", {payment: payment});
     }
 

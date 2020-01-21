@@ -32,7 +32,7 @@ export default class SettingScreen extends Component {
 
     render() {
         const settingsArray = ["Location", "Additional Fees", "Tips", "Advanced"];
-        let settingsContent = []; //This holds the <Button> code
+        let settingsContent = []; // This holds the <Button> code
 
         for(const [index, setting] of settingsArray.entries()){
             settingsContent.push(

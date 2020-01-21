@@ -7,7 +7,6 @@ import { showAlert } from './showAlert';
 const storageSet = async(key, value) => {
     try{
         await AsyncStorage.setItem(key, value);
-        console.log("key " + key + " was set with " + value);
     }
     catch(error){
         showAlert("Error Occured!", error.toString());
@@ -17,7 +16,6 @@ const storageSet = async(key, value) => {
 const storageGet = async(key) => {
     try{
         const result = await AsyncStorage.getItem(key);
-        console.log("AsyncStorage helper method: " + key + " " + result);
         return result;
     }
     catch(error){
@@ -28,7 +26,6 @@ const storageGet = async(key) => {
 const removeItem = async(key) => {
     try{
         AsyncStorage.removeItem(key);
-        console.log("AsyncStorage helper method removed: " + key);
     }
     catch(error){
         showAlert("Error Occured!", error.toString());

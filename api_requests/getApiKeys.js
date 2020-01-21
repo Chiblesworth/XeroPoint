@@ -1,10 +1,9 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { sandboxBaseUrl, productionBaseUrl } from './baseUrl';
+import { productionBaseUrl } from './baseUrl';
 
 export async function getApiKeys(merchantId) {
     let headers = await getRequestHeader();
-    let url = sandboxBaseUrl;
-    // let url = productionBaseUrl;
+    let url = productionBaseUrl;
     url += `application?merchantId=${merchantId}`;
 
     let data = fetch(url, {

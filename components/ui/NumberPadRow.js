@@ -11,7 +11,7 @@ export default class NumberPadRow extends Component {
     }
 
     render() {
-        //Array that holds the each button represented as a column
+        // Array that holds the each button represented as a column
         const columns = [];
         const deleteIcon = <DeleteIcon style={styles.icon} color="#fff" name="arrowleft" size={50} />
         const refundIcon = <RefundIcon style={styles.icon} color="#fff" name="plus-minus" size={55} />

@@ -1,19 +1,11 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { productionBaseUrl, sandboxBaseUrl } from './baseUrl';
-import base64 from 'react-native-base64';
+import { productionBaseUrl } from './baseUrl';
 
 export async function getBatches(merchantId, startDate, endDate){
     let data;
     let headers = await getRequestHeader();
-    let url = sandboxBaseUrl;
-    // let url = productionBaseUrl;
-    //merchantId = "418399799"; //REMOVE LATER
-    url += `batch?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`
-
-    //    let headers = {
-    //        'Authorization': 'Basic ' + encoded,
-    //        'Content-Type': 'application/json; charset=utf-8'
-    //    }
+    let url = productionBaseUrl;
+    url += `batch?merchantId=${merchantId}&limit=1000&dateType=Custom&startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`;
 
     data = fetch(url, {
         method: "GET",

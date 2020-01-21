@@ -38,11 +38,11 @@ export default class HistoryScreen extends Component {
         startDate.setMonth(endDate.getMonth() - 1); //Change back to 3 months before launch
         endDate.setDate(endDate.getDate() + 1); //Moves to the day ahead of current date so payments made on the current day always show
 
-        //Get payments in past 3 months
+        // Get payments in past 3 months
         let dailyPayments = await getDailyPayments(merchantId, startDate, endDate);
         this.parsePaymentsByDay(dailyPayments.records);
         
-        //Get batches 
+        // Get batches 
         let batches = await getBatches(merchantId, startDate, endDate);
         this.setState({batches: batches.records});
     }
