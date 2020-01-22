@@ -1,5 +1,5 @@
 import { getRequestHeader } from '../helpers/getRequestHeader';
-import { productionBaseUrl } from './baseUrl';
+import { productionBaseUrl} from './baseUrl';
 
 export async function getMerchants(){
     let data;

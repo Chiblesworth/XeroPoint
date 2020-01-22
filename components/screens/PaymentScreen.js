@@ -77,7 +77,7 @@ export default class PaymentScreen extends Component {
         // Give default values
         if (taxFee === null) {
             storageSet("taxFee", "10");
-            taxFee = 5;
+            taxFee = 10;
         }
 
         if (serviceFee === null) {
@@ -86,8 +86,8 @@ export default class PaymentScreen extends Component {
         }
 
         if (collectTaxFee === null) {
-            storageSet("collectTaxFee", "false");
-            collectTaxFee = false;
+            storageSet("collectTaxFee", "true");
+            collectTaxFee = true;
         }
 
         if (collectServiceFee === null) {
@@ -322,6 +322,7 @@ export default class PaymentScreen extends Component {
         }
 
         let createdPayment = await postPayment(data);
+        console.log(createdPayment);
         this.handleCreatedPayment(createdPayment);
     }
 

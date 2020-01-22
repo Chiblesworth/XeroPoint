@@ -47,6 +47,11 @@ export default class TipsScreen extends Component {
             selectedDefaultTip = 0;
         }
 
+        if(useCustomTips === null){
+            storageSet("useCustomTips", "false");
+            useCustomTips = false;
+        }
+
         (customTipArray === null)
             ? this.customTips = ["15%", "20%", "25%"]
             : this.customTips = JSON.parse(customTipArray);

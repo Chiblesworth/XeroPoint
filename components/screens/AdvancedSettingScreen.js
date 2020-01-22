@@ -32,7 +32,7 @@ export default class AdvancedSettingScreen extends Component {
 
         (collectSignature != null)
             ? this.setState({collectSignatureSwitch: collectSignature})
-            : this.setState({collectSignatureSwitch: false});
+            : this.setState({collectSignatureSwitch: true});
     }
 
     handleHeaderIconPress = () => {

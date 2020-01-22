@@ -4,6 +4,7 @@ import { Input, Button } from 'react-native-elements';
 import SwitchToggle from 'react-native-switch-toggle';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation';
+import RNAnyPay from 'react-native-any-pay';
 
 import { storageGet, storageSet } from '../../helpers/localStorage';
 import { showAlert } from '../../helpers/showAlert';
@@ -11,6 +12,8 @@ import { showAlert } from '../../helpers/showAlert';
 import { authenticate } from '../../api_requests/authenticate';
 
 import { styles } from '../styles/LoginStyles';
+
+const AnyPay = RNAnyPay.AnyPay;
 
 export default class LoginScreen extends Component {
 	constructor(props){
@@ -36,6 +39,10 @@ export default class LoginScreen extends Component {
 		if(stayLoggedIn){
 			this.props.navigation.navigate("Main");
 		}
+
+		if(AnyPay.verifyPermissions()){
+            AnyPay.requestPermissions();
+        }
 	}
 
 	toggleSwitch = () => {

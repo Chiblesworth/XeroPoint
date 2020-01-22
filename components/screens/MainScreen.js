@@ -38,33 +38,40 @@ export default class MainScreen extends Component {
     }
 
     async componentDidMount(){
-        let consumerKey, secret;
         let merchantId = await storageGet("merchantId");
         merchantId = JSON.parse(merchantId);
     
         if(merchantId === null){
            merchantId = await this.getMerchantId();
+           if(merchantId != null){
+               this.initTerminal(merchantId);
+           }
         }
         else{
-            let data = await getApiKeys(merchantId);
+            this.initTerminal(merchantId);
+        }
+    }
+
+    initTerminal = async (merchantId) => {
+        let consumerKey, secret;
+        let data = await getApiKeys(merchantId);
         
-            consumerKey = data.records[0].apiKey;
-            secret = data.records[0].apiSecret;
+        consumerKey = data.records[0].apiKey;
+        secret = data.records[0].apiSecret;
         
-            if(AnyPay.verifyPermissions()){
-                AnyPay.requestPermissions();
+        if(AnyPay.verifyPermissions()){
+            AnyPay.requestPermissions();
     
-                await AnyPay.initializeSDK();
-       
-                await AnyPay.intializeTerminal({
-                    consumerKey: consumerKey,
-                    secret: secret,
-                    merchantId: merchantId.toString(),
-                    url: 'https://api.mxmerchant.com/checkout/v3/'
-                }).catch((e) => {
-                    showAlert("Error!", e);
-                });
-            }
+            await AnyPay.initializeSDK();
+    
+            await AnyPay.intializeTerminal({
+                consumerKey: consumerKey,
+                secret: secret,
+                merchantId: merchantId.toString(),
+                url: 'https://api.mxmerchant.com/checkout/v3/'
+            }).catch((e) => {
+                showAlert("Error!", e);
+            });
         }
     }
 

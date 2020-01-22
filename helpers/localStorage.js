@@ -9,7 +9,7 @@ const storageSet = async(key, value) => {
         await AsyncStorage.setItem(key, value);
     }
     catch(error){
-        showAlert("Error Occured!", error.toString());
+        showAlert("Set Error Occured!", error.toString());
     }
 }
 
@@ -19,7 +19,7 @@ const storageGet = async(key) => {
         return result;
     }
     catch(error){
-        showAlert("Error Occured!", error.toString());
+        showAlert("Get Error Occured!", error.toString());
     }
 }
 

@@ -37,8 +37,8 @@ export default class FeeScreen extends Component {
         }
 
         if(collectTaxFee === null){
-            storageSet("collectTaxFee", "false");
-            collectTaxFee = false;
+            storageSet("collectTaxFee", "true");
+            collectTaxFee = true;
         }
 
         if(serviceFee === null){
